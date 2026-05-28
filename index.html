@@ -5806,7 +5806,7 @@ function _aplicarEspecial(val){
 
 // Chave do polo = o próprio nome (apenas normaliza espaços). Sem transformação uppercase/underscore —
 // isso aparecia feio na UI ("VOLTA_REDONDA"). O nome legível É o identificador.
-function _polo2key(nome){return String(nome||'').trim().replace(/\s+/g,' ').toUpperCase();}
+function _polo2key(nome){return String(nome||'').trim().replace(/\s+/g,' ');}
 // Garante que todos os polos referenciados pelos municípios estejam cadastrados na tabela de polos.
 // Recebe lista de municípios parseados {nm, val, polo} e cores opcionais. Retorna mapeamento nome→key.
 function _setupGarantirPolos(municipios){
@@ -5817,9 +5817,9 @@ function _setupGarantirPolos(municipios){
   Array.from(tbody.querySelectorAll('tr')).forEach(tr=>{
     const inps=tr.querySelectorAll('input');
     const nm=(inps[0]?.value||'').trim();
-    const k=(inps[1]?.value||'').trim().toUpperCase();
+    const k=(inps[1]?.value||'').trim();
     if(nm)existentesPorNome[nm.toLowerCase()]={key:k,nome:nm};
-    if(k)existentesPorKey[k]={key:k,nome:nm};
+    if(k)existentesPorKey[k.toUpperCase()]={key:k,nome:nm};
   });
   // Coleta polos únicos dos municípios
   const polosUnicos=new Set();
@@ -5833,8 +5833,8 @@ function _setupGarantirPolos(municipios){
     const k=_polo2key(nomePolo);
     if(existentesPorNome[nomePolo.toLowerCase()]){
       nomeParaKey[nomePolo]=existentesPorNome[nomePolo.toLowerCase()].key;
-    } else if(existentesPorKey[k]){
-      nomeParaKey[nomePolo]=k;
+    } else if(existentesPorKey[k.toUpperCase()]){
+      nomeParaKey[nomePolo]=existentesPorKey[k.toUpperCase()].key;
     } else {
       try{
         setupAddPolo(nomePolo,k,cores[idx%cores.length]);
@@ -6052,7 +6052,7 @@ function setupAddPolo(nome='', key='', cor='#1a5a9e'){
 function setupGetPolos(){
   return Array.from(document.querySelectorAll('#s-polo-tbody tr')).map(tr=>{
     const inps=tr.querySelectorAll('input');
-    return{nome:(inps[0]?.value||'').trim(),key:(inps[1]?.value||'').trim().toUpperCase(),cor:inps[2]?.value||'#475569'};
+    return{nome:(inps[0]?.value||'').trim(),key:(inps[1]?.value||'').trim(),cor:inps[2]?.value||'#475569'};
   }).filter(p=>p.key);
 }
 
