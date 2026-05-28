@@ -3001,8 +3001,16 @@ async function saveDrawerEdits(){
     if(field=='va'){val=val===''?'':(`R$ ${parseFloat(val||0).toFixed(2).replace('.',',')}`);updates.push({range:`${CFG.SHT}!${col}${COS.ri}`,values:[[val]]});return;}
     if(val)updates.push({range:`${CFG.SHT}!${col}${COS.ri}`,values:[[val]]});
   });
-
-
+  // Polo é readonly e fica fora do loop genérico — inclui explicitamente quando município foi alterado
+  if(munKey&&MUN[munKey]){
+    const poloCol=_campoToCol('polo');
+    if(poloCol){
+      const poloVal=MUN[munKey].polo;
+      const existIdx=updates.findIndex(u=>u.range===`${CFG.SHT}!${poloCol}${COS.ri}`);
+      if(existIdx>=0)updates[existIdx].values=[[poloVal]];
+      else updates.push({range:`${CFG.SHT}!${poloCol}${COS.ri}`,values:[[poloVal]]});
+    }
+  }
 
 
 
