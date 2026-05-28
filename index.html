@@ -19,7 +19,10 @@
   --glass-bg:rgba(var(--accent-rgb),0.08);--glass-border:rgba(var(--accent-rgb),0.20);
   --text-primary:#ffffff;--text-secondary:#aeaeb2;--text-muted:#8e8e93;
   --radius-sm:8px;--radius-md:10px;--radius-lg:14px;
-  --topbar-bg:rgba(20,20,22,0.72);
+  /* DARK — chrome tingido com a cor do usuário (accent) */
+  --topbar-bg:linear-gradient(180deg, rgba(var(--accent-rgb),0.28), rgba(var(--accent-rgb),0.16)), rgba(14,14,16,0.92);
+  --chrome-fbar-bg:linear-gradient(180deg, rgba(var(--accent-rgb),0.18), rgba(var(--accent-rgb),0.10)), rgba(14,14,16,0.92);
+  --chrome-border:rgba(var(--accent-rgb),0.35);
   --btn-shadow:0 2px 10px rgba(var(--accent-rgb),0.3);
 }
 body.light-mode{
@@ -27,7 +30,10 @@ body.light-mode{
   --mica-border:rgba(0,0,0,0.08);--mica-border-light:rgba(0,0,0,0.12);
   --glass-bg:rgba(255,255,255,0.72);--glass-border:rgba(var(--accent-rgb),0.16);
   --text-primary:#000000;--text-secondary:#3a3a3c;--text-muted:#68686d;
-  --topbar-bg:rgba(255,255,255,0.72);
+  /* LIGHT — chrome tingido com a cor do usuário (mais opacidade pra aparecer sobre branco) */
+  --topbar-bg:linear-gradient(180deg, rgba(var(--accent-rgb),0.22), rgba(var(--accent-rgb),0.12)), rgba(255,255,255,0.92);
+  --chrome-fbar-bg:linear-gradient(180deg, rgba(var(--accent-rgb),0.14), rgba(var(--accent-rgb),0.06)), rgba(255,255,255,0.94);
+  --chrome-border:rgba(var(--accent-rgb),0.30);
   --status-concluida:#16a34a;--status-cancelada:#dc2626;--status-vistoriada:#a16207;
   --status-revisao:#7e22ce;--status-pept:#1d4ed8;
 }
@@ -97,6 +103,12 @@ body.light-mode .nav-ico.active{background:linear-gradient(90deg,rgba(var(--acce
 .nav-ico:hover .tip{opacity:1}
 .spacer{flex:1}
 .auth-info{font-size:10px;opacity:.6;white-space:nowrap;font-family:'Inter',sans-serif}
+.auth-corner{position:fixed;top:10px;right:14px;z-index:350;display:flex;align-items:center;gap:8px;pointer-events:none}
+.auth-corner > *{pointer-events:auto}
+.auth-corner .auth-info{font-size:10px;font-weight:600;background:rgba(var(--accent-rgb),0.10);border:1px solid var(--chrome-border);padding:5px 10px;border-radius:20px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);opacity:1;letter-spacing:.02em;display:inline-flex;align-items:center;gap:6px}
+body.light-mode .auth-corner .auth-info{background:rgba(255,255,255,0.92)}
+.auth-corner .btn-auth{padding:5px 14px;border-radius:18px;font-size:10px;font-weight:600;margin:0}
+@media (max-width:768px){.auth-corner{top:8px;right:8px}}
 .btn-auth{background:rgba(var(--accent-rgb),0.12);border:1px solid rgba(var(--accent-rgb),0.35);color:var(--accent);
   padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer;white-space:nowrap;font-weight:600;transition:.18s;
   box-shadow:0 1px 4px rgba(0,0,0,0.2)}
@@ -109,8 +121,8 @@ body.light-mode .btn-dark{color:rgba(0,0,0,.6)}
 body.light-mode .btn-dark:hover{background:rgba(0,0,0,.1);color:#000}
 
 /* ── FILTER PANEL (Airtable-style) ── */
-.fbar-wrap{position:sticky;top:50px;z-index:100;background:rgba(14,14,16,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--mica-border)}
-body.light-mode .fbar-wrap{background:rgba(240,240,243,0.9)}
+.fbar-wrap{position:sticky;top:50px;z-index:100;background:var(--chrome-fbar-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--chrome-border)}
+body.light-mode .fbar-wrap{background:var(--chrome-fbar-bg)}
 .fbar-toggle{padding:.4rem .75rem;display:flex;align-items:center;gap:8px}
 .fbar-toggle-btn{background:transparent;border:1px solid var(--mica-border);color:var(--text-secondary);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:.15s;font-family:'Inter',sans-serif}
 .fbar-toggle-btn:hover{background:var(--mica-surface-hover);color:var(--text-primary)}
@@ -152,7 +164,7 @@ body.light-mode .fbar-wrap{background:rgba(240,240,243,0.9)}
 .main.split-mode>[id^="tab-"] .agenda-layout{grid-template-columns:1fr}
 body.split-active .nav-ico#btn-split{background:rgba(var(--accent-rgb),0.18);border-left:2px solid var(--accent);color:#fff}
 
-.split-wrap{position:relative}
+.split-wrap{position:relative;display:flex;align-items:center}
 .split-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--mica-bg);border:1px solid var(--mica-border-light);border-radius:8px;padding:6px;min-width:200px;z-index:300;box-shadow:0 6px 24px rgba(0,0,0,.4);flex-direction:column;gap:1px}
 body.light-mode .split-menu{background:#fff;box-shadow:0 6px 24px rgba(0,0,0,.18)}
 .split-menu.open{display:flex}
@@ -653,7 +665,7 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
   .nav-sep{margin:0 2px}
   .nav-ico{width:32px;height:32px;flex-shrink:0}
   .nav-ico .tip{display:none}
-  .auth-info{display:none}
+  .auth-corner .auth-info{font-size:9px;padding:3px 7px}
   .btn-auth{padding:3px 8px;font-size:10px}
   .btn-dark{width:28px;height:28px}
   .spacer{flex:0 0 4px}
@@ -722,44 +734,58 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
 
 /* ── DESKTOP SIDEBAR (≥769px) ── */
 @media (min-width:769px){
+  /* Sidebar colapsada (64px) → hover expande para 220px em OVERLAY.
+     Conteúdo principal NÃO se move. Transição: só width da topbar. */
   .topbar{
-    position:fixed;left:0;top:0;bottom:0;width:210px;height:100vh;
+    position:fixed;left:0;top:0;bottom:0;width:64px;height:100vh;
     flex-direction:column;align-items:stretch;
     padding:0 8px 16px;gap:2px;
-    border-right:1px solid var(--mica-border);border-bottom:none;
+    border-right:1px solid var(--chrome-border);border-bottom:none;
     overflow-y:auto;overflow-x:hidden;
+    z-index:300;
+    transition:width .2s ease-out, box-shadow .2s ease-out;
   }
+  .topbar:hover{
+    width:220px;
+    box-shadow:8px 0 32px rgba(0,0,0,0.40);
+  }
+  body.light-mode .topbar:hover{box-shadow:8px 0 32px rgba(0,0,0,0.12)}
+
+  /* Logo container — altura fixa, sem animação de tamanho */
   .brand-logo-fallback{
-    padding:24px 8px 20px;border-bottom:1px solid var(--mica-border);
-    margin:0 -8px 16px;flex-shrink:0;display:flex!important;
-    flex-direction:column;align-items:center;gap:10px;
+    padding:14px 8px;border-bottom:1px solid var(--mica-border);
+    margin:0 -8px 12px;flex-shrink:0;display:flex!important;
+    flex-direction:column;align-items:center;gap:6px;
     position:relative;
   }
   .brand-logo-fallback::before{
-    content:'';position:absolute;top:10px;left:14px;right:14px;height:84px;
-    background:radial-gradient(circle at 50% 30%,rgba(var(--accent-rgb),0.18) 0%,transparent 70%);
+    content:'';position:absolute;top:8px;left:50%;width:120px;height:120px;
+    transform:translateX(-50%);
+    background:radial-gradient(circle at 50% 35%,rgba(var(--accent-rgb),0.20) 0%,transparent 65%);
     z-index:0;pointer-events:none;
   }
-  #brand-logo{
+  /* LOGO — ZERO fundo, ZERO padding, ZERO borda, ZERO sombra */
+  #brand-logo,
+  body.light-mode #brand-logo,
+  body #brand-logo{
     position:relative;z-index:1;
-    width:84px;height:84px;max-width:100%;max-height:84px;
-    object-fit:contain;border-radius:14px;
-    background:rgba(255,255,255,0.96);padding:8px;
-    box-shadow:0 4px 16px rgba(0,0,0,0.32),0 1px 3px rgba(var(--accent-rgb),0.4);
-    transition:.25s ease;
+    width:56px;height:56px;max-width:100%;
+    object-fit:contain;
+    background:none!important;background-color:transparent!important;
+    padding:0!important;border:none!important;border-radius:0!important;
+    box-shadow:none!important;
   }
-  body.light-mode #brand-logo{
-    background:#fff;
-    box-shadow:0 4px 16px rgba(var(--accent-rgb),0.12),0 1px 3px rgba(0,0,0,0.08);
-  }
-  #brand-logo:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,0.4),0 2px 6px rgba(var(--accent-rgb),0.5)}
+  #brand-logo:hover{transform:none;box-shadow:none!important}
+
+  /* Nome / subtítulo — sempre presentes no layout, só opacity transiciona */
   .brand-nm{
     position:relative;z-index:1;
-    font-size:18px!important;font-weight:800;letter-spacing:0.08em!important;
-    text-align:center;line-height:1.1;
+    font-size:16px!important;font-weight:800;letter-spacing:0.06em!important;
+    text-align:center;line-height:1.1;white-space:nowrap;
     background:linear-gradient(135deg,var(--text-primary) 30%,var(--accent) 100%);
     -webkit-background-clip:text;background-clip:text;
     -webkit-text-fill-color:transparent;color:transparent;
+    opacity:0;transition:opacity .15s ease-out;
   }
   body.light-mode .brand-nm{
     background:linear-gradient(135deg,var(--accent-wine) 0%,var(--accent) 100%);
@@ -767,56 +793,66 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
   }
   .brand-sub{
     position:relative;z-index:1;
-    font-size:9.5px;font-weight:700;letter-spacing:0.32em!important;
-    color:var(--accent);text-align:center;opacity:.92;margin-top:-4px;
+    font-size:9px;font-weight:700;letter-spacing:0.28em!important;
+    color:var(--accent);text-align:center;margin-top:-2px;white-space:nowrap;
+    opacity:0;transition:opacity .15s ease-out;
   }
+  .topbar:hover .brand-nm{opacity:1}
+  .topbar:hover .brand-sub{opacity:.92}
+
+  /* Nav items — geometria estática. Tip usa flex shrinkable + overflow hidden:
+     quando sidebar colapsa, tip vira 0 de largura naturalmente, sem empurrar ícone */
   .nav-sep{display:none}
   .nav-ico{
-    width:100%;height:40px;border-radius:8px;
-    justify-content:flex-start;padding:0 10px;gap:10px;flex-shrink:0;
+    width:100%;height:42px;border-radius:10px;
+    display:flex;align-items:center;
+    justify-content:flex-start;padding:0 14px;gap:12px;flex-shrink:0;
+    overflow:hidden;position:relative;
   }
-  .nav-ico svg{flex-shrink:0}
-  .nav-ico .tip{
-    position:static;opacity:1;background:none;color:inherit;
-    font-size:12px;transform:none;pointer-events:none;white-space:nowrap;
-    overflow:hidden;text-overflow:ellipsis;padding:0;border-radius:0;box-shadow:none;
+  .nav-ico svg{flex-shrink:0;width:20px;height:20px}
+  /* Reset agressivo do estilo do tooltip mobile + flex shrinkable */
+  .nav-ico > .tip{
+    position:static !important;
+    top:auto !important;bottom:auto !important;left:auto !important;right:auto !important;
+    transform:none !important;
+    background:none !important;color:inherit !important;
+    font-size:12.5px;font-weight:500;
+    padding:0 !important;border-radius:0 !important;box-shadow:none !important;
+    pointer-events:none;white-space:nowrap;
+    flex:1 1 0;min-width:0;overflow:hidden;text-overflow:clip;
+    opacity:0;transition:opacity .15s ease-out;
+    z-index:auto !important;
   }
-  .nav-ico:hover .tip{opacity:1}
-  .split-wrap{width:100%}
+  .topbar:hover .nav-ico > .tip{opacity:1}
+
+  .split-wrap{width:100%;margin-top:auto;padding-top:14px;border-top:1px solid var(--mica-border)}
   .split-wrap .nav-ico{width:100%}
-  .split-menu{left:210px;top:auto;bottom:auto;right:auto}
+  .split-menu{left:72px;top:auto;bottom:auto;right:auto}
+  .topbar:hover .split-menu{left:228px}
   .spacer{flex:1;min-height:20px}
-  /* Add subtle group separator before split button */
-  .split-wrap{margin-top:auto;padding-top:14px;border-top:1px solid var(--mica-border);width:100%}
-  /* Section header for "Ferramentas" grouping */
+
+  /* Section header — só opacity transiciona, espaço reservado sempre */
   .nav-section-label{
     font-size:9px;font-weight:700;letter-spacing:0.15em;
     color:var(--text-muted);text-transform:uppercase;
     padding:14px 12px 6px;margin-top:4px;
     border-top:1px solid var(--mica-border);
+    white-space:nowrap;overflow:hidden;
+    opacity:0;transition:opacity .15s ease-out;
   }
   .nav-section-label:first-of-type{border-top:none;padding-top:6px}
-  /* Move auth status to fixed top-right corner */
-  .auth-info{
-    position:fixed;top:12px;right:16px;z-index:150;
-    display:flex;align-items:center;gap:6px;
-    font-size:10px;font-weight:600;
-    background:rgba(var(--accent-rgb),0.08);
-    border:1px solid var(--mica-border);
-    padding:5px 10px;border-radius:20px;
-    backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
-    opacity:.85;letter-spacing:.02em;
-  }
-  body.light-mode .auth-info{background:rgba(255,255,255,0.92)}
-  .btn-auth{
-    position:fixed;top:12px;right:170px;z-index:150;
-    width:auto;margin:0;padding:5px 14px;text-align:center;border-radius:18px;
-    font-size:10px;font-weight:600;
-  }
+  .topbar:hover .nav-section-label{opacity:1}
+
+  /* auth-info / btn-auth posicionados via .auth-corner (fora deste media query) */
   .btn-auto-cep{display:none}
-  .btn-dark{width:calc(100% - 16px);margin:0 8px;padding:6px 10px;border-radius:7px;justify-content:center;border:1px solid var(--mica-border)}
-  .fbar-wrap{margin-left:210px;top:0;padding-right:200px}
-  .main{margin-left:210px}
+
+  /* Dark mode toggle — tamanho fixo, centralizado */
+  .btn-dark{width:42px;height:42px;margin:0 auto;padding:0;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;border:1px solid var(--mica-border)}
+
+  /* Overlay: conteúdo NÃO se move (margin fixa em 64px = largura colapsada) */
+  .fbar-wrap{margin-left:64px;top:0;padding-right:200px}
+  .main{margin-left:64px}
   .overlay,.drawer{z-index:400}
 }
 
@@ -922,7 +958,7 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
 .setup-preview-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;margin-left:6px;font-weight:600}
 .setup-preview-badge.ok{background:rgba(34,197,94,.15);color:#16a34a;border:1px solid rgba(34,197,94,.3)}
 .setup-preview-badge.warn{background:rgba(239,68,68,.1);color:#dc2626;border:1px solid rgba(239,68,68,.3)}
-.setup-logo-preview{width:80px;height:80px;object-fit:contain;border-radius:8px;border:1px solid var(--mica-border);background:var(--mica-surface);display:none}
+.setup-logo-preview{width:80px;height:80px;object-fit:contain;border-radius:0;border:none;background:none;display:none}
 .setup-logo-wrap{display:flex;gap:12px;align-items:center}
 .setup-especial-rule{background:rgba(var(--accent-rgb),.08);border:1px solid rgba(var(--accent-rgb),.2);border-radius:8px;padding:10px 12px;margin-top:10px;font-size:12px;display:flex;align-items:center;gap:8px}
 .setup-especial-rule input[type=checkbox]{width:16px;height:16px;accent-color:var(--accent)}
@@ -1086,7 +1122,7 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     <span class="tip">Configurações</span>
   </button>
-  <div class="split-wrap" style="margin-left:6px">
+  <div class="split-wrap">
     <button class="nav-ico" id="btn-split" onclick="toggleSplitMenu(event)" title="Dividir tela">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg>
       <span class="tip">Dividir</span>
@@ -1103,10 +1139,13 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
     </div>
   </div>
   <div class="spacer"></div>
-  <span class="auth-info" id="auth-ind">● Não autenticado</span>
-  <button class="btn-auth" id="btn-auth" onclick="doAuth()" style="margin-left:8px">Entrar</button>
-  <button id="btn-auto-cep" onclick="batchUpdateCeps()" style="margin-left:8px; padding:4px 8px; border-radius:6px; border:1px solid var(--mica-border); background:var(--mica-surface); color:var(--text-primary); cursor:pointer; font-size:12px;" title="Buscar CEPs faltantes nos arquivos TXT e salvar na planilha">🔄 Auto-CEPs</button>
   <button class="btn-dark" id="btn-dark" onclick="toggleDark()" title="Alternar tema">🌙</button>
+</div>
+
+<!-- Auth flutuante no canto superior direito (fora da sidebar) -->
+<div class="auth-corner" id="auth-corner">
+  <span class="auth-info" id="auth-ind">● Não autenticado</span>
+  <button class="btn-auth" id="btn-auth" onclick="doAuth()">Entrar</button>
 </div>
 
 <!-- FILTER BAR (Airtable-style) -->
@@ -3349,10 +3388,11 @@ async function excluirOS(){
 async function gerarComprovante(){
   if(!AUTH){showToast('Entre com Google primeiro.');return;}
   if(!COS){showToast('Nenhuma OS selecionada.');return;}
-  
+  if(!PDF_BASE_ID){showToast('❌ ID do PDF base não configurado. Acesse Configurações e salve o ID do arquivo.');console.error('PDF_BASE_ID vazio');return;}
+
   try{
     showToast('📄 Gerando comprovante...');
-    
+
     // Verificar se pdf-lib está carregado
     if(typeof PDFLib==='undefined'||!PDFLib.PDFDocument){
       showToast('❌ Biblioteca PDF não carregada. Recarregue a página.');
@@ -3373,9 +3413,6 @@ async function gerarComprovante(){
     }
     
     const numeroOS=COS.os;
-    
-    // ID do PDF base no Google Drive
-    const PDF_BASE_ID='1g4V-w8FILXchz9NAmc5aV5ju9YyhEPbs';
     
     // 1. Baixar PDF base do Drive como blob
     showToast('📥 Baixando template...');
@@ -4225,10 +4262,13 @@ function getSelecionadas(){return ALL.filter(r=>ROTA_SEL.has(r.item)&&r.end);}
 // Address normalization for geocoding
 function normalizarEndereco(r){
   let end=r.end||'';
-  // Read only until the first comma (ignore number and complements)
   const parts = end.split(',');
-  if (parts.length > 0) {
-    end = parts[0].trim();
+  if(parts.length>=2){
+    const num=parts[1].trim();
+    // Mantém número do imóvel se presente (melhora assertividade do geocoding)
+    end=/^\d/.test(num)?`${parts[0].trim()}, ${num}`:parts[0].trim();
+  }else if(parts.length>0){
+    end=parts[0].trim();
   }
   const mun=nMun(r.mun);
   return `${end}, ${r.bairro?r.bairro+', ':''}${mun}, RJ, Brasil`;
@@ -4286,12 +4326,19 @@ async function _gerarRotaMaps(mapBody){
 
   const GEO_KEY='e3219b407e77401692c069c3f9eb4f0d';
   const geocode=async(addr)=>{
+    // Tenta Geoapify com filtro BR e bias para RJ
     try{
-      const r=await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(addr)}&lang=pt&limit=1&apiKey=${GEO_KEY}`);
+      const r=await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(addr)}&lang=pt&limit=1&filter=countrycode:br&bias=proximity:-43.1729,-22.9068&apiKey=${GEO_KEY}`);
       const d=await r.json();
       if(d.features&&d.features.length){const[lon,lat]=d.features[0].geometry.coordinates;return[lat,lon];}
-      return null;
-    }catch{return null;}
+    }catch{}
+    // Fallback: Nominatim (OpenStreetMap) — gratuito, boa cobertura do Brasil
+    try{
+      const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&countrycodes=br&limit=1&accept-language=pt-BR`);
+      const d=await r.json();
+      if(d&&d.length)return[parseFloat(d[0].lat),parseFloat(d[0].lon)];
+    }catch{}
+    return null;
   };
 
   // Fase 1: geocodificar e mostrar marcadores arrastáveis
@@ -4299,6 +4346,12 @@ async function _gerarRotaMaps(mapBody){
   const coordsMap=[];
   for(let i=0;i<todos.length;i++){
     let c=await geocode(todos[i]);
+    // Se falhou e é uma OS (não a partida), tenta com bairro e depois só município
+    if(!c && i>0 && i<todos.length-1){
+      const os=ROTA_OTIMIZADA[i-1];
+      if(os.bairro) c=await geocode(`${os.bairro}, ${nMun(os.mun)}, RJ, Brasil`);
+      if(!c) c=await geocode(`${nMun(os.mun)}, RJ, Brasil`);
+    }
     if(!c){
       c=await new Promise(resolve=>{
         const modal=document.getElementById('modal-geo');
@@ -4567,9 +4620,14 @@ function handleTxtFile(file){
   reader.onload=e=>{
     const txt=e.target.result;
     if(txt.includes('\uFFFD')){
-      const fallback=new FileReader();
-      fallback.onload=ev=>parseTxtOS(ev.target.result);
-      fallback.readAsText(file,'ISO-8859-1');
+      const cleaned=txt.replace(/\uFFFD+/g,'');
+      if(/[\u00E1\u00E9\u00ED\u00F3\u00FA\u00E2\u00EA\u00F4\u00E3\u00F5\u00E0\u00FC\u00E7\u00C1\u00C9\u00CD\u00D3\u00DA\u00C2\u00CA\u00D4\u00C3\u00D5\u00C0\u00DC\u00C7]/i.test(cleaned)){
+        parseTxtOS(cleaned);
+      }else{
+        const fallback=new FileReader();
+        fallback.onload=ev=>parseTxtOS(ev.target.result);
+        fallback.readAsText(file,'ISO-8859-1');
+      }
     }else{
       parseTxtOS(txt);
     }
@@ -7372,7 +7430,7 @@ function _fichaHtmlContent(r, dados){
   <!-- Cabeçalho -->
   <div style="background:${corHex};color:#fff;padding:14px 18px;border-radius:6px 6px 0 0;display:flex;justify-content:space-between;align-items:center;gap:12px">
     <div style="display:flex;align-items:center;gap:12px">
-      ${CONFIG_USER.logo?`<img src="${CONFIG_USER.logo}" style="height:40px;max-width:80px;object-fit:contain;background:#fff;border-radius:4px;padding:2px" alt="logo">`:'' }
+      ${CONFIG_USER.logo?`<img src="${CONFIG_USER.logo}" style="height:40px;max-width:80px;object-fit:contain;background:none;padding:0" alt="logo">`:'' }
       <div>
         <div style="font-size:16px;font-weight:700;letter-spacing:.03em">FICHA DE VISTORIA IMOBILIÁRIA</div>
         <div style="font-size:10px;opacity:.8;margin-top:2px">Avaliação para fins de Crédito Imobiliário — CEF · ${_esc(tipLabel)}</div>
@@ -7697,7 +7755,17 @@ async function _uploadFotoParaDrive(file, nome, folderId, barId){
     </div>
     
     <hr style="border:none;border-top:1px solid var(--mica-border-light);margin-bottom:16px">
-    
+
+    <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">Manutenção: CEPs dos endereços</div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--mica-border);border-radius:8px;background:var(--mica-surface);margin-bottom:18px">
+      <div style="flex:1;font-size:11px;color:var(--text-secondary);line-height:1.5">
+        Busca CEPs faltantes nos arquivos TXT das OS e salva direto na planilha. Use após cadastrar a empresa ou se notar endereços sem CEP.
+      </div>
+      <button id="btn-auto-cep" onclick="batchUpdateCeps()" style="padding:8px 14px;border-radius:7px;border:1px solid rgba(var(--accent-rgb),0.4);background:rgba(var(--accent-rgb),0.12);color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap" title="Buscar CEPs faltantes nos arquivos TXT e salvar na planilha">🔄 Rodar Auto-CEPs</button>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--mica-border-light);margin-bottom:16px">
+
     <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">WhatsApp: Vistoria de Avaliação</div>
     <textarea id="cfg-msg-av" rows="5" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--mica-border);background:var(--mica-surface);color:var(--text-primary);font-size:11px;margin-bottom:4px;resize:vertical;box-sizing:border-box"></textarea>
     <div style="font-size:10px;color:var(--text-muted);margin-bottom:16px">Chaves disponíveis: <b>{{saudacao}}</b>, <b>{{osNum}}</b>, <b>{{endereco}}</b>, <b>{{data}}</b>, <b>{{hora}}</b>, <b>{{resp}}</b></div>
