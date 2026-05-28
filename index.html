@@ -5798,7 +5798,7 @@ function _aplicarEspecial(val){
 
 // Chave do polo = o próprio nome (apenas normaliza espaços). Sem transformação uppercase/underscore —
 // isso aparecia feio na UI ("VOLTA_REDONDA"). O nome legível É o identificador.
-function _polo2key(nome){return String(nome||'').trim().replace(/\s+/g,' ');}
+function _polo2key(nome){return String(nome||'').trim().replace(/\s+/g,' ').toUpperCase();}
 // Garante que todos os polos referenciados pelos municípios estejam cadastrados na tabela de polos.
 // Recebe lista de municípios parseados {nm, val, polo} e cores opcionais. Retorna mapeamento nome→key.
 function _setupGarantirPolos(municipios){
@@ -6066,7 +6066,7 @@ function setupAddMun(nome='', val=0, polo=''){
   selPolo.style.cssText='width:100%;font-size:11px;padding:3px;background:var(--mica-bg);border:1px solid var(--mica-border);border-radius:4px;color:var(--text-primary)';
   setupGetPolos().forEach(p=>{
     const o=document.createElement('option');
-    o.value=p.key;o.textContent=p.nome||p.key;if(p.key===polo)o.selected=true;
+    o.value=p.key;o.textContent=p.nome||p.key;if(p.key.toUpperCase()===(polo||'').toUpperCase())o.selected=true;
     selPolo.appendChild(o);
   });
   tdPolo.appendChild(selPolo);
