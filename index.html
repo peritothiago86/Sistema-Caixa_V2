@@ -5832,7 +5832,10 @@ function _setupGarantirPolos(municipios){
   polosUnicos.forEach(nomePolo=>{
     const k=_polo2key(nomePolo);
     if(existentesPorNome[nomePolo.toLowerCase()]){
-      nomeParaKey[nomePolo]=existentesPorNome[nomePolo.toLowerCase()].key;
+      // Atualiza o input de key do polo existente para o nome do CSV (Title Case)
+      const matchTr=Array.from(tbody.querySelectorAll('tr')).find(tr=>(tr.querySelectorAll('input')[0]?.value||'').trim().toLowerCase()===nomePolo.toLowerCase());
+      if(matchTr)matchTr.querySelectorAll('input')[1].value=nomePolo;
+      nomeParaKey[nomePolo]=nomePolo;
     } else if(existentesPorKey[k.toUpperCase()]){
       nomeParaKey[nomePolo]=existentesPorKey[k.toUpperCase()].key;
     } else {
