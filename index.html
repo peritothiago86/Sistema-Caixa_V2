@@ -732,6 +732,98 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
   .nav-ico svg{width:16px;height:16px}
 }
 
+/* ── MOBILE PHONE (≤576px) — Bottom tab bar + table compacta ── */
+@media (max-width:576px){
+  /* Topbar vira barra inferior fixa */
+  .topbar{
+    position:fixed;bottom:0;left:0;right:0;top:auto;
+    height:auto;min-height:58px;
+    padding:6px 2px calc(6px + env(safe-area-inset-bottom));
+    flex-direction:row;justify-content:space-around;align-items:center;
+    border-top:1px solid var(--mica-border);border-bottom:none;
+    overflow:hidden;gap:0;z-index:200;
+  }
+  /* Ícones de nav: coluna com label */
+  .nav-ico{
+    flex-direction:column;width:auto;min-width:44px;height:auto;min-height:48px;
+    padding:4px 6px;border-radius:10px;border-left:none;gap:2px;flex:1;max-width:66px;
+    transform:none !important;
+  }
+  .nav-ico.active{border-left:none;border-top:2px solid var(--accent);background:rgba(var(--accent-rgb),0.12)}
+  .nav-ico:hover{transform:none}
+  .nav-ico svg{width:20px;height:20px}
+  /* Labels visíveis */
+  .nav-ico .tip{
+    display:block !important;position:static;transform:none;opacity:1;
+    background:transparent;color:inherit;font-size:9px;padding:0;
+    border-radius:0;pointer-events:none;z-index:auto;white-space:nowrap;
+    overflow:hidden;text-overflow:ellipsis;max-width:64px;text-align:center;
+    transition:none;
+  }
+  /* Ocultar itens secundários da nav */
+  .nav-sep,.nav-section-label,.spacer{display:none !important}
+  #btn-split{display:none !important}
+  .brand-logo-fallback,.brand-logo{display:none !important}
+
+  /* Espaço: topo para auth-corner, base para bottom nav */
+  .main{padding-top:50px !important;padding-bottom:calc(68px + env(safe-area-inset-bottom)) !important}
+  .fbar-wrap{top:0 !important;position:sticky !important}
+  .twrap{height:calc(100vh - 125px - env(safe-area-inset-bottom))}
+  .auth-corner{top:8px !important;right:8px !important}
+  .auth-corner .auth-info{font-size:9px;padding:3px 8px}
+
+  /* Tabela: oculta colunas menos úteis em telas pequenas */
+  table thead th:nth-child(4),   /* Bairro */
+  table thead th:nth-child(6),   /* Atividade */
+  table thead th:nth-child(8),   /* Área */
+  table thead th:nth-child(9),   /* Mês */
+  table thead th:nth-child(11),  /* Valor Total */
+  table thead th:nth-child(12),  /* Val. Avaliado */
+  table tbody td:nth-child(4),
+  table tbody td:nth-child(6),
+  table tbody td:nth-child(8),
+  table tbody td:nth-child(9),
+  table tbody td:nth-child(11),
+  table tbody td:nth-child(12){display:none !important}
+
+  /* Drawer: header em duas zonas, ✕ fixo no canto superior direito */
+  .dhd{
+    flex-wrap:wrap;padding:.65rem .75rem;padding-right:2.6rem;
+    gap:5px;position:relative;
+  }
+  .dhd-main{flex:1 1 100%;min-width:0}
+  .dhd-actions{
+    flex:1 1 100%;max-width:100%;
+    overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    flex-wrap:nowrap;justify-content:flex-start;gap:5px;padding-bottom:2px;
+  }
+  .dhd-actions::-webkit-scrollbar{display:none}
+  /* ✕ sempre visível no canto superior direito do header */
+  .dhd-actions>button:last-child{
+    position:absolute;top:.65rem;right:.75rem;flex-shrink:0;
+  }
+  .cbtn{width:32px;height:32px;font-size:13px}
+  .btn-edit-drawer{padding:5px 10px;font-size:11px;white-space:nowrap}
+  .btn-save-drawer{padding:4px 8px;font-size:10px;white-space:nowrap}
+  .stbtn{padding:4px 9px;font-size:10px}
+  .dg{grid-template-columns:1fr}
+  .dbody{padding:.7rem}
+
+  /* Calendário: controles compactos, grid menor */
+  .cal-controls{gap:4px}
+  .cal-controls .btn{font-size:10px;padding:4px 8px}
+  .cal-controls span{font-size:11px;min-width:80px}
+  .cal-mes-grid{font-size:9px;gap:2px}
+  .cal-dh{font-size:8px;text-align:center;padding:2px 0}
+  .cal-cell{min-height:44px;padding:2px}
+  .cal-num,.cal-num-hj{font-size:9px}
+  .cal-ev{font-size:7.5px;padding:1px 2px;line-height:1.2;overflow:hidden;max-height:14px}
+
+  /* Formulários em coluna única */
+  .fg{grid-template-columns:1fr !important}
+  .foto-tab-wrap,.ficha-tab-wrap{padding:.7rem}
+}
+
 /* ── DESKTOP SIDEBAR (≥769px) ── */
 @media (min-width:769px){
   /* Sidebar colapsada (64px) → hover expande para 220px em OVERLAY.
@@ -854,6 +946,22 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
   .fbar-wrap{margin-left:64px;top:0;padding-right:200px}
   .main{margin-left:64px}
   .overlay,.drawer{z-index:400}
+}
+
+/* ── TABLET (769–1024px) — auth-corner compacto, filterbar menos comprimida ── */
+@media (min-width:769px) and (max-width:1024px){
+  /* Sidebar estreita → filterbar pode usar mais espaço à direita */
+  .fbar-wrap{padding-right:120px}
+  /* Auth corner: texto truncado para não cobrir conteúdo */
+  .auth-corner{top:8px;right:10px;gap:5px}
+  .auth-corner .auth-info{
+    font-size:9px;padding:4px 8px;
+    max-width:130px;overflow:hidden;
+    text-overflow:ellipsis;white-space:nowrap;
+  }
+  .auth-corner .btn-auth{padding:4px 10px;font-size:9px}
+  /* Drawer ocupa tela inteira em tablets pequenos */
+  .drawer{width:min(500px,100vw)}
 }
 
 /* ══════════════════════════════════════
@@ -1682,6 +1790,7 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
 <div class="prev-overlay" id="prev-overlay">
   <div class="prev-box">
     <div class="prev-hd">
+      <button class="nav-doc-btn" id="btn-folder-back" onclick="navFolderBack()" style="display:none;margin-right:4px;font-size:11px;width:auto;padding:0 8px;gap:4px">← Pasta</button>
       <button class="nav-doc-btn" id="btn-prev-doc" onclick="navDoc(-1)">◀</button>
       <button class="nav-doc-btn" id="btn-next-doc" onclick="navDoc(1)" style="margin-right:8px">▶</button>
       <span id="prev-title">Documento</span>
@@ -4010,8 +4119,12 @@ async function criarPastasDrive(item,atv,osp,mes){
 // ═══════════════════════════════════════════════════════════
 //  DOCUMENT PREVIEW
 // ═══════════════════════════════════════════════════════════
-async function openFolderPreview(folderId,nome){
+async function openFolderPreview(folderId,nome,isNavigation=false){
+  if(!isNavigation)_FOLDER_HISTORY=[];
+  _FOLDER_HISTORY.push({id:folderId,nome});
   const ov=document.getElementById('prev-overlay'),body=document.getElementById('prev-body');
+  const btnBack=document.getElementById('btn-folder-back');
+  if(btnBack)btnBack.style.display=_FOLDER_HISTORY.length>1?'flex':'none';
   document.getElementById('prev-title').textContent=nome;
   document.getElementById('prev-extlink').href=`https://drive.google.com/drive/folders/${folderId}`;
   document.getElementById('btn-prev-doc').style.display='none';
@@ -4020,27 +4133,45 @@ async function openFolderPreview(folderId,nome){
   ov.classList.add('open');
   try{
     const res=await gapi.client.drive.files.list({q:`'${folderId}' in parents and trashed=false`,fields:'files(id,name,mimeType,thumbnailLink,webViewLink)',pageSize:50,orderBy:'name'});
-    PREV_FILES=res.result.files||[];
-    if(!PREV_FILES.length){body.innerHTML=`<div class="prev-fallback">Pasta vazia.</div>`;return;}
+    PREV_FILES=(res.result.files||[]).filter(f=>f.mimeType!=='application/vnd.google-apps.folder');
+    const folders=(res.result.files||[]).filter(f=>f.mimeType==='application/vnd.google-apps.folder');
+    const allItems=res.result.files||[];
+    if(!allItems.length){body.innerHTML=`<div class="prev-fallback">Pasta vazia.</div>`;return;}
     const viewable=['application/pdf','image/jpeg','image/png','image/gif','image/webp'];
-    if(PREV_FILES.length===1&&viewable.includes(PREV_FILES[0].mimeType)){openFilePreview(0);return;}
+    if(PREV_FILES.length===1&&!folders.length&&viewable.includes(PREV_FILES[0].mimeType)){openFilePreview(0);return;}
     const grid=document.createElement('div');
     grid.style.cssText='display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;padding:16px;overflow-y:auto;width:100%;align-content:start;background:var(--mica-bg)';
+    // Pastas primeiro
+    folders.forEach(f=>{
+      const card=document.createElement('div');
+      card.style.cssText='background:var(--mica-surface);border:1px solid var(--mica-border-light);border-radius:10px;padding:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;transition:.15s;aspect-ratio:1/1;position:relative;overflow:hidden';
+      card.onmouseenter=()=>card.style.background='var(--mica-surface-hover)';card.onmouseleave=()=>card.style.background='var(--mica-surface)';
+      card.innerHTML=`<div style="width:100%;height:110px;border-radius:6px;background:rgba(var(--accent-rgb),0.08);display:flex;align-items:center;justify-content:center;font-size:42px">📁</div><div style="font-size:11px;font-weight:500;text-align:center;color:var(--text-primary);width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2" title="${f.name}">${f.name}</div>`;
+      card.onclick=()=>openFolderPreview(f.id,f.name,true);
+      grid.appendChild(card);
+    });
+    // Arquivos
     for(let i=0;i<PREV_FILES.length;i++){
       const f=PREV_FILES[i],card=document.createElement('div');
       card.style.cssText='background:var(--mica-surface);border:1px solid var(--mica-border);border-radius:10px;padding:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;transition:.15s;aspect-ratio:1/1;position:relative;overflow:hidden';
       card.onmouseenter=()=>card.style.background='var(--mica-surface-hover)';card.onmouseleave=()=>card.style.background='var(--mica-surface)';
       const isImg=f.mimeType.startsWith('image/'),isPdf=f.mimeType==='application/pdf';
       const ico=isImg?'🖼️':isPdf?'📄':f.mimeType.includes('word')?'📝':'📎';
-      const hqThumb = f.thumbnailLink ? f.thumbnailLink.replace(/=s\d+/, '=s220') : null;
-      const thumb = hqThumb 
-        ? `<div style="width:100%;height:110px;border-radius:6px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center"><img src="${hqThumb}" style="width:100%;height:100%;object-fit:cover"></div>`
-        : `<div style="width:100%;height:110px;border-radius:6px;background:rgba(var(--accent-rgb),0.06);display:flex;align-items:center;justify-content:center;font-size:42px">${ico}</div>`;
+      const hqThumb=f.thumbnailLink?f.thumbnailLink.replace(/=s\d+/,'=s220'):null;
+      const thumb=hqThumb
+        ?`<div style="width:100%;height:110px;border-radius:6px;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center"><img src="${hqThumb}" style="width:100%;height:100%;object-fit:cover"></div>`
+        :`<div style="width:100%;height:110px;border-radius:6px;background:rgba(var(--accent-rgb),0.06);display:flex;align-items:center;justify-content:center;font-size:42px">${ico}</div>`;
       card.innerHTML=`${thumb}<div style="font-size:11px;font-weight:500;text-align:center;color:var(--text-primary);width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.2" title="${f.name}">${f.name}</div>`;
       card.onclick=()=>openFilePreview(i);grid.appendChild(card);
     }
     body.innerHTML='';body.style.overflow='auto';body.appendChild(grid);
   }catch(e){body.innerHTML=`<div class="prev-fallback">Erro: ${e.message}<br><a href="https://drive.google.com/drive/folders/${folderId}" target="_blank">Abrir no Drive ↗</a></div>`;}
+}
+function navFolderBack(){
+  _FOLDER_HISTORY.pop();
+  if(!_FOLDER_HISTORY.length){closePreview();return;}
+  const prev=_FOLDER_HISTORY.pop();
+  openFolderPreview(prev.id,prev.nome,true);
 }
 
 function openFilePreview(idx){
@@ -4071,7 +4202,7 @@ function openFilePreviewDireto(f){
     .catch(()=>{body.innerHTML=`<div class="prev-fallback">Não foi possível exibir.<br><a href="${f.webViewLink}" target="_blank">Abrir no Drive ↗</a></div>`;});
 }
 function navDoc(dir){const n=PREV_IDX+dir;if(n>=0&&n<PREV_FILES.length)openFilePreview(n);}
-function closePreview(){document.getElementById('prev-overlay').classList.remove('open');}
+function closePreview(){document.getElementById('prev-overlay').classList.remove('open');_FOLDER_HISTORY=[];const btnBack=document.getElementById('btn-folder-back');if(btnBack)btnBack.style.display='none';}
 document.getElementById('prev-overlay').addEventListener('click',e=>{if(e.target===document.getElementById('prev-overlay'))closePreview();});
 
 // ═══════════════════════════════════════════════════════════
@@ -6931,11 +7062,14 @@ function voltarFichaSel(){
 }
 
 function abrirFichaTab(r){
-  sw('ficha', document.getElementById('ico-ficha'));
+  if(r){_DRAWER_RETURN_OS=r;closeD();}
+  sw('ficha',document.getElementById('ico-ficha'));
   FICHA_OS=r||null;
   if(r){
     _mostrarFichaArea();
-  } else {
+    _showVoltarDrawer('tab-ficha','ficha-voltar-btn');
+  }else{
+    _DRAWER_RETURN_OS=null;
     document.getElementById('ficha-sel-area').style.display='block';
     document.getElementById('ficha-form-area').style.display='none';
   }
@@ -7492,6 +7626,8 @@ function _fichaHtmlContent(r, dados){
 // ═══════════════════════════════════════════════════════════
 let FOTO_OS = null;   // OS selecionada na aba foto
 let _fotoFiles = [];  // arquivos aguardando upload
+let _DRAWER_RETURN_OS = null; // OS de origem ao navegar do drawer para foto/ficha
+let _FOLDER_HISTORY = [];     // histórico de navegação no preview de pastas
 
 function renderFotoOS(){
   const q=(document.getElementById('foto-busca').value||'').toLowerCase().trim();
@@ -7536,12 +7672,27 @@ function voltarFotoSel(){
   sw('os', document.getElementById('ico-os'));
 }
 
+function _showVoltarDrawer(tabId,btnId){
+  if(document.getElementById(btnId))return;
+  const tabEl=document.getElementById(tabId);
+  if(!tabEl||!_DRAWER_RETURN_OS)return;
+  const r=_DRAWER_RETURN_OS;
+  const btn=document.createElement('button');
+  btn.id=btnId;btn.className='btn';
+  btn.style.cssText='margin:0 0 14px;padding:7px 14px;font-size:12px;display:flex;align-items:center;gap:6px;width:max-content';
+  btn.innerHTML=`← OS ${r.item} — ${nMun(r.mun)}`;
+  btn.onclick=()=>{btn.remove();_DRAWER_RETURN_OS=null;const idx=FIL.findIndex(x=>x.item===r.item);if(idx>=0)openD(idx);};
+  tabEl.insertBefore(btn,tabEl.firstChild);
+}
 function abrirFotoTab(r){
-  sw('foto', document.getElementById('ico-foto'));
+  if(r){_DRAWER_RETURN_OS=r;closeD();}
+  sw('foto',document.getElementById('ico-foto'));
   FOTO_OS=r||null;
   if(r){
     _mostrarUploadArea();
-  } else {
+    _showVoltarDrawer('tab-foto','foto-voltar-btn');
+  }else{
+    _DRAWER_RETURN_OS=null;
     document.getElementById('foto-sel-area').style.display='block';
     document.getElementById('foto-upload-area').style.display='none';
     setTimeout(renderFotoOS,50);
