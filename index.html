@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Terceto Engenharia — Dashboard</title>
+<title>Sistema Caixa Econômica — Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Figtree:wght@600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://bernardo-castilho.github.io/DragDropTouch/DragDropTouch.js"></script>
@@ -18,6 +18,10 @@
   --mica-border:rgba(255,255,255,0.08);--mica-border-light:rgba(255,255,255,0.14);
   --glass-bg:rgba(var(--accent-rgb),0.08);--glass-border:rgba(var(--accent-rgb),0.20);
   --text-primary:#ffffff;--text-secondary:#aeaeb2;--text-muted:#8e8e93;
+  /* Tokens semânticos — sempre WCAG AA contra o fundo do tema (≥4.5:1). */
+  --text-success:#4ade80;--text-danger:#f87171;--text-warning:#fbbf24;--text-info:#7dd3fc;
+  --bg-success:rgba(34,197,94,0.12);--bg-danger:rgba(239,68,68,0.12);--bg-warning:rgba(251,191,36,0.12);
+  --bd-success:rgba(34,197,94,0.30);--bd-danger:rgba(239,68,68,0.30);--bd-warning:rgba(251,191,36,0.30);
   --radius-sm:8px;--radius-md:10px;--radius-lg:14px;
   /* DARK — chrome tingido com a cor do usuário (accent) */
   --topbar-bg:linear-gradient(180deg, rgba(var(--accent-rgb),0.28), rgba(var(--accent-rgb),0.16)), rgba(14,14,16,0.92);
@@ -30,6 +34,10 @@ body.light-mode{
   --mica-border:rgba(0,0,0,0.08);--mica-border-light:rgba(0,0,0,0.12);
   --glass-bg:rgba(255,255,255,0.72);--glass-border:rgba(var(--accent-rgb),0.16);
   --text-primary:#000000;--text-secondary:#3a3a3c;--text-muted:#68686d;
+  /* Tokens semânticos no light — todos AA (≥4.5:1) sobre branco. */
+  --text-success:#15803d;--text-danger:#b91c1c;--text-warning:#a16207;--text-info:#0369a1;
+  --bg-success:rgba(22,163,74,0.10);--bg-danger:rgba(185,28,28,0.08);--bg-warning:rgba(161,98,7,0.10);
+  --bd-success:rgba(22,163,74,0.30);--bd-danger:rgba(185,28,28,0.30);--bd-warning:rgba(161,98,7,0.30);
   /* LIGHT — chrome tingido com a cor do usuário (mais opacidade pra aparecer sobre branco) */
   --topbar-bg:linear-gradient(180deg, rgba(var(--accent-rgb),0.22), rgba(var(--accent-rgb),0.12)), rgba(255,255,255,0.92);
   --chrome-fbar-bg:linear-gradient(180deg, rgba(var(--accent-rgb),0.14), rgba(var(--accent-rgb),0.06)), rgba(255,255,255,0.94);
@@ -60,10 +68,13 @@ body.light-mode tr.st-vistoriada:hover { background: linear-gradient(90deg, rgba
 body.light-mode tr.st-revisao:hover    { background: linear-gradient(90deg, rgba(126,34,206,0.24) 0%, rgba(126,34,206,0.24) 85%, var(--mica-surface-hover) 100%); }
 body.light-mode tr.st-andamento:hover  { background: linear-gradient(90deg, rgba(71,85,105,0.18) 0%, rgba(71,85,105,0.18) 85%, var(--mica-surface-hover) 100%); }
 body.light-mode .badge-atrasado{background:rgba(220,38,38,0.10);border-color:rgba(220,38,38,0.35);color:#dc2626}
-body.light-mode .err-msg{color:#dc2626 !important}
-body.light-mode label span[style*="color:#4ade80"]{color:#16a34a !important}
-body.light-mode .metric .val[style*="color:#f87171"]{color:#dc2626 !important}
-body.light-mode .metric .val[style*="color:#4ade80"]{color:#16a34a !important}
+body.light-mode .err-msg{color:var(--text-danger) !important}
+body.light-mode .metric-red{color:var(--text-danger) !important}
+body.light-mode label span[style*="color:#4ade80"]{color:var(--text-success) !important}
+body.light-mode .metric .val[style*="color:#f87171"]{color:var(--text-danger) !important}
+body.light-mode .metric .val[style*="color:#4ade80"]{color:var(--text-success) !important}
+/* Mensagem inline de erro na tabela (carregamento) */
+body.light-mode #tbody td[style*="color:#f87171"]{color:var(--text-danger) !important}
 body{
   font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background:var(--mica-bg);
@@ -102,16 +113,71 @@ body.light-mode .nav-ico.active{background:linear-gradient(90deg,rgba(var(--acce
   font-size:10px;padding:2px 7px;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:.15s;z-index:400}
 .nav-ico:hover .tip{opacity:1}
 .spacer{flex:1}
-.auth-info{font-size:10px;opacity:.6;white-space:nowrap;font-family:'Inter',sans-serif}
-.auth-corner{position:fixed;top:10px;right:14px;z-index:350;display:flex;align-items:center;gap:8px;pointer-events:none}
-.auth-corner > *{pointer-events:auto}
-.auth-corner .auth-info{font-size:10px;font-weight:600;background:rgba(var(--accent-rgb),0.10);border:1px solid var(--chrome-border);padding:5px 10px;border-radius:20px;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);opacity:1;letter-spacing:.02em;display:inline-flex;align-items:center;gap:6px}
-body.light-mode .auth-corner .auth-info{background:rgba(255,255,255,0.92)}
-.auth-corner .btn-auth{padding:5px 14px;border-radius:18px;font-size:10px;font-weight:600;margin:0}
-@media (max-width:768px){.auth-corner{top:8px;right:8px}}
+/* ── AUTH MINIMAL — bolinha colorida; Sair fica em popover sob clique ── */
+.auth-corner{position:relative;display:inline-flex;align-items:center;flex-shrink:0}
+.auth-dot-btn{
+  background:transparent;border:none;padding:6px;margin:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;border-radius:50%;
+  transition:background .15s;
+}
+.auth-dot-btn:hover{background:rgba(255,255,255,.08)}
+body.light-mode .auth-dot-btn:hover{background:rgba(0,0,0,.06)}
+.auth-info{
+  /* Texto vira bolinha visual: oculta texto, mostra círculo colorido */
+  font-size:0 !important;line-height:0;
+  width:10px;height:10px;border-radius:50%;
+  background:#6b7280;  /* cinza = não autenticado */
+  display:inline-block;flex-shrink:0;
+  padding:0;border:1px solid rgba(255,255,255,.25);
+  overflow:hidden;white-space:nowrap;
+  transition:background .2s, box-shadow .2s;
+}
+body.light-mode .auth-info{border-color:rgba(0,0,0,.18)}
+/* Quando autenticado: bolinha verde com glow */
+.auth-info.auth-authenticated{
+  background:#4ade80;
+  box-shadow:0 0 8px rgba(74,222,128,.55);
+}
+/* Popover do auth — sai sob clique */
+.auth-popover{
+  display:none;position:absolute;
+  top:calc(100% + 6px);right:0;
+  background:var(--mica-bg);border:1px solid var(--mica-border-light);
+  border-radius:8px;padding:8px;min-width:150px;
+  z-index:500;box-shadow:0 6px 24px rgba(0,0,0,.45);
+  flex-direction:column;gap:6px;
+}
+body.light-mode .auth-popover{background:#fff;box-shadow:0 6px 24px rgba(0,0,0,.18)}
+.auth-popover.open{display:flex}
+.auth-popover-label{
+  font-size:11px;color:var(--text-secondary);
+  padding:4px 6px 6px;border-bottom:1px solid var(--mica-border);
+  font-weight:500;text-align:center;
+}
+.auth-popover .btn-auth{
+  width:100%;padding:6px 12px;font-size:11px;font-weight:600;
+  border-radius:6px;margin:0;
+}
 .btn-auth{background:rgba(var(--accent-rgb),0.12);border:1px solid rgba(var(--accent-rgb),0.35);color:var(--accent);
   padding:5px 12px;border-radius:7px;font-size:11px;cursor:pointer;white-space:nowrap;font-weight:600;transition:.18s;
   box-shadow:0 1px 4px rgba(0,0,0,0.2)}
+/* Botão "Entrar" — visível quando não autenticado, em qualquer device */
+.btn-entrar{display:inline-flex;align-items:center;gap:5px;background:rgba(var(--accent-rgb),0.18);
+  border:1px solid rgba(var(--accent-rgb),0.45);color:var(--accent);
+  padding:5px 11px;border-radius:7px;font-size:11.5px;cursor:pointer;font-weight:600;white-space:nowrap;
+  font-family:'Inter',sans-serif;transition:.18s;box-shadow:0 1px 4px rgba(0,0,0,0.18)}
+.btn-entrar:hover{background:rgba(var(--accent-rgb),0.28);border-color:rgba(var(--accent-rgb),0.65);
+  transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,0.25)}
+.btn-entrar:active{transform:translateY(0);box-shadow:none}
+.btn-entrar svg{width:13px;height:13px;flex-shrink:0}
+/* Botão Entrar no topo (mobile): aparece na barra de filtros quando deslogado */
+.btn-entrar-top{display:none}
+@media (max-width:576px){
+  body.no-auth .btn-entrar-top{display:inline-flex !important;margin-left:auto}
+  body.no-auth #fcnt{display:none !important}
+  /* Evita botão duplicado: o "Entrar" do bottom-nav some no celular (o de cima cobre) */
+  body.no-auth .auth-corner{display:none !important}
+}
 .btn-auth:hover{background:rgba(var(--accent-rgb),0.22);border-color:rgba(var(--accent-rgb),0.6);transform:translateY(-1px);box-shadow:0 3px 8px rgba(0,0,0,0.25)}
 .btn-auth:active{transform:translateY(0);box-shadow:none}
 .btn-dark{background:transparent;border:none;color:rgba(255,255,255,.7);width:32px;height:32px;border-radius:6px;
@@ -153,6 +219,26 @@ body.light-mode .fbar-wrap{background:var(--chrome-fbar-bg)}
 .btn-add-filter:hover{border-color:var(--mica-border-light);color:var(--text-primary)}
 .btn-clr-all{background:rgba(var(--accent-rgb),0.08);border:1px solid rgba(var(--accent-rgb),0.25);color:var(--accent);padding:4px 12px;border-radius:6px;font-size:11px;cursor:pointer;transition:.15s;font-family:'Inter',sans-serif}
 .btn-clr-all:hover{background:rgba(var(--accent-rgb),0.16)}
+
+/* Export button + menu (na barra de filtros) */
+.export-wrap{position:relative}
+.btn-export{display:flex;align-items:center;gap:5px;background:rgba(var(--accent-rgb),0.10);border:1px solid rgba(var(--accent-rgb),0.28);color:var(--accent);padding:5px 11px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;height:28px;transition:.15s}
+.btn-export:hover{background:rgba(var(--accent-rgb),0.18);border-color:rgba(var(--accent-rgb),0.45)}
+.btn-export svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-export .caret{font-size:9px;opacity:.7}
+.export-menu{display:none;position:absolute;top:calc(100% + 6px);right:0;background:var(--mica-bg);border:1px solid var(--mica-border-light);border-radius:8px;padding:6px;min-width:220px;z-index:300;box-shadow:0 8px 28px rgba(0,0,0,.45);flex-direction:column;gap:1px}
+body.light-mode .export-menu{background:#fff;box-shadow:0 8px 28px rgba(0,0,0,.18)}
+.export-menu.open{display:flex}
+.export-menu-title{font-size:9.5px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600;padding:4px 8px 6px}
+.export-menu button{display:flex;align-items:center;gap:9px;background:transparent;border:none;color:var(--text-primary);text-align:left;padding:7px 10px;border-radius:5px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:.1s;width:100%}
+.export-menu button:hover{background:var(--mica-surface-hover)}
+.export-menu button .ex-ico{width:22px;height:22px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+.export-menu button .ex-ico.xlsx{background:rgba(33,118,67,0.18);color:#21a063}
+.export-menu button .ex-ico.csv{background:rgba(15,108,189,0.18);color:#3a92d6}
+.export-menu button .ex-ico.pdf{background:rgba(214,48,48,0.18);color:#e25656}
+.export-menu button .ex-sub{display:block;font-size:9.5px;color:var(--text-muted);font-weight:400;margin-top:1px}
+.export-menu hr{border:none;border-top:1px solid var(--mica-border);margin:5px 4px}
+.export-menu-foot{font-size:9.5px;color:var(--text-muted);padding:4px 10px 2px;line-height:1.35}
 
 /* Split view */
 .main.split-mode{display:flex;gap:10px;align-items:flex-start}
@@ -465,6 +551,36 @@ body.light-mode .btn-p:hover{background:var(--accent-wine);border-color:var(--ac
   transition: transform 0.08s ease !important;
 }
 
+/* ── A11Y: focus-visible global — só aparece em navegação por teclado ── */
+.btn:focus-visible, .nav-ico:focus-visible, .cbtn:focus-visible, .stbtn:focus-visible,
+.btn-auth:focus-visible, .fbar-toggle-btn:focus-visible, .sf-btn:focus-visible,
+.setup-btn:focus-visible, .agenda-opt-btn:focus-visible, .foto-send-btn:focus-visible,
+.ficha-send-btn:focus-visible, .ficha-tab-btn:focus-visible, .btn-edit-drawer:focus-visible,
+.btn-save-drawer:focus-visible, .filter-row select:focus-visible, .filter-row input:focus-visible,
+.dash-flt:focus-visible, .dv-input:focus-visible, .agenda-field input:focus-visible,
+.agenda-field select:focus-visible, .agenda-field textarea:focus-visible,
+.ficha-field input:focus-visible, .ficha-field select:focus-visible, .ficha-field textarea:focus-visible,
+.rota-search:focus-visible, .rota-mun-filter:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.15) !important;
+}
+tbody tr:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* ── A11Y: respeitar preferência de menos movimento ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .nav-ico:hover, .btn:hover, .cbtn:hover { transform: none !important; }
+}
+
 .loading{display:flex;align-items:center;justify-content:center;padding:2rem;color:var(--text-muted);gap:8px;font-size:12px}
 .sp{width:16px;height:16px;border:2px solid var(--mica-border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -473,6 +589,34 @@ body.light-mode .btn-p:hover{background:var(--accent-wine);border-color:var(--ac
   border-radius:var(--radius-md);font-size:12px;z-index:600;transform:translateY(60px);opacity:0;transition:.3s;max-width:300px;
   box-shadow:0 8px 32px rgba(0,0,0,0.4)}
 .toast.show{transform:translateY(0);opacity:1}
+/* Widget de upload em segundo plano */
+.bg-upload{position:fixed;bottom:1rem;right:1rem;background:var(--glass-bg);backdrop-filter:blur(40px) saturate(180%);
+  -webkit-backdrop-filter:blur(40px) saturate(180%);border:1px solid var(--glass-border);color:var(--text-primary);
+  border-radius:var(--radius-md);padding:.65rem .85rem;font-size:12px;z-index:601;width:270px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);transition:opacity .3s,transform .3s}
+.bg-upload-hd{display:flex;align-items:center;gap:6px;font-weight:600}
+.bg-upload-ico{font-size:14px}
+.bg-upload-tit{flex:1;font-size:12px}
+.bg-upload-min{background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;padding:0 4px;line-height:1}
+.bg-upload-os{font-size:10.5px;color:var(--text-muted);margin-top:.3rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bg-upload-stat{font-size:11px;color:var(--text-secondary);margin-top:.25rem;margin-bottom:.3rem}
+.bg-upload-bar-bg{height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
+.bg-upload-bar{height:100%;background:var(--accent);width:0%;transition:width .25s;border-radius:3px}
+
+/* ── STATUS CHIP (mensagens de feedback inline — ex.: SIOPI) ── */
+.status-chip{
+  font-size:11.5px;font-weight:500;line-height:1.45;
+  margin-top:8px;padding:8px 11px;border-radius:8px;
+  border:1px solid var(--mica-border);background:var(--mica-bg);
+  display:flex;flex-wrap:wrap;gap:6px 12px;
+}
+.status-chip.chip-success{background:var(--bg-success);border-color:var(--bd-success)}
+.status-chip.chip-danger {background:var(--bg-danger); border-color:var(--bd-danger)}
+.status-chip.chip-warning{background:var(--bg-warning);border-color:var(--bd-warning)}
+.status-chip.chip-info   {background:var(--mica-surface);border-color:var(--mica-border-light)}
+.bg-upload.collapsed .bg-upload-body{display:none}
+.bg-upload.done .bg-upload-bar{background:#22c55e;width:100% !important}
+.bg-upload.err .bg-upload-bar{background:#ef4444}
 .abar{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);border-radius:var(--radius-md);
   padding:.7rem .9rem;display:flex;align-items:center;gap:8px;margin-bottom:.75rem;font-size:12px;color:#fbbf24}
 
@@ -651,7 +795,7 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
 .btn-wpp svg{width:18px;height:18px;fill:currentColor}
 
 @media(max-width:900px){.agenda-layout{grid-template-columns:1fr;height:auto}}
-.vbadge{position:fixed;bottom:12px;right:12px;background:rgba(0,52,110,0.95);color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.3);letter-spacing:0.5px;pointer-events:none;border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px}.vbadge::before{content:'';display:block;width:6px;height:6px;background:var(--success);border-radius:50%;box-shadow:0 0 6px var(--success)}
+.vbadge{position:fixed;bottom:12px;right:12px;background:rgba(0,52,110,0.95);color:#fff;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:600;z-index:50;box-shadow:0 4px 12px rgba(0,0,0,0.3);letter-spacing:0.5px;pointer-events:none;border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(4px);display:flex;align-items:center;gap:6px}.vbadge::before{content:'';display:block;width:6px;height:6px;background:var(--success);border-radius:50%;box-shadow:0 0 6px var(--success)}
 
 /* ── MOBILE LAYOUT (≤768px) ── */
 @media (max-width:768px){
@@ -665,17 +809,29 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
   .nav-sep{margin:0 2px}
   .nav-ico{width:32px;height:32px;flex-shrink:0}
   .nav-ico .tip{display:none}
-  .auth-corner .auth-info{font-size:9px;padding:3px 7px}
-  .btn-auth{padding:3px 8px;font-size:10px}
+  /* Auth-corner já é bolinha minimal — só compacta o botão do popover */
+  .auth-popover .btn-auth{padding:5px 12px;font-size:11px}
   .btn-dark{width:28px;height:28px}
   .spacer{flex:0 0 4px}
 
   /* Filter bar compacta */
-  .fbar-toggle{padding:.35rem .5rem;flex-wrap:wrap}
+  /* Toolbar em uma linha: Filtros | contagem (flex, truncada) | Exportar */
+  .fbar-toggle{padding:.4rem .6rem;flex-wrap:nowrap;gap:6px;align-items:center}
+  .fbar-toggle-btn{flex-shrink:0}
+  .active-chips{flex:0 1 auto;min-width:0;overflow:hidden}
   .filter-row{flex-wrap:wrap;gap:4px}
   .sel-field,.sel-op{min-width:0;flex:1 1 45%}
   .inp-val{flex:1 1 100%}
-  .fcount-bar{font-size:10px;flex-basis:100%;text-align:right;margin-left:0}
+  .fcount-bar{font-size:10.5px;flex:1 1 auto;text-align:right;margin-left:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .export-wrap{flex-shrink:0}
+  .btn-export{padding:5px 10px}
+  .btn-export svg{width:13px;height:13px}
+  /* Em telas bem estreitas (≤400px) reduz Exportar pra só ícone + caret pra
+     garantir que Filtros / contagem / Exportar caibam na mesma linha. */
+  @media (max-width:400px){
+    .btn-export span:not(.caret){display:none}
+    .btn-export{padding:5px 8px}
+  }
 
   /* Métricas e charts no dashboard */
   .main{padding:.45rem}
@@ -743,34 +899,49 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
     border-top:1px solid var(--mica-border);border-bottom:none;
     overflow:hidden;gap:0;z-index:200;
   }
-  /* Ícones de nav: coluna com label */
+  /* Ícones de nav: coluna com label, distribuídos igualmente sem max-width fixo
+     (cabe sem sobreposição em telas a partir de 320px) */
   .nav-ico{
-    flex-direction:column;width:auto;min-width:44px;height:auto;min-height:48px;
-    padding:4px 6px;border-radius:10px;border-left:none;gap:2px;flex:1;max-width:66px;
+    flex-direction:column;width:auto;min-width:0;height:auto;min-height:48px;
+    padding:4px 2px;border-radius:10px;border-left:none;gap:2px;
+    flex:1 1 0;max-width:none;
     transform:none !important;
   }
   .nav-ico.active{border-left:none;border-top:2px solid var(--accent);background:rgba(var(--accent-rgb),0.12)}
   .nav-ico:hover{transform:none}
-  .nav-ico svg{width:20px;height:20px}
-  /* Labels visíveis */
+  .nav-ico svg{width:20px;height:20px;flex-shrink:0}
+  /* Labels visíveis — encolhem antes de quebrar layout */
   .nav-ico .tip{
     display:block !important;position:static;transform:none;opacity:1;
     background:transparent;color:inherit;font-size:9px;padding:0;
     border-radius:0;pointer-events:none;z-index:auto;white-space:nowrap;
-    overflow:hidden;text-overflow:ellipsis;max-width:64px;text-align:center;
-    transition:none;
+    overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center;
+    transition:none;line-height:1.1;
   }
+  /* Telas muito estreitas (≤360px — ex.: Galaxy A0x, iPhone SE 1ª ger.):
+     label vira ainda menor pra não sobrepor */
+  @media (max-width:360px){.nav-ico .tip{font-size:8px}.nav-ico svg{width:18px;height:18px}}
   /* Ocultar itens secundários da nav */
   .nav-sep,.nav-section-label,.spacer{display:none !important}
   #btn-split{display:none !important}
   .brand-logo-fallback,.brand-logo{display:none !important}
 
-  /* Espaço: topo para auth-corner, base para bottom nav */
-  .main{padding-top:50px !important;padding-bottom:calc(68px + env(safe-area-inset-bottom)) !important}
+  /* Auth no bottom-nav: só a bolinha (autenticado). O botão "Entrar" nunca
+     aparece aqui no mobile — quando deslogado, `body.no-auth .auth-corner`
+     já some inteiro e o `.btn-entrar-top` cobre o login na toolbar superior. */
+  .auth-corner{position:static;margin:0;padding:0;flex:0 0 auto}
+  .auth-corner .btn-entrar{display:none !important}
+  .auth-dot-btn{padding:4px;min-width:32px;min-height:32px}
+  /* Popover sai PRA CIMA do dot (porque dot está no bottom-nav, embaixo da tela) */
+  .auth-popover{
+    top:auto;bottom:calc(100% + 6px);right:0;
+  }
+  /* Btn-dark: tira do bottom-nav (acesso via Config) */
+  #btn-dark{display:none !important}
+  /* Sem mais padding-top reservado (auth não flutua mais) */
+  .main{padding-top:.45rem !important;padding-bottom:calc(68px + env(safe-area-inset-bottom)) !important}
   .fbar-wrap{top:0 !important;position:sticky !important}
-  .twrap{height:calc(100vh - 125px - env(safe-area-inset-bottom))}
-  .auth-corner{top:8px !important;right:8px !important}
-  .auth-corner .auth-info{font-size:9px;padding:3px 8px}
+  .twrap{height:calc(100vh - 78px - env(safe-area-inset-bottom))}
 
   /* Tabela: oculta colunas menos úteis em telas pequenas */
   table thead th:nth-child(4),   /* Bairro */
@@ -809,19 +980,41 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
   .dg{grid-template-columns:1fr}
   .dbody{padding:.7rem}
 
-  /* Calendário: controles compactos, grid menor */
-  .cal-controls{gap:4px}
-  .cal-controls .btn{font-size:10px;padding:4px 8px}
-  .cal-controls span{font-size:11px;min-width:80px}
+  /* Calendário: controles em 2 linhas (◀ título ▶ na 1ª, Dia/Sem/Mês/Hoje/filtro na 2ª) */
+  .cal-controls{display:flex;flex-wrap:wrap;gap:5px;align-items:center;justify-content:center}
+  .cal-controls > button:nth-child(1){order:1;flex:0 0 34px}     /* ◀ */
+  .cal-controls > span{order:2;flex:1 1 auto;min-width:120px;text-align:center;font-size:13px}
+  .cal-controls > button:nth-child(3){order:3;flex:0 0 34px}     /* ▶ */
+  /* Linha 2: força via flex-basis 100% num spacer invisível NÃO — uso order alto + min-width na linha 2 */
+  #btn-dia{order:4;flex:1 1 60px;font-size:10px;padding:5px 6px;min-width:50px}
+  #btn-sem{order:5;flex:1 1 70px;font-size:10px;padding:5px 6px;min-width:60px}
+  #btn-mes{order:6;flex:1 1 60px;font-size:10px;padding:5px 6px;min-width:50px}
+  .cal-controls .btn-p{order:7;flex:1 1 60px;font-size:10px;padding:5px 6px;min-width:50px}
+  .cal-controls .sf-wrap{order:8;flex:0 0 32px;margin-left:0 !important}
+  .cal-controls .btn{font-size:11px}
+  /* Grade do mês compacta */
   .cal-mes-grid{font-size:9px;gap:2px}
   .cal-dh{font-size:8px;text-align:center;padding:2px 0}
   .cal-cell{min-height:44px;padding:2px}
   .cal-num,.cal-num-hj{font-size:9px}
+  .cal-num-hj{width:16px;height:16px;font-size:8px}
   .cal-ev{font-size:7.5px;padding:1px 2px;line-height:1.2;overflow:hidden;max-height:14px}
+  /* View semana / dia: deixa colunas mais altas e role horizontal se precisar */
+  .cal-sem-col{min-height:80px;padding:3px}
+  .cal-dia-ev{padding:6px 10px;font-size:11px}
 
   /* Formulários em coluna única */
   .fg{grid-template-columns:1fr !important}
   .foto-tab-wrap,.ficha-tab-wrap{padding:.7rem}
+
+  /* Performance: reduzir blur em mobile (custa GPU em mid-range) */
+  .topbar,.fbar-wrap,.dhd,.glass-bg,.cc,.metric,.auth-corner .auth-info{
+    backdrop-filter:blur(8px) !important;
+    -webkit-backdrop-filter:blur(8px) !important;
+  }
+  .prev-overlay,.toast{backdrop-filter:blur(4px) !important;-webkit-backdrop-filter:blur(4px) !important}
+  /* Reduzir box-shadow custoso */
+  .card,.metric,.cc,.glass-bg{box-shadow:0 2px 8px rgba(0,0,0,0.12) !important}
 }
 
 /* ── DESKTOP SIDEBAR (≥769px) ── */
@@ -919,8 +1112,8 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
 
   .split-wrap{width:100%;margin-top:auto;padding-top:14px;border-top:1px solid var(--mica-border)}
   .split-wrap .nav-ico{width:100%}
-  .split-menu{left:72px;top:auto;bottom:auto;right:auto}
-  .topbar:hover .split-menu{left:228px}
+  /* O menu é movido para o <body> e posicionado via JS (position:fixed),
+     pois a sidebar usa overflow:hidden + backdrop-filter que recortam o flyout. */
   .spacer{flex:1;min-height:20px}
 
   /* Section header — só opacity transiciona, espaço reservado sempre */
@@ -935,7 +1128,11 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
   .nav-section-label:first-of-type{border-top:none;padding-top:6px}
   .topbar:hover .nav-section-label{opacity:1}
 
-  /* auth-info / btn-auth posicionados via .auth-corner (fora deste media query) */
+  /* Auth: bolinha centralizada na sidebar; popover sai pra direita */
+  .auth-corner{margin:6px auto 0;align-self:center}
+  .auth-popover{
+    top:auto;bottom:0;right:auto;left:calc(100% + 8px);
+  }
   .btn-auto-cep{display:none}
 
   /* Dark mode toggle — tamanho fixo, centralizado */
@@ -943,24 +1140,14 @@ body.light-mode .wpp-msg-body{background:#e5ddd5;color:#111;border:1px solid rgb
     display:flex;align-items:center;justify-content:center;border:1px solid var(--mica-border)}
 
   /* Overlay: conteúdo NÃO se move (margin fixa em 64px = largura colapsada) */
-  .fbar-wrap{margin-left:64px;top:0;padding-right:200px}
+  .fbar-wrap{margin-left:64px;top:0;padding-right:0}
   .main{margin-left:64px}
   .overlay,.drawer{z-index:400}
 }
 
-/* ── TABLET (769–1024px) — auth-corner compacto, filterbar menos comprimida ── */
+/* ── TABLET (769–1024px) — sidebar estreita; auth já está dentro dela ── */
 @media (min-width:769px) and (max-width:1024px){
-  /* Sidebar estreita → filterbar pode usar mais espaço à direita */
-  .fbar-wrap{padding-right:120px}
-  /* Auth corner: texto truncado para não cobrir conteúdo */
-  .auth-corner{top:8px;right:10px;gap:5px}
-  .auth-corner .auth-info{
-    font-size:9px;padding:4px 8px;
-    max-width:130px;overflow:hidden;
-    text-overflow:ellipsis;white-space:nowrap;
-  }
-  .auth-corner .btn-auth{padding:4px 10px;font-size:9px}
-  /* Drawer ocupa tela inteira em tablets pequenos */
+  /* Drawer um pouco mais estreito em tablets */
   .drawer{width:min(500px,100vw)}
 }
 
@@ -1132,6 +1319,15 @@ body.light-mode .ficha-field input,body.light-mode .ficha-field select,body.ligh
 .ficha-grid.cols4{grid-template-columns:repeat(4,1fr)}
 .ficha-grid.cols5{grid-template-columns:repeat(5,1fr)}
 .ficha-field.full{grid-column:1/-1}
+/* Mobile/tablet: reduz colunas da ficha para evitar campos espremidos */
+@media (max-width:900px){
+  .ficha-grid:not(.cols1){grid-template-columns:1fr 1fr}
+  .ficha-grid.cols3,.ficha-grid.cols4,.ficha-grid.cols5{grid-template-columns:1fr 1fr}
+}
+@media (max-width:600px){
+  .ficha-grid,.ficha-grid.cols3,.ficha-grid.cols4,.ficha-grid.cols5{grid-template-columns:1fr}
+  .ficha-tab-btn{padding:7px 10px;font-size:11px}
+}
 /* ── Ficha v2: tabs + radio + checkbox-group ── */
 .ficha-tab-strip{display:flex;gap:2px;flex-wrap:wrap;margin-bottom:14px;border-bottom:1px solid var(--mica-border);padding:0 0 0 4px;position:sticky;top:0;background:var(--mica-bg);z-index:5;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
 .ficha-tab-btn{padding:9px 16px;border-radius:8px 8px 0 0;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-muted);cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;transition:.18s;white-space:nowrap}
@@ -1247,13 +1443,21 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
     </div>
   </div>
   <div class="spacer"></div>
+  <!-- Auth: botão "Entrar" quando deslogado; bolinha verde + popover "Sair" quando autenticado -->
+  <div class="auth-corner" id="auth-corner">
+    <button class="btn-entrar" id="btn-entrar" type="button" onclick="doAuth()" title="Fazer login">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      <span>Entrar</span>
+    </button>
+    <button class="auth-dot-btn" id="auth-dot-btn" type="button" onclick="toggleAuthMenu(event)" title="Conta" aria-label="Menu de autenticação" style="display:none">
+      <span class="auth-info auth-authenticated" id="auth-ind">●</span>
+    </button>
+    <div class="auth-popover" id="auth-popover" role="menu">
+      <div class="auth-popover-label" id="auth-popover-label">Autenticado</div>
+      <button class="btn-auth" id="btn-auth" onclick="doAuth()">Entrar</button>
+    </div>
+  </div>
   <button class="btn-dark" id="btn-dark" onclick="toggleDark()" title="Alternar tema">🌙</button>
-</div>
-
-<!-- Auth flutuante no canto superior direito (fora da sidebar) -->
-<div class="auth-corner" id="auth-corner">
-  <span class="auth-info" id="auth-ind">● Não autenticado</span>
-  <button class="btn-auth" id="btn-auth" onclick="doAuth()">Entrar</button>
 </div>
 
 <!-- FILTER BAR (Airtable-style) -->
@@ -1264,7 +1468,26 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
       Filtros
     </button>
     <div class="active-chips" id="active-chips"></div>
+    <button class="btn-entrar btn-entrar-top" id="btn-entrar-top" type="button" onclick="doAuth()" title="Fazer login" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+      <span>Entrar</span>
+    </button>
     <span class="fcount-bar" id="fcnt"></span>
+    <div class="export-wrap" id="export-wrap">
+      <button class="btn-export" id="btn-export" type="button" onclick="toggleExportMenu(event)" title="Exportar tabela filtrada">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Exportar</span>
+        <span class="caret">▾</span>
+      </button>
+      <div class="export-menu" id="export-menu" role="menu">
+        <div class="export-menu-title">Exportar tabela filtrada</div>
+        <button type="button" onclick="exportarTabela('xlsx')"><span class="ex-ico xlsx">X</span><span><strong>Excel (.xlsx)</strong><span class="ex-sub">Planilha formatada para Microsoft Excel</span></span></button>
+        <button type="button" onclick="exportarTabela('csv')"><span class="ex-ico csv">G</span><span><strong>CSV (Google Sheets)</strong><span class="ex-sub">Importe direto no Sheets ou Excel</span></span></button>
+        <button type="button" onclick="exportarTabela('pdf')"><span class="ex-ico pdf">P</span><span><strong>PDF</strong><span class="ex-sub">Documento A3 paisagem pronto p/ impressão</span></span></button>
+        <hr>
+        <div class="export-menu-foot">Inclui apenas as OS visíveis com os filtros atuais.</div>
+      </div>
+    </div>
   </div>
   <div class="filter-panel" id="filter-panel">
     <div class="filter-panel-title">Mostrar registros onde:</div>
@@ -1653,6 +1876,7 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
         <div class="dl">Endereço</div>
         <div class="dv" id="d-end"></div>
         <input class="dv-input" id="e-end" type="text" data-field="end" data-col="J">
+        <div id="d-siopi-alerta-tip" style="display:none;margin-top:6px;font-size:11px;padding:6px 9px;border-radius:6px;background:rgba(217,119,6,0.15);border:1px solid rgba(217,119,6,0.4);color:#fbbf24;line-height:1.4"></div>
       </div>
       <div class="df">
         <div class="dl">Bairro</div>
@@ -1701,6 +1925,18 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
         <div class="dl">R$/m²</div>
         <div class="dv" id="d-rsm2"></div>
       </div>
+      <div class="df">
+        <div class="dl">Matrícula <span style="opacity:.5;font-size:9px">(SIOPI)</span></div>
+        <div class="dv" id="d-siopi-matricula">—</div>
+      </div>
+      <div class="df">
+        <div class="dl">CNM <span style="opacity:.5;font-size:9px">(SIOPI)</span></div>
+        <div class="dv" id="d-siopi-cnm">—</div>
+      </div>
+      <div class="df">
+        <div class="dl">Cartório <span style="opacity:.5;font-size:9px">(SIOPI)</span></div>
+        <div class="dv" id="d-siopi-cartorio">—</div>
+      </div>
     </div></div>
 
     <div class="ds"><h3>Datas</h3><div class="dg">
@@ -1717,7 +1953,7 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
       <div class="df">
         <div class="dl">Mês faturamento</div>
         <div class="dv" id="d-mes"></div>
-        <input class="dv-input" id="e-mes" type="text" data-field="mes" data-col="M">
+        <select class="dv-input" id="e-mes" data-field="mes" data-col="M"></select>
       </div>
       <div class="df">
         <div class="dl">Revisão</div>
@@ -1729,6 +1965,10 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
       <div class="df">
         <div class="dl">Valor OS</div>
         <div class="dv" id="d-vos"></div>
+      </div>
+      <div class="df">
+        <div class="dl">Valor C/V <span style="opacity:.5;font-size:9px">(SIOPI)</span></div>
+        <div class="dv" id="d-siopi-valor">—</div>
       </div>
       <div class="df">
         <div class="dl">Deslocamento especial</div>
@@ -1771,8 +2011,7 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
       <button id="d-siopi-btn" class="btn" onclick="enriquecerComSIOPI()" style="width:100%;padding:10px;background:linear-gradient(135deg,rgba(var(--accent-rgb),0.15),rgba(83,112,130,0.15));border:1px solid rgba(var(--accent-rgb),0.3);color:var(--text-primary);display:flex;align-items:center;justify-content:center;gap:8px;font-weight:500">
         🔍 Buscar complementos no SIOPI
       </button>
-      <div id="d-siopi-status" style="font-size:11px;color:var(--text-muted);margin-top:8px;display:none"></div>
-      <div style="font-size:10px;color:var(--text-muted);margin-top:6px;line-height:1.4">Preenche complemento, área privativa e baixa documentos direto do SIOPI para a pasta "02 - Documentos".</div>
+      <div id="d-siopi-status" class="status-chip" style="display:none"></div>
     </div>
 
     <div class="ds"><h3>Documentos no Drive</h3>
@@ -1802,6 +2041,19 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div class="bg-upload" id="bg-upload" style="display:none">
+  <div class="bg-upload-hd">
+    <span class="bg-upload-ico" id="bg-upload-ico">⬆️</span>
+    <span class="bg-upload-tit" id="bg-upload-tit">Enviando fotos...</span>
+    <button class="bg-upload-min" onclick="_toggleBgUpload()" title="Minimizar">–</button>
+  </div>
+  <div class="bg-upload-body">
+    <div class="bg-upload-os" id="bg-upload-os"></div>
+    <div class="bg-upload-stat" id="bg-upload-stat">0 / 0</div>
+    <div class="bg-upload-bar-bg"><div class="bg-upload-bar" id="bg-upload-bar"></div></div>
+  </div>
+</div>
 
 <!-- Wrapper para Ficha PDF — posição fixa no viewport para html2canvas capturar corretamente -->
 <div id="ficha-pdf-wrapper" style="position:fixed;top:0;left:0;width:794px;opacity:0.001;pointer-events:none;z-index:99999;background:#fff;color:#000;"></div>
@@ -1980,6 +2232,15 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+<script>
+// Configura o worker do pdf.js (necessário pra processar PDFs em threads)
+if (typeof pdfjsLib !== 'undefined') {
+  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+</script>
 <script>
 // ═══════════════════════════════════════════════════════════
 //  CONFIGURATION — white-label, carregado do localStorage
@@ -1996,7 +2257,7 @@ let MUN={};   // {municipio:{v:desloc,polo:'...'}}
 let MUNE={};  // {municipio: val_km} — gerado automaticamente de MUN
 let SUBP=[];  // [{nm,d,ic,role}] — dinâmico, definido no setup passo 4
 let PDF_BASE_ID='';
-let CONFIG_USER={emp:'',resp:'',crea:'',tel:'',logo:'',msg_av:'',msg_med:'',txt_name_tpl:'convocacao.txt',txt_folder_dest:'root'};
+let CONFIG_USER={emp:'',resp:'',crea:'',tel:'',logo:'',msg_av:'',msg_med:'',txt_name_tpl:'convocacao.txt',txt_folder_dest:'root',visionKey:''};
 
 const STCFG={'OS Concluída':{cls:'st-concluida',bg:'#16a34a',lbl:'Concluída'},'OS Cancelada':{cls:'st-cancelada',bg:'#dc2626',lbl:'Cancelada'},'OS em Andamento sem vistoria':{cls:'st-semvist',bg:'#475569',lbl:'Sem vistoria'},'Sem vistoria - não agendado':{cls:'st-semvist-nao-agend',bg:'#64748b',lbl:'S/ vist. - não agend.'},'Sem vistoria - agendado':{cls:'st-semvist-agend',bg:'#0ea5e9',lbl:'S/ vist. - agendado'},'OS não Vistoriada com PEPT':{cls:'st-pept-n',bg:'#2563eb',lbl:'S/ vist. c/ PEPT'},'OS Vistoriada com PEPT':{cls:'st-pept-v',bg:'#ea580c',lbl:'Vist. c/ PEPT'},'OS Vistoriada':{cls:'st-vistoriada',bg:'#a16207',lbl:'Vistoriada'},'OS em Revisão':{cls:'st-revisao',bg:'#9333ea',lbl:'Em revisão'},'OS em Andamento':{cls:'st-andamento',bg:'#475569',lbl:'Em andamento'}};
 let CALENDAR_FILTERS={};
@@ -2012,7 +2273,11 @@ const FILTER_FIELDS=[
   {key:'bairro',label:'Bairro',type:'text'},
   {key:'mun',label:'Município',type:'text'},
   {key:'tip',label:'Tipologia',type:'text'},
-  {key:'mes',label:'Mês',type:'select',opts:()=>MES_ORD.map(m=>({v:m,l:m}))},
+  {key:'mes',label:'Mês',type:'select',opts:()=>{
+    // Só os meses que realmente aparecem nas OS atuais (evita dropdown enorme com jan-24..dez-30)
+    const presentes=new Set();(ALL||[]).forEach(r=>{if(r&&r.mes)presentes.add(r.mes);});
+    return [...presentes].sort((a,b)=>MOS_ORD_IDX(a)-MOS_ORD_IDX(b)).map(m=>({v:m,l:m}));
+  }},
   {key:'siopi',label:'Data de entrada',type:'date'},
   {key:'ent',label:'Data entrega',type:'date'},
   {key:'st',label:'Status',type:'select',opts:()=>Object.entries(STCFG).map(([k,v])=>({v:k,l:v.lbl}))},
@@ -2041,8 +2306,144 @@ const FILTER_OPS=[
   {key:'date_after',label:'depois de',types:['date']},
 ];
 
+// ─── URL hash: permite carregar config diretamente da URL ───────────────────
+// Formato: #cfg=<base64(JSON)>. Usado para sincronizar config entre devices
+// sem precisar de embedded credentials nem de upload manual.
+function _hashCfgImport(){
+  const h=location.hash||'';
+  if(!h.startsWith('#cfg='))return false;
+  try{
+    const b64=decodeURIComponent(h.slice(5));
+    const json=decodeURIComponent(escape(atob(b64)));
+    JSON.parse(json); // valida
+    localStorage.setItem(_DCEF_KEY,json);
+    return true;
+  }catch(e){console.warn('Hash de config inválido:',e);return false;}
+}
+
+// Marca a config local com timestamp atual e persiste. Use sempre que salvar.
+function _saveCfgLocal(cfg){
+  cfg._savedAt=Date.now();
+  localStorage.setItem(_DCEF_KEY,JSON.stringify(cfg));
+}
+
+// ─── Sincronização da config via Drive (fonte única da verdade) ─────────────
+// Arquivo fixo no Drive raiz. Tudo que muda em qualquer device sobe pra cá;
+// na próxima autenticação em qualquer outro device, a versão do Drive desce.
+const _DCFG_FILE_NAME='dashboard-cef-config.json';
+let _DCFG_FILE_ID=null;
+let _DCFG_SYNC_IN_PROGRESS=false;
+
+async function _driveCfgFindFileId(){
+  if(_DCFG_FILE_ID)return _DCFG_FILE_ID;
+  try{
+    const r=await gapi.client.drive.files.list({
+      q:`name='${_DCFG_FILE_NAME}' and trashed=false`,
+      fields:'files(id,modifiedTime)',pageSize:1,spaces:'drive'
+    });
+    if(r.result.files&&r.result.files.length){
+      _DCFG_FILE_ID=r.result.files[0].id;
+      return _DCFG_FILE_ID;
+    }
+  }catch(e){console.warn('Drive cfg find falhou:',e);}
+  return null;
+}
+
+async function _driveCfgDownload(){
+  try{
+    const id=await _driveCfgFindFileId();
+    if(!id)return null;
+    const r=await gapi.client.drive.files.get({fileId:id,alt:'media'});
+    return JSON.parse(typeof r.body==='string'?r.body:JSON.stringify(r.result));
+  }catch(e){console.warn('Drive cfg download falhou:',e);return null;}
+}
+
+async function _driveCfgUpload(){
+  if(!AUTH||!TOKEN)return;
+  const raw=localStorage.getItem(_DCEF_KEY);
+  if(!raw)return;
+  try{
+    let id=await _driveCfgFindFileId();
+    if(id){
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`,{
+        method:'PATCH',
+        headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},
+        body:raw
+      });
+    }else{
+      const form=new FormData();
+      form.append('metadata',new Blob([JSON.stringify({name:_DCFG_FILE_NAME,mimeType:'application/json'})],{type:'application/json'}));
+      form.append('file',new Blob([raw],{type:'application/json'}));
+      const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+TOKEN},
+        body:form
+      });
+      const data=await r.json();
+      _DCFG_FILE_ID=data.id;
+    }
+  }catch(e){console.warn('Drive cfg upload falhou:',e);}
+}
+
+// Compara local com Drive e converge para a versão mais recente
+async function _driveCfgSync(){
+  if(!AUTH||_DCFG_SYNC_IN_PROGRESS)return;
+  _DCFG_SYNC_IN_PROGRESS=true;
+  try{
+    const driveCfg=await _driveCfgDownload();
+    const localRaw=localStorage.getItem(_DCEF_KEY);
+    const localCfg=localRaw?JSON.parse(localRaw):null;
+
+    if(!localCfg&&!driveCfg)return;
+
+    const tLocal=(localCfg&&localCfg._savedAt)||0;
+    const tDrive=(driveCfg&&driveCfg._savedAt)||0;
+
+    if(driveCfg&&(!localCfg||tDrive>tLocal)){
+      // Drive é mais novo (ou é o único): aplica localmente
+      localStorage.setItem(_DCEF_KEY,JSON.stringify(driveCfg));
+      _hashCfgUpdate();
+      // Re-aplica branding/dados sem recarregar a página
+      try{setupLoader();}catch(_){}
+      try{if(typeof loadData==='function')loadData();}catch(_){}
+      showToast('🔄 Configuração sincronizada');
+    }else if(localCfg&&(!driveCfg||tLocal>tDrive)){
+      // Local é mais novo (ou Drive ainda não tem o arquivo): faz upload
+      if(!localCfg._savedAt){_saveCfgLocal(localCfg);}
+      await _driveCfgUpload();
+    }
+  }finally{_DCFG_SYNC_IN_PROGRESS=false;}
+}
+function _hashCfgExport(){
+  const raw=localStorage.getItem(_DCEF_KEY);
+  if(!raw)return '';
+  try{
+    const b64=btoa(unescape(encodeURIComponent(raw)));
+    return '#cfg='+encodeURIComponent(b64);
+  }catch(e){return '';}
+}
+function _hashCfgUpdate(){
+  const h=_hashCfgExport();
+  if(h){try{history.replaceState(null,'',location.pathname+location.search+h);}catch(_){}}
+}
+function copiarUrlConfigurada(){
+  const h=_hashCfgExport();
+  if(!h){showToast('Salve a configuração antes de copiar');return;}
+  const url=location.origin+location.pathname+location.search+h;
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(
+      ()=>showToast('✅ URL copiada! Cole em outro dispositivo'),
+      ()=>{prompt('Copie esta URL:',url);}
+    );
+  }else{
+    prompt('Copie esta URL:',url);
+  }
+}
+
 // ─── Loader: aplica config salva no localStorage ───────────────────────────
 function setupLoader(){
+  // 1. Se a URL tem #cfg=..., importa antes de checar localStorage
+  _hashCfgImport();
   const raw=localStorage.getItem(_DCEF_KEY);
   if(!raw){showSetup();return false;}
   try{
@@ -2060,7 +2461,7 @@ function setupLoader(){
     PDF_BASE_ID=c.pdfBaseId||'';
     // Polos
     POLO_CORES={}; POLO_NOME={};
-    (c.polos||[]).forEach(p=>{POLO_CORES[p.key]=p.cor; POLO_NOME[p.key]=p.nome;});
+    (c.polos||[]).forEach(p=>{POLO_CORES[p.key]=p.cor; POLO_NOME[p.key]=titleCase(p.nome);});
     // Usuário/empresa
     CONFIG_USER={
       emp:c.emp||'',resp:c.resp||'',crea:c.crea||'',
@@ -2068,7 +2469,8 @@ function setupLoader(){
       msg_av:c.msg_av||MSG_AV_DEFAULT,msg_med:c.msg_med||MSG_MED_DEFAULT,
       colorRows:c.colorRows!==undefined?c.colorRows:true,
       txt_name_tpl:c.txt_name_tpl||'convocacao.txt',
-      txt_folder_dest:c.txt_folder_dest||'root'
+      txt_folder_dest:c.txt_folder_dest||'root',
+      visionKey:c.visionKey||''
     };
     // Visual
     applyBranding(c);
@@ -2179,6 +2581,7 @@ function salvarConfig(){
   CONFIG_USER.colorRows=document.getElementById('cfg-color-rows').checked;
   CONFIG_USER.txt_name_tpl=document.getElementById('cfg-txt-name-tpl').value.trim()||'convocacao.txt';
   CONFIG_USER.txt_folder_dest=document.getElementById('cfg-txt-folder-dest').value;
+  const _vk=document.getElementById('cfg-vision-key');if(_vk)CONFIG_USER.visionKey=_vk.value.trim();
   const cor=document.getElementById('cfg-cor-txt').value.trim()||'#00478E';
   const corEsc=document.getElementById('cfg-cor-esc-txt').value.trim()||'#03347a';
   // Persiste junto com o resto do config
@@ -2194,9 +2597,12 @@ function salvarConfig(){
       c.colorRows=CONFIG_USER.colorRows;
       c.txt_name_tpl=CONFIG_USER.txt_name_tpl;
       c.txt_folder_dest=CONFIG_USER.txt_folder_dest;
+      c.visionKey=CONFIG_USER.visionKey||'';
       c.cor=cor;
       c.corEsc=corEsc;
-      localStorage.setItem(_DCEF_KEY,JSON.stringify(c));
+      _saveCfgLocal(c);
+      _hashCfgUpdate();
+      _driveCfgUpload(); // propaga pra todos os devices
       applyBranding(c);
     }catch(e){}
   }
@@ -2213,6 +2619,7 @@ function abrirConfig(){
   document.getElementById('cfg-color-rows').checked=CONFIG_USER.colorRows!==false;
   document.getElementById('cfg-txt-name-tpl').value=CONFIG_USER.txt_name_tpl||'convocacao.txt';
   document.getElementById('cfg-txt-folder-dest').value=CONFIG_USER.txt_folder_dest||'root';
+  const _vkEl=document.getElementById('cfg-vision-key');if(_vkEl)_vkEl.value=CONFIG_USER.visionKey||'';
   
   const raw=localStorage.getItem(_DCEF_KEY);
   let cor='#00478E', corEsc='#03347a';
@@ -2255,6 +2662,36 @@ let DRAGGED_IDX = null;
 const P=v=>(v===null||v===undefined)?'':String(v).trim();
 const B=v=>{const s=P(v).toUpperCase();return s==='TRUE'||s==='VERDADEIRO';};
 const nMun=m=>(m||'').replace(/\s*\(Deslocamento especial\)/i,'').trim();
+// Retorna true se a atividade exige deslocamento. Lê o flag `d` da configuração
+// (ATV_DYN tem prioridade sobre ATV). Para atividades sem o flag definido,
+// mantém o comportamento legado: G402/G402A nunca tem deslocamento; resto tem.
+function _atvTemDesloc(atv){
+  if(!atv)return false;
+  const cfg=(typeof ATV_DYN!=='undefined'&&ATV_DYN[atv])||(typeof ATV!=='undefined'&&ATV[atv]);
+  if(cfg&&typeof cfg.d==='boolean')return cfg.d;
+  return atv!=='G402'&&atv!=='G402A';
+}
+// Title Case com preposições minúsculas: "RIO DE JANEIRO" → "Rio de Janeiro".
+// Mantém siglas de 1–2 letras em caixa alta (ex.: "RJ", "VR", "MG").
+function titleCase(str){
+  if(!str)return str||'';
+  const lowers=['da','de','di','do','du','das','dos','e'];
+  return String(str).trim().split(/\s+/).map((w,i)=>{
+    if(!w)return '';
+    const lw=w.toLowerCase();
+    // Preposições (de, da, dos…) minúsculas, exceto na 1ª palavra — antes da guarda de sigla.
+    if(lowers.includes(lw))return i===0?lw.charAt(0).toUpperCase()+lw.slice(1):lw;
+    // Siglas de 1–2 letras permanecem em caixa alta (RJ, VR, MG).
+    if(/^[A-ZÀ-Ý0-9]{1,2}$/.test(w))return w;
+    return lw.charAt(0).toUpperCase()+lw.slice(1);
+  }).join(' ');
+}
+// Nome de exibição do polo (resolve sigla→nome de config e normaliza p/ Title Case).
+function poloNome(p){
+  if(!p)return '';
+  const k=resolvePoloKey(p);
+  return POLO_NOME[k]||POLO_NOME[String(p).toUpperCase()]||titleCase(p);
+}
 // Normaliza string removendo acentos para comparação de municípios
 const nrm=s=>(s||'').toString().normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
 // Encontra a chave canônica (com acentos) em MUN dado um nome qualquer
@@ -2356,6 +2793,10 @@ function parseRow(r,i){
     rev:B(r[ci('rev',27)]),
     abr:P(r[ci('abr',28)]),
     prz:P(r[ci('prz',29)]),
+    matricula:P(r[ci('matricula',30)]),
+    cnm:P(r[ci('cnm',31)]),
+    vcv:P(r[ci('vcv',32)]),
+    alertaMat:P(r[ci('alertaMat',33)]),
     ord:P(r[ci('item',0)])
   };
 }
@@ -2364,7 +2805,8 @@ function parseRow(r,i){
 const _COL_DEFAULTS={
   item:0,os:1,aceita:2,atv:3,tv:4,polo:5,mun:6,bairro:7,tip:8,end:9,area:10,cep:11,
   mes:12,siopi:13,pept:14,ent:15,vis:16,lau:17,vos:20,fich:21,vd:22,vt:23,
-  st:24,va:25,rsm:26,rev:27,abr:28,prz:29
+  st:24,va:25,rsm:26,rev:27,abr:28,prz:29,
+  matricula:30,cnm:31,vcv:32,alertaMat:33
 };
 // Recebe um objeto {campo: valor} e devolve um array de células posicionadas exatamente
 // nas colunas que a empresa configurou via CFG.COLS (ou nos defaults).
@@ -2533,6 +2975,7 @@ async function initClient(){
     gapi.client.setToken({access_token:TOKEN});
     setAuthUI(true);
     scheduleAuthRefresh(saved.expiry);
+    _driveCfgSync(); // sincroniza config do Drive em background
   }
   loadData();
 }
@@ -2548,21 +2991,126 @@ function initGSI(){
         Auth.save(resp.access_token,resp.expires_in);
         scheduleAuthRefresh(Date.now()+(resp.expires_in||3600)*1000);
         setAuthUI(true);
-        // Recarrega os dados após autenticação fresh (caso o load inicial tenha falhado)
+        _driveCfgSync(); // baixa última config do Drive (ou faz upload da local se for mais nova)
         if(typeof gapi!=='undefined'&&gapi.client&&gapi.client.sheets)loadData();
       }
     }
   });
-  // Só pede token se não tem um salvo válido (evita popup desnecessário)
+  // Sem token salvo: tenta silent (renova sem popup se já está logado no Google)
   if(!Auth.load())TC.requestAccessToken({prompt:''});
 }
 
+// Silent refresh on demand — retorna Promise que resolve com novo token ou null
+function silentRefresh(){
+  return new Promise(resolve=>{
+    if(!TC){resolve(null);return;}
+    let resolved=false;
+    const prev=TC.callback;
+    const timeoutId=setTimeout(()=>{
+      if(resolved)return;
+      resolved=true;
+      try{TC.callback=prev;}catch(_){}
+      resolve(null);
+    },5000);
+    TC.callback=(resp)=>{
+      try{TC.callback=prev;}catch(_){}
+      if(resolved){if(prev)prev(resp);return;}
+      resolved=true;
+      clearTimeout(timeoutId);
+      if(resp&&resp.access_token){
+        TOKEN=resp.access_token;AUTH=true;
+        gapi.client.setToken({access_token:TOKEN});
+        Auth.save(resp.access_token,resp.expires_in);
+        scheduleAuthRefresh(Date.now()+(resp.expires_in||3600)*1000);
+        setAuthUI(true);
+        resolve(resp.access_token);
+      }else{resolve(null);}
+    };
+    try{TC.requestAccessToken({prompt:''});}catch(e){
+      clearTimeout(timeoutId);resolved=true;
+      try{TC.callback=prev;}catch(_){}
+      resolve(null);
+    }
+  });
+}
+
+// Quando a aba volta a ficar visível, renova silenciosamente se o token está próximo de expirar
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState!=='visible')return;
+  if(!TC)return;
+  const exp=parseInt(localStorage.getItem('danthi-token-exp')||'0');
+  // Faltam menos de 10 minutos OU já expirou: refresh silencioso
+  if(!exp || Date.now() > exp - 10*60000) silentRefresh();
+});
+
 function doAuth(){if(TC)TC.requestAccessToken();else showToast('Aguarde...');}
+// Posiciona o popover de auth via JS (igual ao split-menu): a sidebar/bottom-nav
+// usa overflow:hidden + backdrop-filter, que recortariam o flyout se ele ficasse
+// no fluxo do DOM. Movemos pro <body> e usamos position:fixed.
+function positionAuthPopover(p,btn){
+  const r=btn.getBoundingClientRect();
+  p.style.position='fixed';
+  if(window.innerWidth<=576){
+    // Mobile: popover acima do dot, alinhado à direita do botão
+    p.style.right=Math.round(Math.max(8,window.innerWidth-r.right))+'px';
+    p.style.left='auto';
+    p.style.bottom=Math.round(window.innerHeight-r.top+6)+'px';
+    p.style.top='auto';
+  }else{
+    // Desktop: popover à direita da sidebar, base alinhada com o dot
+    p.style.left=Math.round(r.right+8)+'px';
+    p.style.right='auto';
+    p.style.bottom=Math.round(Math.max(8,window.innerHeight-r.bottom))+'px';
+    p.style.top='auto';
+  }
+}
+function toggleAuthMenu(event){
+  if(event){event.stopPropagation();}
+  const p=document.getElementById('auth-popover');
+  const btn=document.getElementById('auth-dot-btn');
+  if(!p||!btn)return;
+  if(p.parentElement!==document.body)document.body.appendChild(p);
+  const willOpen=!p.classList.contains('open');
+  if(willOpen)positionAuthPopover(p,btn);
+  p.classList.toggle('open');
+}
+// Fecha popover ao clicar fora (popover agora vive no <body>, então testamos
+// tanto o auth-corner quanto o próprio popover)
+document.addEventListener('click',e=>{
+  const a=document.getElementById('auth-corner');
+  const p=document.getElementById('auth-popover');
+  if(a&&p&&!a.contains(e.target)&&!p.contains(e.target))p.classList.remove('open');
+});
 function setAuthUI(ok){
   const ind=document.getElementById('auth-ind'),btn=document.getElementById('btn-auth');
-  if(ok){ind.textContent='● Autenticado';ind.className='auth-authenticated';btn.textContent='Sair';btn.onclick=()=>{google.accounts.oauth2.revoke(TOKEN);TOKEN=null;AUTH=false;Auth.clear();if(_AUTH_REFRESH_TIMER){clearTimeout(_AUTH_REFRESH_TIMER);_AUTH_REFRESH_TIMER=null;}setAuthUI(false);};
-    const w=document.getElementById('nova-warn');if(w)w.style.display='none';}
-  else{ind.textContent='● Não autenticado';ind.style.color='';btn.textContent='Entrar';btn.onclick=doAuth;}
+  const lbl=document.getElementById('auth-popover-label');
+  const entrar=document.getElementById('btn-entrar');
+  const dotBtn=document.getElementById('auth-dot-btn');
+  document.body.classList.toggle('no-auth',!ok);
+  if(ok){
+    if(entrar)entrar.style.display='none';
+    if(dotBtn)dotBtn.style.display='';
+    ind.textContent='●';
+    ind.classList.add('auth-authenticated');
+    if(lbl)lbl.textContent='Autenticado';
+    btn.textContent='Sair';
+    btn.onclick=()=>{
+      google.accounts.oauth2.revoke(TOKEN);TOKEN=null;AUTH=false;Auth.clear();
+      if(_AUTH_REFRESH_TIMER){clearTimeout(_AUTH_REFRESH_TIMER);_AUTH_REFRESH_TIMER=null;}
+      setAuthUI(false);
+      const p=document.getElementById('auth-popover');if(p)p.classList.remove('open');
+    };
+    const w=document.getElementById('nova-warn');if(w)w.style.display='none';
+  }else{
+    if(entrar)entrar.style.display='';
+    if(dotBtn)dotBtn.style.display='none';
+    ind.classList.remove('auth-authenticated');
+    if(lbl)lbl.textContent='Não autenticado';
+    btn.textContent='Entrar';
+    btn.onclick=doAuth;
+    // Fecha popover caso esteja aberto
+    const p=document.getElementById('auth-popover');if(p)p.classList.remove('open');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2612,11 +3160,13 @@ async function loadData(){
     // Re-popula dropdowns que dependem de ALL (município na rota)
     if(TAB==='rota'||SPLIT_TAB==='rota')initRota();
   }catch(e){
-    // Token expirado/inválido: limpa cache e tenta renovar silenciosamente
+    // Token expirado/inválido: tenta renovar silenciosamente antes de limpar
     const code=e.status||e.result?.error?.code;
     if(code===401||code===403){
+      const novoToken=await silentRefresh();
+      if(novoToken){loadData();return;}
+      // Silent falhou: aí sim limpa e mostra botão de login
       Auth.clear();TOKEN=null;AUTH=false;setAuthUI(false);
-      if(TC)TC.requestAccessToken({prompt:''});
       return;
     }
     document.getElementById('tbody').innerHTML=`<tr><td colspan="13" style="padding:1.5rem;text-align:center;color:#f87171">Erro ao carregar dados: ${e.message}<br><small style="opacity:.6">Verifique conexão e autenticação</small></td></tr>`;
@@ -2815,11 +3365,162 @@ function renderTable(){
     const pz=prazoStatus(r);
     let prazoHtml='';
     if(pz){prazoHtml=pz.type==='atrasado'?`<span class="badge-atrasado">▲ ${pz.diff}d</span>`:`<span class="badge-vence">⏱ ${pz.diff}d</span>`;}
-    [{t:r.item,s:'font-size:11px;text-align:center'},{t:r.os,s:'font-size:10px;max-width:140px;overflow:hidden;text-overflow:ellipsis'},{t:r.end,s:'max-width:190px;overflow:hidden;text-overflow:ellipsis'},{t:r.bairro,s:'max-width:95px;overflow:hidden;text-overflow:ellipsis'},{t:nMun(r.mun),s:'max-width:110px;overflow:hidden;text-overflow:ellipsis'},{t:r.atv,s:'font-size:11px;max-width:90px;overflow:hidden;text-overflow:ellipsis'},{t:r.tip,s:''},{t:fmtArea(r.area),s:'font-size:11px'},{t:r.mes,s:'font-size:11px'},{h:badge(r)+prazoHtml},{t:r.vt>0?brl(r.vt):'—',s:'font-size:11px;text-align:right'},{t:r.va>0?brl(r.va):'—',s:'font-size:11px;text-align:right'},{t:rsm2(r),s:'font-size:11px;text-align:right'}].forEach(col=>{
+    const _alertaMat=r.alertaMat==='divergente'?`<span title="⚠️ Matrícula divergente da Certidão — possível cancelamento da demanda" style="display:inline-block;margin-right:4px;color:#dc2626;font-weight:700">⚠</span>`:'';
+    [{h:_alertaMat+(r.item||'—'),s:'font-size:11px;text-align:center'+(r.alertaMat==='divergente'?';background:rgba(220,38,38,0.10)':'')},{t:r.os,s:'font-size:10px;max-width:140px;overflow:hidden;text-overflow:ellipsis'},{t:titleCase(r.end),s:'max-width:190px;overflow:hidden;text-overflow:ellipsis'},{t:titleCase(r.bairro),s:'max-width:95px;overflow:hidden;text-overflow:ellipsis'},{t:titleCase(nMun(r.mun)),s:'max-width:110px;overflow:hidden;text-overflow:ellipsis'},{t:r.atv,s:'font-size:11px;max-width:90px;overflow:hidden;text-overflow:ellipsis'},{t:r.tip,s:''},{t:fmtArea(r.area),s:'font-size:11px'},{t:r.mes,s:'font-size:11px'},{h:badge(r)+prazoHtml},{t:r.vt>0?brl(r.vt):'—',s:'font-size:11px;text-align:right'},{t:r.va>0?brl(r.va):'—',s:'font-size:11px;text-align:right'},{t:rsm2(r),s:'font-size:11px;text-align:right'}].forEach(col=>{
       const td=document.createElement('td');if(col.h)td.innerHTML=col.h;else td.textContent=col.t||'—';if(col.s)td.style.cssText=col.s;if(col.t)td.title=col.t;tr.appendChild(td);
     });
     const tdD=document.createElement('td');tdD.style.textAlign='center';const btn=document.createElement('button');btn.textContent='📁';btn.style.cssText='background:none;border:none;cursor:pointer;font-size:13px';btn.addEventListener('click',e=>{e.stopPropagation();openD(i);});tdD.appendChild(btn);tr.appendChild(tdD);tbody.appendChild(tr);
   });
+}
+
+// ═══════════════════════════════════════════════════════════
+//  EXPORTAÇÃO DA TABELA (Excel / CSV / PDF)
+// ═══════════════════════════════════════════════════════════
+function toggleExportMenu(ev){
+  if(ev)ev.stopPropagation();
+  const menu=document.getElementById('export-menu');
+  if(!menu)return;
+  const open=menu.classList.toggle('open');
+  if(open){
+    const close=(e)=>{if(!document.getElementById('export-wrap').contains(e.target)){menu.classList.remove('open');document.removeEventListener('click',close);document.removeEventListener('keydown',esc);}};
+    const esc=(e)=>{if(e.key==='Escape'){menu.classList.remove('open');document.removeEventListener('click',close);document.removeEventListener('keydown',esc);}};
+    setTimeout(()=>{document.addEventListener('click',close);document.addEventListener('keydown',esc);},0);
+  }
+}
+
+function _exportRows(){
+  const rows=(typeof FIL!=='undefined'&&FIL&&FIL.length)?FIL:(ALL||[]);
+  const headers=['#','OS','Endereço','Bairro','Município','Atividade','Tipologia','Área (m²)','Mês','Status','Valor Total','Valor Avaliado','R$/m²'];
+  const data=rows.map(r=>{
+    const rsm=(r.area>0&&r.va>0)?(r.va/r.area):0;
+    return [
+      r.item||'',
+      r.os||'',
+      titleCase(r.end||''),
+      titleCase(r.bairro||''),
+      titleCase(nMun(r.mun)||''),
+      r.atv||'',
+      r.tip||'',
+      Number(r.area)||0,
+      r.mes||'',
+      r.st||'',
+      Number(r.vt)||0,
+      Number(r.va)||0,
+      rsm
+    ];
+  });
+  return {headers,data,rows};
+}
+
+function _exportFilename(ext){
+  const d=new Date();
+  const ts=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return `OS-Danthi-${ts}.${ext}`;
+}
+
+function _downloadBlob(blob,name){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+
+async function exportarTabela(fmt){
+  document.getElementById('export-menu')?.classList.remove('open');
+  const {headers,data,rows}=_exportRows();
+  if(!rows.length){showToast('Nenhuma OS para exportar');return;}
+
+  if(fmt==='csv'){
+    const csv=[headers,...data].map(row=>row.map(c=>{
+      if(typeof c==='number')c=c.toString().replace('.',',');
+      const s=String(c??'').replace(/"/g,'""');
+      return /[";\n,]/.test(s)?`"${s}"`:s;
+    }).join(';')).join('\r\n');
+    _downloadBlob(new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'}),_exportFilename('csv'));
+    showToast(`📋 ${rows.length} OS exportadas — CSV pronto p/ Sheets/Excel`);
+    return;
+  }
+
+  if(fmt==='xlsx'){
+    if(!window.XLSX){showToast('Aguarde — biblioteca de Excel carregando…');return;}
+    const aoa=[headers,...data];
+    const ws=XLSX.utils.aoa_to_sheet(aoa);
+    // Larguras de coluna
+    ws['!cols']=[{wch:5},{wch:16},{wch:34},{wch:18},{wch:20},{wch:18},{wch:14},{wch:10},{wch:9},{wch:18},{wch:14},{wch:14},{wch:12}];
+    // Formato BRL nas colunas de valor (K, L) e número na R$/m² (M)
+    const last=aoa.length;
+    for(let i=2;i<=last;i++){
+      ['K','L'].forEach(col=>{const c=ws[col+i];if(c&&typeof c.v==='number'){c.t='n';c.z='[$R$ -416] #,##0.00';}});
+      const cm=ws['M'+i];if(cm&&typeof cm.v==='number'){cm.t='n';cm.z='#,##0.00';}
+      const ca=ws['H'+i];if(ca&&typeof ca.v==='number'){ca.t='n';ca.z='#,##0.00';}
+    }
+    // Estilo do cabeçalho (negrito via cell.s — XLSX styles não funcionam na build community sem write-styles, então só freeze)
+    ws['!freeze']={ySplit:1};
+    ws['!autofilter']={ref:XLSX.utils.encode_range({s:{r:0,c:0},e:{r:last-1,c:headers.length-1}})};
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'OS');
+    XLSX.writeFile(wb,_exportFilename('xlsx'));
+    showToast(`📊 ${rows.length} OS exportadas para Excel`);
+    return;
+  }
+
+  if(fmt==='pdf'){
+    if(!window.html2pdf){showToast('Aguarde — biblioteca de PDF carregando…');return;}
+    showToast('📕 Gerando PDF…');
+    const totVt=rows.reduce((s,r)=>s+(Number(r.vt)||0),0);
+    const totVa=rows.reduce((s,r)=>s+(Number(r.va)||0),0);
+    const dt=new Date().toLocaleDateString('pt-BR');
+    const tbodyHtml=data.map((row,i)=>{
+      const tds=row.map((c,j)=>{
+        let txt=c;
+        if(j===10||j===11)txt=(Number(c)>0)?brl(Number(c)):'—';
+        else if(j===7)txt=(Number(c)>0)?(Number(c).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})):'—';
+        else if(j===12)txt=(Number(c)>0)?brl(Number(c)):'—';
+        else txt=String(c??'')||'—';
+        const align=(j===0||j===7||j===10||j===11||j===12)?'text-align:right':'';
+        return `<td style="padding:3px 5px;border:1px solid #d4d4d4;${align}">${txt}</td>`;
+      }).join('');
+      return `<tr style="background:${i%2?'#f6f7f8':'#fff'}">${tds}</tr>`;
+    }).join('');
+    const html=`
+      <div style="font-family:Inter,Arial,sans-serif;color:#111;padding:18px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #003c6e;padding-bottom:8px;margin-bottom:12px">
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#003c6e">Ordens de Serviço — CAIXA</div>
+            <div style="font-size:10px;color:#555">Danthi Engenharia · gerado em ${dt}</div>
+          </div>
+          <div style="font-size:10px;color:#444;text-align:right">
+            <div><b>${rows.length}</b> OS exportadas</div>
+            <div>Valor Total: <b>${brl(totVt)}</b></div>
+            <div>Valor Avaliado: <b>${brl(totVa)}</b></div>
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:8px">
+          <thead><tr style="background:#003c6e;color:#fff">
+            ${headers.map(h=>`<th style="padding:5px 5px;text-align:left;border:1px solid #002a4c;font-weight:600">${h}</th>`).join('')}
+          </tr></thead>
+          <tbody>${tbodyHtml}</tbody>
+        </table>
+      </div>`;
+    const wrap=document.createElement('div');wrap.style.cssText='position:fixed;left:-99999px;top:0;width:1500px';wrap.innerHTML=html;
+    document.body.appendChild(wrap);
+    try{
+      await html2pdf().set({
+        margin:6,
+        filename:_exportFilename('pdf'),
+        image:{type:'jpeg',quality:0.95},
+        html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff'},
+        jsPDF:{unit:'mm',format:'a3',orientation:'landscape'},
+        pagebreak:{mode:['css','legacy']}
+      }).from(wrap.firstElementChild).save();
+      showToast(`📕 ${rows.length} OS exportadas em PDF`);
+    }catch(e){
+      console.error(e);showToast('Erro ao gerar PDF: '+e.message);
+    }finally{
+      wrap.remove();
+    }
+    return;
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -2854,11 +3555,21 @@ function initDashFilters(){
     Object.keys(POLO_CORES).forEach(p=>{const o=document.createElement('option');o.value=p;o.textContent=POLO_NOME[p]||p;selPolo.appendChild(o);});
   }
   const selIni=document.getElementById('dash-mes-ini'),selFim=document.getElementById('dash-mes-fim');
-  if(selIni&&selIni.options.length===1){
-    MES_ORD.forEach(m=>{
+  if(selIni&&selFim){
+    // Mantém só meses que realmente aparecem nos dados, ordenados cronologicamente.
+    const mesesPresentes=new Set();
+    (ALL||[]).forEach(r=>{if(r&&r.mes)mesesPresentes.add(r.mes);});
+    const mesesDisponiveis=[...mesesPresentes].sort((a,b)=>MOS_ORD_IDX(a)-MOS_ORD_IDX(b));
+    // Preserva a seleção atual (se ainda válida) antes de repopular
+    const prevIni=selIni.value,prevFim=selFim.value;
+    selIni.innerHTML='<option value="">Mês inicial</option>';
+    selFim.innerHTML='<option value="">Mês final</option>';
+    mesesDisponiveis.forEach(m=>{
       const o1=document.createElement('option');o1.value=m;o1.textContent=m;selIni.appendChild(o1);
       const o2=document.createElement('option');o2.value=m;o2.textContent=m;selFim.appendChild(o2);
     });
+    if(prevIni&&mesesDisponiveis.includes(prevIni))selIni.value=prevIni;
+    if(prevFim&&mesesDisponiveis.includes(prevFim))selFim.value=prevFim;
   }
 }
 
@@ -2985,7 +3696,7 @@ function renderCharts(D){
   mkC('ctv',{type:'doughnut',data:{labels:['Interna','Adjudicado'],datasets:[{data:[tv.Interna,tv.Adjudicado],backgroundColor:[accentPurple,accent],borderWidth:2,borderColor:chartBgColor,hoverBorderColor:'rgba(255,255,255,.15)'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>{const pct=tvTot?Math.round(c.parsed/tvTot*100):0;return`${c.label}: ${c.parsed} OS (${pct}%)`;}}}}}});
 
   // Top municípios
-  const bMu={};D.forEach(r=>{const m=nMun(r.mun);if(m)bMu[m]=(bMu[m]||0)+1;});const mTop=Object.entries(bMu).sort((a,b)=>b[1]-a[1]).slice(0,12);
+  const bMu={};D.forEach(r=>{const m=titleCase(nMun(r.mun));if(m)bMu[m]=(bMu[m]||0)+1;});const mTop=Object.entries(bMu).sort((a,b)=>b[1]-a[1]).slice(0,12);
   mkC('cmun',{type:'bar',data:{labels:mTop.map(e=>e[0]),datasets:[{data:mTop.map(e=>e[1]),backgroundColor:mTop.map((_,i)=>munPalette[i%munPalette.length]),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.x} OS`}}},scales:{x:{ticks:{stepSize:1}},y:{ticks:{font:{size:9,family:"'Inter',sans-serif"}}}}}});
 
   // Faturamento por polo — usa r.polo de col F (siglas RJ/VR/CAMPOS) e POLO_CORES para cores
@@ -3005,7 +3716,7 @@ function renderCharts(D){
   const datasets=polosReal.map(poloKey=>{
     const cor=POLO_CORES[poloKey]||POLO_CORES[poloKey.toUpperCase()]||accentPurple;
     return{
-      label:POLO_NOME[poloKey]||POLO_NOME[poloKey.toUpperCase()]||poloKey,
+      label:POLO_NOME[poloKey]||POLO_NOME[poloKey.toUpperCase()]||titleCase(poloKey),
       data:mesL.map(mes=>Math.round(D.filter(r=>r.mes===mes&&r._resolvedPoloKey===poloKey).reduce((s,r)=>{
         const val=r.vt||r.vos||(ATV_DYN[r.atv]?ATV_DYN[r.atv].v:(ATV[r.atv]?ATV[r.atv].v:0));
         return s+val;
@@ -3015,7 +3726,7 @@ function renderCharts(D){
   });
   // Legenda dinâmica
   const legEl=document.getElementById('lpolo');
-  if(legEl)legEl.innerHTML=polosReal.map(p=>`<span><span class="lsq" style="background:${POLO_CORES[p]||POLO_CORES[p.toUpperCase()]||accentPurple}"></span>${POLO_NOME[p]||POLO_NOME[p.toUpperCase()]||p}</span>`).join('');
+  if(legEl)legEl.innerHTML=polosReal.map(p=>`<span><span class="lsq" style="background:${POLO_CORES[p]||POLO_CORES[p.toUpperCase()]||accentPurple}"></span>${POLO_NOME[p]||POLO_NOME[p.toUpperCase()]||titleCase(p)}</span>`).join('');
   const altPolo=Math.max(280,mesL.length*40);document.getElementById('cpolo-wrap').style.height=altPolo+'px';
   const ctx=document.getElementById('cpolo').getContext('2d');if(CHS['cpolo'])CHS['cpolo'].destroy();
   CHS['cpolo']=new Chart(ctx,{type:'bar',data:{labels:mesL,datasets},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.dataset.label}: ${brl(c.raw)}`}}},scales:{x:{stacked:true,ticks:{color:tc,font:{size:9},callback:v=>fmtK(v)},grid:{color:gc}},y:{stacked:true,ticks:{color:tc,font:{size:9,family:"'Inter',sans-serif"}},grid:{display:false}}}}});
@@ -3031,7 +3742,7 @@ function openD(idx){
   document.getElementById('btn-save-drawer').style.display='none';
   document.getElementById('d-item-badge').textContent=`S${r.item}`;
   document.getElementById('d-num').textContent=r.os;
-  document.getElementById('d-tit').textContent=`${r.tip||''} — ${nMun(r.mun)}`;
+  document.getElementById('d-tit').textContent=`${r.tip||''} — ${titleCase(nMun(r.mun))}`;
   const c=stCfg(r),bdg=[`<span class="badge ${c.cls}">${c.lbl}</span>`];
   if(r.atv)bdg.push(`<span class="badge badge-atv">${r.atv}</span>`);
   if(r.tv)bdg.push(`<span class="badge badge-tv">${r.tv}</span>`);
@@ -3039,17 +3750,63 @@ function openD(idx){
   if(r.lau)bdg.push(`<span class="badge badge-lau">Laudo ✓</span>`);
   document.getElementById('d-badges').innerHTML=bdg.join('');
   // Fill display values
-  setDV('d-end',r.end);setDV('d-bairro',r.bairro);setDV('d-mun',`${nMun(r.mun)} / ${r.polo}`);setDV('d-cep',r.cep);setDV('d-polo',r.polo);
+  setDV('d-end',titleCase(r.end));setDV('d-bairro',titleCase(r.bairro));setDV('d-mun',`${titleCase(nMun(r.mun))} / ${poloNome(r.polo)}`);setDV('d-cep',r.cep);setDV('d-polo',poloNome(r.polo));
   setDV('d-tip',r.tip);setDV('d-area',fmtArea(r.area));setDV('d-vaval',brl(r.va));setDV('d-rsm2',rsm2(r));
   setDV('d-siopi',r.siopi);setDV('d-ent',r.ent);setDV('d-mes',r.mes);setDV('d-rev',r.rev?`${r.abr} → ${r.prz}`:'Sem revisão');
   setDV('d-vos',brl(r.vos));setDV('d-vd',brl(r.vd));setDV('d-vt',brl(r.vt));setDV('d-atv',r.atv);setDV('d-tv', r.tv || 'Interna');
   const isEsp=r.mun.includes('(Deslocamento especial)');setDV('d-esp',isEsp?'Sim':'Não');setEI('e-esp',isEsp?'1':'0');
   // Fill edit inputs
-  setEI('e-end',r.end);setEI('e-bairro',r.bairro);setEI('e-mun',nMun(r.mun));setEI('e-cep',r.cep);setEI('e-polo',r.polo);
+  setEI('e-end',r.end);setEI('e-bairro',r.bairro);setEI('e-mun',titleCase(nMun(r.mun)));setEI('e-cep',r.cep);setEI('e-polo',poloNome(r.polo));
   setEI('e-tip',r.tip);setEI('e-area',r.area);setEI('e-vaval',r.va||'');
+  // Popula o select de mês (uma vez) com as opções padronizadas usadas em todo o app.
+  // Se o valor da OS estiver num formato antigo não previsto, adiciona como opção extra
+  // para evitar perder o valor ao abrir/salvar.
+  const _selMes=document.getElementById('e-mes');
+  if(_selMes&&_selMes.tagName==='SELECT'){
+    if(!_selMes.options.length){
+      const optEmpty=document.createElement('option');optEmpty.value='';optEmpty.textContent='—';_selMes.appendChild(optEmpty);
+      MES_ORD.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;_selMes.appendChild(o);});
+    }
+    if(r.mes&&![..._selMes.options].some(o=>o.value===r.mes)){
+      const oExtra=document.createElement('option');oExtra.value=r.mes;oExtra.textContent=r.mes+' (atual)';_selMes.appendChild(oExtra);
+    }
+  }
   setEI('e-siopi',r.siopi);setEI('e-mes',r.mes);
   setEI('e-atv',r.atv);setEI('e-tv',r.tv || 'Interna');
   document.getElementById('d-contato-sec').style.display='none';
+  // Reseta + recarrega campos do SIOPI.
+  // Fonte de verdade: planilha (r.matricula/r.cnm/r.vcv) — cross-device.
+  // Fallback: draft local pra OS antigas que ainda não foram sincronizadas.
+  // cartorio/tipoConstrucao continuam só no draft (não são sincronizados).
+  const _siopiAlerta=document.getElementById('d-siopi-alerta-tip');if(_siopiAlerta)_siopiAlerta.style.display='none';
+  // Limpa box de status (etapas/✅/⚠️ da extração anterior) ao trocar de OS
+  const _siopiStatus=document.getElementById('d-siopi-status');if(_siopiStatus){_siopiStatus.textContent='';_siopiStatus.style.display='none';}
+  ['d-siopi-matricula','d-siopi-cnm','d-siopi-cartorio','d-siopi-valor'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+  const _draft=r.item?lerDraftFicha(r.item):null;
+  // Planilha > draft pros 3 campos sincronizados; draft puro pros 2 locais
+  const _matricula=r.matricula||(_draft&&_draft.matricula)||'';
+  const _cnm=r.cnm||(_draft&&_draft.cnm)||'';
+  const _vcvRaw=r.vcv||(_draft&&_draft.valorCompraVenda?'R$ '+_draft.valorCompraVenda:'')||'';
+  const _cartorio=(_draft&&_draft.cartorio)||'';
+  if(_matricula||_cnm||_vcvRaw||_cartorio){
+    setDV('d-siopi-matricula',_matricula);
+    setDV('d-siopi-cnm',_cnm);
+    setDV('d-siopi-cartorio',_cartorio);
+    setDV('d-siopi-valor',_vcvRaw);
+  }
+  if(_draft){
+    // Aviso de tipologia divergente persiste também
+    if(_draft.tipoConstrucao){
+      const TIP_OPTS=['Apartamento','Casa','Casa comercial','Obra Residencial','Terreno','Sala comercial','Loja','Gleba'];
+      const raw=nrm(_draft.tipoConstrucao);
+      const sorted=[...TIP_OPTS].sort((a,b)=>b.length-a.length);
+      const matched=sorted.find(o=>raw.includes(nrm(o)));
+      if(matched&&matched!==r.tip&&_siopiAlerta){
+        _siopiAlerta.innerHTML=`⚠️ <b>Tipologia divergente</b><br>SIOPI: <b>${matched}</b> · Dashboard: <b>${r.tip||'—'}</b><br><span style="font-size:10px;opacity:.85">Corrija manualmente em "Editar OS" se necessário.</span>`;
+        _siopiAlerta.style.display='block';
+      }
+    }
+  }
   const ds=document.getElementById('drawer-soltos');if(ds){ds.style.display='none';ds.innerHTML='';}
   loadDrive(r);
   document.getElementById('drawer').classList.add('open');
@@ -3080,7 +3837,7 @@ function recalcDrawerVOS(){
   // Deslocamento: Planilha 1 primeiro, fallback MUN hardcoded
   const munKey=findMunKey(munRaw)||nMun(COS.mun);
   let vDesloc=0;
-  if(atv!=='G402'&&atv!=='G402A'&&munKey){
+  if(_atvTemDesloc(atv)&&munKey){
     const vBase=MUN_DESL_DYN[munKey]||(MUN[munKey]?MUN[munKey].v:0);
     vDesloc=isEsp?Math.round(vBase*0.21*100)/100:vBase;
   }
@@ -3143,9 +3900,9 @@ async function saveDrawerEdits(){
       let vOS=COS.vos||0;
       const cfgAtv=ATV[atvNow];
       if(cfgAtv)vOS=cfgAtv.v;
-      // vDesloc determinado pelo município; G402/G402A = 0; especial = 21% do valor padrão
+      // vDesloc determinado pelo município; atividade marcada como "sem deslocamento" = 0; especial = 21% do valor padrão
       let vDesloc=0;
-      if(atvNow!=='G402'&&atvNow!=='G402A'){
+      if(_atvTemDesloc(atvNow)){
         const kMun=findMunKey(baseMun);
         if(kMun){
           vDesloc=MUN[kMun].v;
@@ -3177,6 +3934,134 @@ function copyAddress(){
 }
 
 // ═══════════════════════════════════════════════════════════
+//  OCR / Validação de matrícula (Certidão da Matrícula)
+//  Cascata: pdf.js (texto nativo) → Google Vision (imagens/PDF escaneado)
+// ═══════════════════════════════════════════════════════════
+function _b64ToUint8(b64){
+  const bin=atob(b64);
+  const arr=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+  return arr;
+}
+
+async function extrairTextoPdfJs(bytesB64){
+  if(typeof pdfjsLib==='undefined'){console.warn('[OCR] pdfjsLib ausente');return '';}
+  try{
+    const data=_b64ToUint8(bytesB64);
+    const pdf=await pdfjsLib.getDocument({data}).promise;
+    let texto='';
+    for(let p=1;p<=pdf.numPages;p++){
+      const page=await pdf.getPage(p);
+      const content=await page.getTextContent();
+      texto+=content.items.map(it=>it.str).join(' ')+'\n';
+    }
+    return texto.trim();
+  }catch(e){console.warn('[OCR] pdf.js falhou:',e.message);return '';}
+}
+
+// Google Vision DOCUMENT_TEXT_DETECTION. Custo: ~US$ 1,50/1000 unidades (1ª 1k grátis/mês).
+// Espera CONFIG_USER.visionKey configurado no setup.
+// Imagens → endpoint images:annotate. PDFs (até 5 páginas) → endpoint files:annotate.
+async function ocrViaVision(bytesB64, mimeType){
+  const key=(CONFIG_USER&&CONFIG_USER.visionKey)||'';
+  if(!key){return {texto:'', erro:'vision_key_ausente'};}
+  const isPdf=(mimeType||'').toLowerCase().includes('pdf');
+  try{
+    let body, url;
+    if(isPdf){
+      // files:annotate (síncrono) aceita PDF inline até 5 páginas. Acima disso retorna erro.
+      url=`https://vision.googleapis.com/v1/files:annotate?key=${encodeURIComponent(key)}`;
+      body={requests:[{
+        inputConfig:{content:bytesB64,mimeType:'application/pdf'},
+        features:[{type:'DOCUMENT_TEXT_DETECTION'}]
+      }]};
+    }else{
+      url=`https://vision.googleapis.com/v1/images:annotate?key=${encodeURIComponent(key)}`;
+      body={requests:[{image:{content:bytesB64},features:[{type:'DOCUMENT_TEXT_DETECTION'}]}]};
+    }
+    const res=await fetch(url,{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)
+    });
+    if(!res.ok){
+      const errTxt=await res.text().catch(()=>'');
+      console.warn('[OCR] Vision HTTP',res.status,errTxt.slice(0,200));
+      return {texto:'', erro:`vision_http_${res.status}`};
+    }
+    const json=await res.json();
+    let texto='';
+    if(isPdf){
+      // files:annotate retorna responses[0].responses = array de páginas, cada uma com fullTextAnnotation
+      const paginas=json.responses?.[0]?.responses||[];
+      texto=paginas.map(p=>p.fullTextAnnotation?.text||'').join('\n');
+    }else{
+      texto=json.responses?.[0]?.fullTextAnnotation?.text||'';
+    }
+    return {texto, erro:texto?'':'vision_sem_texto'};
+  }catch(e){return {texto:'', erro:'vision_excecao_'+e.message};}
+}
+
+async function extrairTextoDoc(doc){
+  const isPdf=(doc.mimeType||'').toLowerCase().includes('pdf')||(doc.nome||'').toLowerCase().endsWith('.pdf');
+  if(isPdf){
+    const t=await extrairTextoPdfJs(doc.bytes);
+    if(t && t.length>=30) return {texto:t, fonte:'pdfjs'};
+    const v=await ocrViaVision(doc.bytes, doc.mimeType);
+    if(v.texto) return {texto:v.texto, fonte:'vision'};
+    return {texto:'', fonte:'nenhuma', erro:v.erro||'pdfjs_vazio'};
+  }
+  const v=await ocrViaVision(doc.bytes, doc.mimeType||'image/jpeg');
+  if(v.texto) return {texto:v.texto, fonte:'vision'};
+  return {texto:'', fonte:'nenhuma', erro:v.erro||'sem_texto'};
+}
+
+// Extrai candidatos a nº de matrícula do texto. Aceita "matrícula nº 47.926",
+// "matricula: 12.345", "MATRÍCULA-47926" etc.
+// Aceita . e , como separador de milhar (ex.: "47.926" vira "47926").
+function extrairCandidatosMatricula(texto){
+  const t=(texto||'').replace(/\s+/g,' ');
+  const cands=new Set();
+  // Captura: "matrícula" + até 15 chars + número (com ou sem separador de milhar)
+  // Primeira alternativa: \d{1,3}([.,]\d{3})+  → casos como "47.926" ou "1.234.567"
+  // Segunda alternativa: \d{1,9}              → casos como "47926" ou "6986"
+  const re=/matr[íi]cula[\s\S]{0,15}?(\d{1,3}(?:[.,]\d{3})+|\d{1,9})/gi;
+  let m; while((m=re.exec(t))!==null){
+    const num=m[1].replace(/[.,]/g,''); // remove separadores
+    if(num)cands.add(num);
+  }
+  return [...cands];
+}
+
+function compararMatricula(esperada, candidatos){
+  if(!candidatos.length) return {status:'nao_validada'};
+  const norm=s=>String(s||'').replace(/\D/g,'').replace(/^0+/,'');
+  const esp=norm(esperada);
+  if(!esp) return {status:'nao_validada'};
+  const bate=candidatos.some(c=>norm(c)===esp);
+  return {status:bate?'ok':'divergente', candidatos};
+}
+
+// Pipeline: filtra docs com tipo "Certidão da Matrícula", roda OCR, valida cada um.
+// status final: 'ok' (todos bateram), 'divergente' (algum divergiu), 'nao_validada' ou 'sem_certidao'.
+async function validarCertidaoMatricula(documentos, matriculaEsperada){
+  const certidoes=(documentos||[]).filter(d=>d.bytes && /certid[ãa]o\s+d[ae]\s+matr[íi]cula/i.test(d.tipo||''));
+  if(!certidoes.length) return {status:'sem_certidao', detalhes:[]};
+  if(!matriculaEsperada) return {status:'nao_validada', motivo:'sem_matricula_siopi', detalhes:[]};
+  const detalhes=[]; let achouOk=false, achouDiv=false;
+  for(const doc of certidoes){
+    const ext=await extrairTextoDoc(doc);
+    const cands=extrairCandidatosMatricula(ext.texto);
+    const cmp=compararMatricula(matriculaEsperada, cands);
+    detalhes.push({nome:doc.nome, fonte:ext.fonte, candidatos:cands, status:cmp.status, erro:ext.erro});
+    if(cmp.status==='ok') achouOk=true;
+    if(cmp.status==='divergente') achouDiv=true;
+  }
+  let status='nao_validada';
+  if(achouDiv) status='divergente';
+  else if(achouOk) status='ok';
+  return {status, detalhes};
+}
+
+// ═══════════════════════════════════════════════════════════
 //  COMPLEMENTOS SIOPI (via extensão Chrome)
 // ═══════════════════════════════════════════════════════════
 async function enriquecerComSIOPI(){
@@ -3189,6 +4074,11 @@ async function enriquecerComSIOPI(){
     statusEl.style.display='block';
     statusEl.textContent=msg;
     statusEl.style.color=color||'var(--text-muted)';
+    // Variante do chip combina com a cor passada
+    statusEl.classList.remove('chip-success','chip-danger','chip-info');
+    if(color&&color.includes('--text-success'))statusEl.classList.add('chip-success');
+    else if(color&&color.includes('--text-danger'))statusEl.classList.add('chip-danger');
+    else statusEl.classList.add('chip-info');
   };
   
   // Verifica se a extensão está disponível (com pequeno retry caso ainda esteja carregando)
@@ -3198,13 +4088,13 @@ async function enriquecerComSIOPI(){
     tentativas++;
   }
   if(!window.danthiSIOPI||typeof window.danthiSIOPI.extract!=='function'){
-    setStatus('❌ Extensão SIOPI Extractor não detectada. Instale-a e recarregue esta página (Ctrl+F5).','#fca5a5');
+    setStatus('❌ Extensão SIOPI Extractor não detectada. Instale-a e recarregue esta página (Ctrl+F5).','var(--text-danger)');
     return;
   }
   
   const osCompleta=COS.os;
   if(!osCompleta){
-    setStatus('❌ Esta OS não tem número válido','#fca5a5');
+    setStatus('❌ Esta OS não tem número válido','var(--text-danger)');
     return;
   }
   
@@ -3214,8 +4104,9 @@ async function enriquecerComSIOPI(){
   setStatus('🔍 Iniciando busca no SIOPI. Não feche a aba do SIOPI...','var(--text-muted)');
   
   try{
-    // 1. Chama a extensão — ela abre o SIOPI, consulta, extrai e retorna
-    const result=await window.danthiSIOPI.extract(osCompleta);
+    // 1. Chama a extensão — ela abre o SIOPI, consulta, extrai e retorna.
+    //    Passamos o código da atividade pra ativar fluxos especiais (ex.: E401 = acompanhamento de obra)
+    const result=await window.danthiSIOPI.extract(osCompleta, COS.atv);
     console.log('[SIOPI] resultado completo:',result);
     console.log('[SIOPI] documentos:',result?.documentos);
     if(result?.documentos){
@@ -3231,7 +4122,7 @@ async function enriquecerComSIOPI(){
     }
     
     if(result.errors&&result.errors.length&&!result.complemento&&!result.area_privativa){
-      setStatus('❌ '+result.errors.join('; '),'#fca5a5');
+      setStatus('❌ '+result.errors.join('; '),'var(--text-danger)');
       btn.disabled=false;btn.style.opacity='1';btn.innerHTML='🔍 Buscar complementos no SIOPI';
       return;
     }
@@ -3273,20 +4164,54 @@ async function enriquecerComSIOPI(){
       }
     }
 
-    if(result.tipologia){
-      // Mapeia o valor bruto do SIOPI para uma das opções válidas (acentos-insensitive)
+    // Campos do SIOPI: exibe no drawer e PERSISTE:
+    //  - matricula / cnm / valor_compra_venda → planilha (cross-device) + draft como cache
+    //  - cartorio / tipo_construcao → só no draft (uso interno da ficha)
+    const tipoSiopi=result.tipo_construcao||result.tipologia||'';
+    setDV('d-siopi-matricula',result.matricula);
+    setDV('d-siopi-cnm',result.cnm);
+    setDV('d-siopi-cartorio',result.cartorio);
+    setDV('d-siopi-valor',result.valor_compra_venda?'R$ '+result.valor_compra_venda:'');
+    if(COS&&COS.item){
+      atualizarDraftFicha(COS.item,{
+        matricula:result.matricula,
+        cnm:result.cnm,
+        cartorio:result.cartorio,
+        valorCompraVenda:result.valor_compra_venda,
+        tipoConstrucao:tipoSiopi
+      });
+      // Enfileira updates pros 3 campos sincronizáveis (espelha r.matricula/r.cnm/r.vcv).
+      // Sempre grava — vazio inclusive — pra limpar valores stale quando o SIOPI muda.
+      const matCol=_campoToCol('matricula')||'AE';
+      const cnmCol=_campoToCol('cnm')||'AF';
+      const vcvCol=_campoToCol('vcv')||'AG';
+      const matVal=result.matricula||'';
+      const cnmVal=result.cnm||'';
+      const vcvVal=result.valor_compra_venda?'R$ '+result.valor_compra_venda:'';
+      updates.push({range:`${CFG.SHT}!${matCol}${COS.ri}`,values:[[matVal]]});
+      updates.push({range:`${CFG.SHT}!${cnmCol}${COS.ri}`,values:[[cnmVal]]});
+      updates.push({range:`${CFG.SHT}!${vcvCol}${COS.ri}`,values:[[vcvVal]]});
+      COS.matricula=matVal;
+      COS.cnm=cnmVal;
+      COS.vcv=vcvVal;
+      if(result.matricula)etapas.push(`🏷️ Matrícula: ${result.matricula}`);
+      if(result.cartorio)etapas.push(`📜 Cartório: ${result.cartorio}`);
+    }
+    // Compara tipo de construção do SIOPI com tipologia da OS — só sinaliza, não edita
+    if(tipoSiopi){
       const TIP_OPTS=['Apartamento','Casa','Casa comercial','Obra Residencial','Terreno','Sala comercial','Loja','Gleba'];
-      const raw=nrm(result.tipologia);
-      // Ordena por tamanho para evitar match parcial errado (Casa comercial antes de Casa)
+      const raw=nrm(tipoSiopi);
       const sorted=[...TIP_OPTS].sort((a,b)=>b.length-a.length);
       const matched=sorted.find(o=>raw.includes(nrm(o)));
+      const alertaEl=document.getElementById('d-siopi-alerta-tip');
       if(matched&&matched!==COS.tip){
-        const tipCol=_campoToCol('tip')||'I';
-        updates.push({range:`${CFG.SHT}!${tipCol}${COS.ri}`,values:[[matched]]});
-        COS.tip=matched;
-        setDV('d-tip',matched);
-        setEI('e-tip',matched);
-        etapas.push(`🏠 Tipologia: ${matched}`);
+        if(alertaEl){
+          alertaEl.innerHTML=`⚠️ <b>Tipologia divergente</b><br>SIOPI: <b>${matched}</b> · Dashboard: <b>${COS.tip||'—'}</b><br><span style="font-size:10px;opacity:.85">Corrija manualmente em "Editar OS" se necessário.</span>`;
+          alertaEl.style.display='block';
+        }
+        etapas.push(`⚠️ Tipologia SIOPI (${matched}) ≠ Dashboard (${COS.tip||'—'})`);
+      }else if(alertaEl){
+        alertaEl.style.display='none';
       }
     }
     
@@ -3324,11 +4249,50 @@ async function enriquecerComSIOPI(){
         }
         etapas.push(`📁 ${uploaded}/${result.documentos.length} documento(s) salvos`);
       }
+
+      // 3.5. Validação da matrícula via Certidão da Matrícula (OCR cascata)
+      const matEsperada=result.matricula||COS.matricula||'';
+      if(matEsperada){
+        setStatus('🔎 Validando matrícula via certidão...','var(--text-muted)');
+        try{
+          const val=await validarCertidaoMatricula(result.documentos,matEsperada);
+          let alertaVal=''; // valor a persistir na coluna alertaMat
+          if(val.status==='ok'){
+            etapas.push(`✅ Matrícula confere com a certidão`);
+            alertaVal='ok';
+          }else if(val.status==='divergente'){
+            const cands=val.detalhes.flatMap(d=>d.candidatos).join(', ');
+            etapas.push(`⚠️ MATRÍCULA DIVERGENTE — SIOPI: ${matEsperada} · Certidão: ${cands||'?'}`);
+            alertaVal='divergente';
+          }else if(val.status==='sem_certidao'){
+            console.log('[OCR] sem certidão da matrícula entre os docs');
+          }else{
+            etapas.push(`ℹ️ Matrícula não pôde ser validada (texto não extraído)`);
+            alertaVal='nao_validada';
+          }
+          // Persiste estado na planilha (coluna alertaMat = AH por default)
+          // Flush imediato porque o batch principal já rodou antes do upload dos docs.
+          if(alertaVal && COS&&COS.ri){
+            const aCol=_campoToCol('alertaMat')||'AH';
+            COS.alertaMat=alertaVal;
+            try{
+              await gapi.client.sheets.spreadsheets.values.update({
+                spreadsheetId:CFG.SID,
+                range:`${CFG.SHT}!${aCol}${COS.ri}`,
+                valueInputOption:'USER_ENTERED',
+                resource:{values:[[alertaVal]]}
+              });
+            }catch(e){console.warn('[OCR] falha ao gravar alertaMat:',e);}
+          }
+        }catch(e){
+          console.warn('[OCR] erro na validação:',e);
+        }
+      }
     }
-    
+
     // 4. Finalização
     if(etapas.length){
-      setStatus('✅ '+etapas.join(' · '),'#86efac');
+      setStatus('✅ '+etapas.join(' · '),'var(--text-success)');
       showToast('✅ Dados do SIOPI aplicados');
       // Recarrega lista de pastas do drawer
       loadDrive(COS);
@@ -3339,7 +4303,7 @@ async function enriquecerComSIOPI(){
     
   }catch(e){
     console.error('[SIOPI] erro:',e);
-    setStatus('❌ '+e.message,'#fca5a5');
+    setStatus('❌ '+e.message,'var(--text-danger)');
   }finally{
     btn.disabled=false;
     btn.style.opacity='1';
@@ -3502,6 +4466,13 @@ async function excluirOS(){
 // ═══════════════════════════════════════════════════════════
 //  GERAR COMPROVANTE DE VISTORIA
 // ═══════════════════════════════════════════════════════════
+// Monta o nome do arquivo do comprovante. Padrão: "Comprovante de vistoria <Bairro>.pdf".
+// Title-case no bairro, remove caracteres ilegais p/ filename, usa fallback se vier vazio.
+function _nomeComprovante(bairro, fallback){
+  const b=titleCase((bairro||'').trim()).replace(/[\\/:*?"<>|]/g,'').trim();
+  return b?`Comprovante de vistoria ${b}.pdf`:`Comprovante de vistoria ${fallback||'sem bairro'}.pdf`;
+}
+
 async function gerarComprovante(){
   if(!AUTH){showToast('Entre com Google primeiro.');return;}
   if(!COS){showToast('Nenhuma OS selecionada.');return;}
@@ -3626,7 +4597,7 @@ async function gerarComprovante(){
     
     // 6. Fazer upload do PDF para a pasta "04 - Produtos"
     showToast('💾 Salvando no Drive...');
-    const nomeArquivo=`Comprovante_Vistoria_${COS.osp}.pdf`;
+    const nomeArquivo=_nomeComprovante(COS.bairro, COS.osp);
     
     const metadata={
       name:nomeArquivo,
@@ -4352,7 +5323,7 @@ function initRota(){
   const naoVist=ALL.filter(r=>isParaRota(r)&&r.end&&r.end.trim()!=='');
   OS_ROTA_FILTRADAS=[...naoVist];
   const munSel=document.getElementById('rota-mun');munSel.innerHTML='<option value="">Todos os municípios</option>';
-  const muns=[...new Set(naoVist.map(r=>nMun(r.mun)).filter(Boolean))].sort();
+  const muns=[...new Set(naoVist.map(r=>titleCase(nMun(r.mun))).filter(Boolean))].sort();
   muns.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;munSel.appendChild(o);});
   renderOsRota(naoVist);
 }
@@ -4372,12 +5343,12 @@ function renderOsRota(lista){
   if(!lista.length){container.innerHTML='<div style="text-align:center;padding:1rem;color:var(--text-muted);font-size:12px">Nenhuma OS encontrada</div>';return;}
   lista.forEach(r=>{
     const div=document.createElement('div');div.className='os-item'+(ROTA_SEL.has(r.item)?' selected':'');
-    const end=r.end||'Endereço não informado',mun=nMun(r.mun);
+    const end=r.end?titleCase(r.end):'Endereço não informado',mun=titleCase(nMun(r.mun));
     div.innerHTML=`<input type="checkbox" ${ROTA_SEL.has(r.item)?'checked':''}>
       <div class="os-item-info">
         <div class="os-item-num">#${r.item} — ${r.atv||''}</div>
         <div class="os-item-end" title="${end}">${end}</div>
-        <div class="os-item-sub">${r.bairro?r.bairro+' · ':''}<b>${mun}</b> · ${r.tip||''}</div>
+        <div class="os-item-sub">${r.bairro?titleCase(r.bairro)+' · ':''}<b>${mun}</b> · ${r.tip||''}</div>
       </div>`;
     const cb=div.querySelector('input');
     cb.addEventListener('change',e=>{e.stopPropagation();toggleOsRota(r.item,cb.checked);});
@@ -4464,27 +5435,52 @@ async function _gerarRotaMaps(mapBody){
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
 
   const GEO_KEY='e3219b407e77401692c069c3f9eb4f0d';
-  const geocode=async(addr)=>{
-    // Tenta Geoapify com filtro BR e bias para RJ
-    try{
-      const r=await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(addr)}&lang=pt&limit=1&filter=countrycode:br&bias=proximity:-43.1729,-22.9068&apiKey=${GEO_KEY}`);
+  // Cache persistente de geocodificação — evita refazer buscas a cada rota gerada.
+  let _geoCache;try{_geoCache=JSON.parse(localStorage.getItem('geocache')||'{}');}catch{_geoCache={};}
+  const _saveGeo=()=>{try{localStorage.setItem('geocache',JSON.stringify(_geoCache));}catch{}};
+  const geocode=async(addr,cep)=>{
+    if(!addr)return null;
+    const cepNum=(cep||'').replace(/\D/g,'');
+    const ck=(addr+'|'+cepNum).toLowerCase();
+    if(_geoCache[ck])return _geoCache[ck];
+    let coord=null;
+    // 1) Google Geocoding — usa a MESMA API Key do Sheets/Drive; melhor precisão no Brasil.
+    //    O CEP entra em components=postal_code, o que melhora muito o acerto de rua/bairro.
+    if(CFG.KEY){
+      try{
+        const comp=cepNum?`country:BR|postal_code:${cepNum}`:'country:BR';
+        const r=await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(addr)}&components=${encodeURIComponent(comp)}&language=pt-BR&region=br&key=${CFG.KEY}`);
+        const d=await r.json();
+        if(d.status==='OK'&&d.results&&d.results.length){const loc=d.results[0].geometry.location;coord=[loc.lat,loc.lng];}
+      }catch{}
+    }
+    // 2) Fallback: Geoapify (filtro BR + bias RJ)
+    if(!coord){try{
+      const txt=cepNum?`${addr}, ${cepNum}`:addr;
+      const r=await fetch(`https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(txt)}&lang=pt&limit=1&filter=countrycode:br&bias=proximity:-43.1729,-22.9068&apiKey=${GEO_KEY}`);
       const d=await r.json();
-      if(d.features&&d.features.length){const[lon,lat]=d.features[0].geometry.coordinates;return[lat,lon];}
-    }catch{}
-    // Fallback: Nominatim (OpenStreetMap) — gratuito, boa cobertura do Brasil
-    try{
-      const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(addr)}&format=json&countrycodes=br&limit=1&accept-language=pt-BR`);
+      if(d.features&&d.features.length){const[lon,lat]=d.features[0].geometry.coordinates;coord=[lat,lon];}
+    }catch{}}
+    // 3) Fallback: Nominatim (OpenStreetMap) — gratuito, boa cobertura do Brasil
+    if(!coord){try{
+      const txt=cepNum?`${addr}, ${cepNum}`:addr;
+      const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(txt)}&format=json&countrycodes=br&limit=1&accept-language=pt-BR`);
       const d=await r.json();
-      if(d&&d.length)return[parseFloat(d[0].lat),parseFloat(d[0].lon)];
-    }catch{}
-    return null;
+      if(d&&d.length)coord=[parseFloat(d[0].lat),parseFloat(d[0].lon)];
+    }catch{}}
+    if(coord){_geoCache[ck]=coord;_saveGeo();}
+    return coord;
   };
 
-  // Fase 1: geocodificar e mostrar marcadores arrastáveis
+  // Fase 1: geocodifica TODOS em paralelo (rápido). As OS levam o CEP junto.
   document.getElementById('rota-map-info').textContent='Geocodificando endereços...';
+  const geoResults=await Promise.all(todos.map((addr,i)=>{
+    if(i>0&&i<todos.length-1){const os=ROTA_OTIMIZADA[i-1];return geocode(addr,os.cep);}
+    return geocode(addr);
+  }));
   const coordsMap=[];
   for(let i=0;i<todos.length;i++){
-    let c=await geocode(todos[i]);
+    let c=geoResults[i];
     // Se falhou e é uma OS (não a partida), tenta com bairro e depois só município
     if(!c && i>0 && i<todos.length-1){
       const os=ROTA_OTIMIZADA[i-1];
@@ -4601,8 +5597,8 @@ function renderizarResultadosRota(directionsResponse){
     s.innerHTML=`<div class="rota-stop-handle" style="cursor:grab;padding-right:8px;font-size:18px;color:var(--accent)">⠿</div>
       <div class="rota-stop-num">${i+1}</div>
       <div class="rota-stop-info">
-        <div class="rota-stop-label" style="font-weight:600; color:var(--text-primary)">#${r.item} — ${nMun(r.mun)}</div>
-        <div class="rota-stop-end">${r.end}${r.bairro?', '+r.bairro:''}</div>
+        <div class="rota-stop-label" style="font-weight:600; color:var(--text-primary)">#${r.item} — ${titleCase(nMun(r.mun))}</div>
+        <div class="rota-stop-end">${titleCase(r.end)}${r.bairro?', '+titleCase(r.bairro):''}</div>
       </div>`;
     
     s.addEventListener('dragstart',e=>{
@@ -4706,7 +5702,7 @@ function salvarRota(){
     const num=i+1;
     msg+=`${num}. *_S${r.item} - ${r.os}_*\n`;
     msg+=`   ${r.end}, ${r.bairro}\n`;
-    msg+=`   ${nMun(r.mun)}\n`;
+    msg+=`   ${titleCase(nMun(r.mun))}\n`;
     if(i<ROTA_OTIMIZADA.length-1)msg+=`\n`;
   });
   
@@ -4885,9 +5881,9 @@ function onMun(){
   if(document.getElementById('nmun').value!==key)document.getElementById('nmun').value=key;
   const cfg=MUN[key];document.getElementById('npolo').value=(POLO_NOME&&POLO_NOME[cfg.polo])||cfg.polo||'';
   const curAtv=document.getElementById('na').value;
-  // G402 e G402A não possuem valor de deslocamento
+  // Atividade marcada como "sem deslocamento" não soma valor de deslocamento
   let vd=0;
-  if(curAtv!=='G402'&&curAtv!=='G402A'){
+  if(_atvTemDesloc(curAtv)){
     const espEl=document.getElementById('nesp');
     const isEsp=espEl&&espEl.value==='1';
     vd=isEsp?Math.round(cfg.v*0.21*100)/100:cfg.v;
@@ -5052,8 +6048,8 @@ async function updSt(ns){
       const cfgAtv = ATV[atv];
       if(cfgAtv) vOS = cfgAtv.v;
       let vDesloc = 0;
-      // G402 e G402A não possuem valor de deslocamento
-      if(atv !== 'G402' && atv !== 'G402A'){
+      // Atividade marcada como "sem deslocamento" não soma valor de deslocamento
+      if(_atvTemDesloc(atv)){
         const keyMun = findMunKey(nMun(mun));
         if(keyMun){
           vDesloc = MUN[keyMun].v;
@@ -5125,27 +6121,46 @@ function sw(tab,btn){
   });
 }
 
+// Posiciona o menu fixo ao lado do botão. O menu é movido para o <body> para
+// escapar do overflow:hidden + backdrop-filter da sidebar (que recortam o flyout).
+function positionSplitMenu(m,btn){
+  const r=btn.getBoundingClientRect();
+  m.style.position='fixed';
+  m.style.left=Math.round(r.right+8)+'px';
+  m.style.right='auto';
+  m.style.top='auto';
+  // Alinha a base do menu com a base do botão, crescendo para cima; nunca sai da tela.
+  m.style.bottom=Math.round(Math.max(8,window.innerHeight-r.bottom))+'px';
+}
+
 function toggleSplitMenu(ev){
   if(ev)ev.stopPropagation();
   const m=document.getElementById('split-menu');
+  const btn=document.getElementById('btn-split');
+  if(!m||!btn)return;
+  if(m.parentElement!==document.body)document.body.appendChild(m);
+  const willOpen=!m.classList.contains('open');
+  if(willOpen)positionSplitMenu(m,btn);
   m.classList.toggle('open');
 }
 
 function setSplitTab(t){
   if(t===TAB){showToast('Escolha uma aba diferente da atual.');return;}
   SPLIT_TAB=t;
-  document.getElementById('split-menu').classList.remove('open');
+  const m=document.getElementById('split-menu');
+  if(m)m.classList.remove('open');
   sw(TAB);
 }
 
 function exitSplit(){
   SPLIT_TAB=null;
-  document.getElementById('split-menu').classList.remove('open');
+  const m=document.getElementById('split-menu');
+  if(m)m.classList.remove('open');
   sw(TAB);
 }
 
 document.addEventListener('click',e=>{
-  if(!e.target.closest('.split-wrap')){
+  if(!e.target.closest('.split-wrap')&&!e.target.closest('#split-menu')){
     const m=document.getElementById('split-menu');
     if(m)m.classList.remove('open');
   }
@@ -5168,11 +6183,11 @@ function filtrarOsAgenda(){
   filtradas.forEach(r=>{
     const div=document.createElement('div');div.className='os-item';
     if(AGENDA_SEL && AGENDA_SEL.item===r.item)div.classList.add('selected');
-    const end=r.end||'Endereço não informado',mun=nMun(r.mun),atv=r.atv||'—';
+    const end=r.end?titleCase(r.end):'Endereço não informado',mun=titleCase(nMun(r.mun)),atv=r.atv||'—';
     div.innerHTML=`<div class="os-item-info">
         <div class="os-item-num">#${r.item} · ${r.os.split('/')[0]}</div>
         <div class="os-item-end" title="${end}">${end}</div>
-        <div class="os-item-sub">${r.bairro?r.bairro+' · ':''}<b>${mun}</b> · <span class="os-atv-lbl">${atv}</span></div>
+        <div class="os-item-sub">${r.bairro?titleCase(r.bairro)+' · ':''}<b>${mun}</b> · <span class="os-atv-lbl">${atv}</span></div>
       </div>
       <button class="btn-save-drawer" style="display:block;padding:4px 8px;font-size:10px;margin-left:8px">Selecionar</button>`;
     div.onclick=()=>selecionarOsAgenda(r);
@@ -5352,7 +6367,7 @@ function updateAgendaPreview(){
   const dStr=data?new Date(data+'T12:00:00').toLocaleDateString('pt-BR'):'__/__/____';
   const hStr=(hIni && hFim) ? `${hIni} e ${hFim}` : '__ e __';
   const osNum = AGENDA_SEL.os; // Número completo da OS incluindo /2026.01.01
-  const end = `${AGENDA_SEL.end}, ${AGENDA_SEL.bairro}, ${nMun(AGENDA_SEL.mun)}`;
+  const end = `${AGENDA_SEL.end}, ${AGENDA_SEL.bairro}, ${titleCase(nMun(AGENDA_SEL.mun))}`;
   
   let templateText = AGENDA_TEMPLATE === 'vistoria' ? CONFIG_USER.msg_av : CONFIG_USER.msg_med;
   
@@ -5431,7 +6446,7 @@ async function gerarComprovantePDF(){
     // Configurações do HTML2PDF
     const opt = {
       margin: 0,
-      filename: `Comprovante_Vistoria_${AGENDA_SEL.item}.pdf`,
+      filename: _nomeComprovante(AGENDA_SEL.bairro, AGENDA_SEL.item),
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'px', format: [794, 1122], orientation: 'portrait' }
@@ -5479,7 +6494,7 @@ async function gerarComprovantePDF(){
     }
 
     const metadata = {
-      name: `Comprovante_Vistoria_${AGENDA_SEL.item}.pdf`,
+      name: _nomeComprovante(AGENDA_SEL.bairro, AGENDA_SEL.item),
       mimeType: 'application/pdf',
       parents: [subFolderId]
     };
@@ -6104,7 +7119,7 @@ function setupAplicarPreset(cor,corEsc){
 }
 
 // ── Passo 5: Atividades ───────────────────────────────────────────────────
-function setupAddAtv(cod='', val='', prz=''){
+function setupAddAtv(cod='', val='', prz='', desloc=undefined){
   const tbody=document.getElementById('s-atv-tbody');
   const tr=tbody.insertRow();
   ['',val||'',prz||''].forEach((v,i)=>{
@@ -6116,6 +7131,19 @@ function setupAddAtv(cod='', val='', prz=''){
     if(i===0)inp.value=cod;
     td.appendChild(inp);
   });
+  // Checkbox "Exige deslocamento?"
+  const tdD=tr.insertCell();
+  tdD.style.textAlign='center';
+  const cb=document.createElement('input');
+  cb.type='checkbox';
+  cb.className='atv-desloc-cb';
+  cb.style.cssText='width:18px;height:18px;cursor:pointer;accent-color:var(--accent)';
+  // Default: marcado, salvo se a config explicitamente trouxer false, ou se o
+  // código for legado G402/G402A (que historicamente não tem deslocamento).
+  const codUp=(cod||'').toUpperCase();
+  if(typeof desloc==='boolean') cb.checked=desloc;
+  else cb.checked=!(codUp==='G402'||codUp==='G402A');
+  tdD.appendChild(cb);
   const tdRm=tr.insertCell();
   const btn=document.createElement('button');
   btn.className='rm-btn';btn.textContent='✕';btn.onclick=()=>tr.remove();
@@ -6125,11 +7153,12 @@ function setupAddAtv(cod='', val='', prz=''){
 function setupGetATV(){
   const atv={};
   document.querySelectorAll('#s-atv-tbody tr').forEach(tr=>{
-    const inps=tr.querySelectorAll('input');
+    const inps=tr.querySelectorAll('input:not([type="checkbox"])');
+    const cb=tr.querySelector('input.atv-desloc-cb');
     const cod=(inps[0]?.value||'').trim().toUpperCase();
     const v=_parseBRL(inps[1]?.value||'')||0;
     const p=inps[2]?.value?parseInt(inps[2].value):null;
-    if(cod)atv[cod]={v,p};
+    if(cod)atv[cod]={v,p,d:cb?cb.checked:(cod!=='G402'&&cod!=='G402A')};
   });
   return atv;
 }
@@ -6275,7 +7304,7 @@ function setupCarregarExistente(){
     if(subpTbody&&c.subp){'innerHTML' in subpTbody&&(subpTbody.innerHTML='');_subpIdx=0;(c.subp||[]).forEach(s=>setupAddSubpasta(s.nm,s.role));}
     // Step 5
     const atvTbody=document.getElementById('s-atv-tbody');
-    if(atvTbody){atvTbody.innerHTML='';Object.entries(c.atv||{}).forEach(([k,v])=>setupAddAtv(k,v.v,v.p));}
+    if(atvTbody){atvTbody.innerHTML='';Object.entries(c.atv||{}).forEach(([k,v])=>setupAddAtv(k,v.v,v.p,typeof v.d==='boolean'?v.d:undefined));}
     // Step 6 - polos
     const poloTbody=document.getElementById('s-polo-tbody');
     if(poloTbody){poloTbody.innerHTML='';(c.polos||[]).forEach(p=>setupAddPolo(p.nome,p.key,p.cor));}
@@ -6359,7 +7388,9 @@ async function setupConcluir(){
     txt_name_tpl: 'convocacao.txt',
     txt_folder_dest: 'root'
   };
-  localStorage.setItem(_DCEF_KEY,JSON.stringify(cfg));
+  _saveCfgLocal(cfg);
+  _hashCfgUpdate(); // sincroniza URL com a config (para abrir em outro device)
+  _driveCfgUpload(); // sobe para o Drive como fonte única da verdade
   showToast('✅ Configuração salva! Carregando...');
   hideSetup();
   setupLoader();
@@ -6390,8 +7421,10 @@ function setupImportar(ev){
   const reader=new FileReader();
   reader.onload=e=>{
     try{
-      JSON.parse(e.target.result); // valida JSON
-      localStorage.setItem(_DCEF_KEY,e.target.result);
+      const imported=JSON.parse(e.target.result); // valida JSON
+      _saveCfgLocal(imported); // bump timestamp para ter prioridade sobre URLs antigas
+      _hashCfgUpdate();
+      _driveCfgUpload();
       showToast('✅ Configuração importada!');
       setupCarregarExistente();
     }catch(err){showToast('❌ Arquivo JSON inválido');}
@@ -6408,6 +7441,21 @@ let FICHA_OS = null;
 let _FICHA_TAB_ATUAL = null;
 let _FICHA_TIPOLOGIA_ATUAL = null;
 const _FICHA_DRAFT_KEY = osItem => `ficha_draft_${osItem}`;
+
+// Lê/escreve no draft da ficha sem precisar tê-la aberta — usado pela integração SIOPI
+// para persistir dados extraídos (Matrícula, CNM, Valor C/V, Tipo Construção).
+function lerDraftFicha(osItem){
+  try{const raw=localStorage.getItem(_FICHA_DRAFT_KEY(osItem));return raw?JSON.parse(raw):null;}catch{return null;}
+}
+function atualizarDraftFicha(osItem,patch){
+  if(!osItem||!patch)return;
+  try{
+    const atual=lerDraftFicha(osItem)||{};
+    Object.entries(patch).forEach(([k,v])=>{if(v!==undefined&&v!==null&&v!=='')atual[k]=v;});
+    atual._ts=Date.now();
+    localStorage.setItem(_FICHA_DRAFT_KEY(osItem),JSON.stringify(atual));
+  }catch(_){}
+}
 
 function _fichaTipologia(tipStr){
   const s=String(tipStr||'').toLowerCase();
@@ -6431,6 +7479,14 @@ const _OPTS_VOCACAO=['Residência Unifamiliar','Residência Multifamiliar','Come
 const _OPTS_PATOLOGIA=['Aparentemente Não Possui','Aparentemente Possui, Vide Informações Complementares'];
 const _OPTS_CERCAMENTO=['Não Possui','Parcial','Total'];
 const _OPTS_PAREDES=['Alvenaria','Gesso','Madeira','Concreto','Aço','Outras'];
+// Listas extraídas dos prints da SIMIL (Caixa) para Áreas Molhadas/Secas, Esquadrias, Fachadas, Cobertura, Teto, Pavimentos
+const _OPTS_PISO=['Cimentado','Cerâmica Comercial','São Tomé','Emborrachado','Granitina','Formicado','Porcelanato 2ª','Flutuante','Granito/Mármore 2ª','Cerâmica Extra','Ardósia','Vinílico','Madeira','Granito/Mármore 1ª','Porcelanato 1ª','Outros, Vide Inform. Compl.'];
+const _OPTS_PAREDE_AREA=['Cimentado','Cerâmica Comercial','São Tomé','Emborrachado','Azulejo','Granitina','Formicado','Porcelanato 2ª','Granito/Mármore 2ª','Pintura/Textura','Grafiato','Cerâmica Extra','Ardósia','Vinílico','Madeira','Granito/Mármore 1ª','Porcelanato 1ª','Outros, Vide Inform. Compl.'];
+const _OPTS_ESQUADRIAS=['Alumínio','Ferro','Vidro Temperado','PVC','Madeira','Outros, Vide Inform. Compl.'];
+const _OPTS_FACHADA=['Sem Revestimento','Cimentado','Pintura/Textura','Grafiato','Cerâmica de Baixa Qualidade','Anodina ou Compatível','COBOGÓ','Vulcanizado ou Esmaltado','Granitina ou Compatível','Concreto Aparente','Cerâmica de Boa Qualidade','Revestimento','Madeira ou Envidraçado','Granito ou Compatível','Mármore ou Compatível','Alumínio Composto','Pele de Vidro','Pastilha','Outros, Vide Inform. Complem.'];
+const _OPTS_COBERTURA=['Telha de fibrocimento sem laje','Telha metálica sem laje','Telha de barro sem laje','Telha de concreto sem laje','Telha de fibrocimento com laje','Telha metálica com laje','Telha de barro com laje','Telha de concreto com laje','Laje impermeabilizada','Outros, Vide Inform. Compl.'];
+const _OPTS_TETO=['Telhado Aparente','Forro de PVC','Forro de gesso','Forro de aglomerado','Forro de madeira','Forro metálico','Forro outros','Laje','Outros, Vide Inform. Compl.'];
+const _OPTS_PAVIMENTOS=['SS','T','MEZ','SLJ','PAV','COB','SS+T','T+MEZ','T+SLJ','T+PAV','T+COB','PAV+COB','SS+T+MEZ','SS+T+SLJ','SS+T+PAV','SS+T+COB','T+MEZ+SLJ','T+MEZ+SLJ+PAV'];
 
 const _SEC_VISTORIA={
   title:'Vistoria', cols:2,
@@ -6450,7 +7506,12 @@ const _SEC_IDENTIFICACAO={
     {key:'area', label:'Área Avaliada (m²)', type:'text'},
     {key:'tipologia', label:'Tipologia (OS)', type:'text'},
     {key:'atvCodigo', label:'Código Atividade', type:'text'},
-    {key:'matricula', label:'Matrícula', type:'text'}
+    {key:'matricula', label:'Matrícula', type:'text'},
+    // Campos preenchidos automaticamente pela extensão SIOPI (mas editáveis)
+    {key:'cnm', label:'Código Nacional de Matrículas', type:'text'},
+    {key:'cartorio', label:'Cartório', type:'text'},
+    {key:'valorCompraVenda', label:'Valor de Compra e Venda', type:'text'},
+    {key:'tipoConstrucao', label:'Tipo de Construção (SIOPI)', type:'text'}
   ]
 };
 
@@ -6489,14 +7550,14 @@ const _SEC_UN_AVAL_II_PREDIO={
       {key:'equipamentos', label:'Equipamentos', type:'checkbox-group', options:_OPTS_EQUIPAMENTOS}
     ]},
     {title:'Áreas Molhadas', cols:2, fields:[
-      {key:'areasMolhadasPisos', label:'Pisos', type:'text'},
-      {key:'areasMolhadasParedes', label:'Paredes', type:'text'}
+      {key:'areasMolhadasPisos', label:'Pisos', type:'select', options:_OPTS_PISO},
+      {key:'areasMolhadasParedes', label:'Paredes', type:'select', options:_OPTS_PAREDE_AREA}
     ]},
     {title:'Áreas Secas', cols:1, fields:[
-      {key:'areasSecasPisos', label:'Pisos', type:'text'}
+      {key:'areasSecasPisos', label:'Pisos', type:'select', options:_OPTS_PISO}
     ]},
     {title:'Identificação dos Pavimentos da Unidade', cols:1, fields:[
-      {key:'pavimentosUnidade', label:'Pavimentos', type:'text'}
+      {key:'pavimentosUnidade', label:'Pavimentos', type:'select', options:_OPTS_PAVIMENTOS}
     ]},
     {title:'Áreas de Construção / Averbadas', cols:4, fields:[
       {key:'avPrivUnidade', label:'Priv. Unidade', type:'number'},
@@ -6671,19 +7732,19 @@ const _SCHEMA_PREDIO={
          options:['Lojas','Sala(s)','Pilotis','Lazer','Unidades Residenciais','Garagens','Outros']}
       ]},
       {title:'Acabamento - Área de Circulação', cols:2, fields:[
-        {key:'acabPisos', label:'Pisos', type:'text'},
-        {key:'acabParedes', label:'Paredes', type:'text'}
+        {key:'acabPisos', label:'Pisos', type:'select', options:_OPTS_PISO},
+        {key:'acabParedes', label:'Paredes', type:'select', options:_OPTS_PAREDE_AREA}
       ]},
       {title:'Acabamento - Esquadrias', cols:2, fields:[
-        {key:'acabEsqFachadaPrincipal', label:'Fachada Principal', type:'text'},
-        {key:'acabEsqDemaisFachadas', label:'Demais Fachadas', type:'text'}
+        {key:'acabEsqFachadaPrincipal', label:'Fachada Principal', type:'select', options:_OPTS_ESQUADRIAS},
+        {key:'acabEsqDemaisFachadas', label:'Demais Fachadas', type:'select', options:_OPTS_ESQUADRIAS}
       ]},
       {title:'Acabamento - Fachadas', cols:2, fields:[
-        {key:'acabFachadaPrincipal', label:'Fachada Principal', type:'text'},
-        {key:'acabFachadaDemais', label:'Demais Fachadas', type:'text'}
+        {key:'acabFachadaPrincipal', label:'Fachada Principal', type:'select', options:_OPTS_FACHADA},
+        {key:'acabFachadaDemais', label:'Demais Fachadas', type:'select', options:_OPTS_FACHADA}
       ]}
     ]},
-    _SEC_EMPREENDIMENTO_FULL
+    {...(_SEC_EMPREENDIMENTO_FULL), hidden:true}
   ]
 };
 
@@ -6725,16 +7786,16 @@ const _SCHEMA_CASA={
         {key:'qtdPavimentosUnidade', label:'Total Pav. Unidade', type:'number'}
       ]},
       {title:'Esquadrias', cols:2, fields:[
-        {key:'esqFachadaPrincipal', label:'Fachada Principal', type:'text'},
-        {key:'esqDemaisFachadas', label:'Demais Fachadas', type:'text'}
+        {key:'esqFachadaPrincipal', label:'Fachada Principal', type:'select', options:_OPTS_ESQUADRIAS},
+        {key:'esqDemaisFachadas', label:'Demais Fachadas', type:'select', options:_OPTS_ESQUADRIAS}
       ]},
       {title:'Fachadas', cols:2, fields:[
-        {key:'fachadaPrincipal', label:'Fachada Principal', type:'text'},
-        {key:'fachadaDemais', label:'Demais Fachadas', type:'text'}
+        {key:'fachadaPrincipal', label:'Fachada Principal', type:'select', options:_OPTS_FACHADA},
+        {key:'fachadaDemais', label:'Demais Fachadas', type:'select', options:_OPTS_FACHADA}
       ]},
       {title:'Cobertura', cols:2, fields:[
-        {key:'teto', label:'Teto', type:'text'},
-        {key:'coberturaCasa', label:'Cobertura', type:'text'}
+        {key:'teto', label:'Teto', type:'select', options:_OPTS_TETO},
+        {key:'coberturaCasa', label:'Cobertura', type:'select', options:_OPTS_COBERTURA}
       ]},
       {title:'Vagas de Garagem', cols:4, fields:[
         {key:'vagasCobLivres', label:'Cob. Livres', type:'number'},
@@ -6744,8 +7805,8 @@ const _SCHEMA_CASA={
       ]}
     ]},
     _SEC_UN_AVAL_II_PREDIO,
-    _SEC_TERRENO_CASA,
-    _SEC_EMPREENDIMENTO_FULL
+    {...(_SEC_TERRENO_CASA), hidden:true},
+    {...(_SEC_EMPREENDIMENTO_FULL), hidden:true}
   ]
 };
 
@@ -7150,6 +8211,13 @@ function _aplicarEstadoFicha(estado){
     const el=document.getElementById('fv-'+k);
     if(!el)return;
     if(el.type==='checkbox') el.checked=!!v;
+    else if(el.tagName==='SELECT'&&v){
+      // Preserva valores antigos: se não existe a opção, adiciona como "(atual)"
+      if(![...el.options].some(o=>o.value===v)){
+        const opt=document.createElement('option');opt.value=v;opt.textContent=v+' (atual)';el.appendChild(opt);
+      }
+      el.value=v;
+    }
     else el.value=v??'';
   });
 }
@@ -7240,12 +8308,14 @@ function _ativarTabFicha(tabId){
 // ── Renderização do formulário por tipologia (v2 com tabs) ────
 function renderFichaForm(tipKey){
   const schema=_FICHA_SCHEMA[tipKey]||_FICHA_SCHEMA.casa;
+  // Filtra abas marcadas como hidden (saem da UI mas continuam no schema p/ retro-compat)
+  const tabsVis=schema.tabs.filter(t=>!t.hidden);
   const wrap=document.getElementById('ficha-campos-dinamicos');
-  const tabsHtml=`<div class="ficha-tab-strip">${schema.tabs.map((t,i)=>`<button class="ficha-tab-btn${i===0?' active':''}" data-tab="${t.id}" onclick="_ativarTabFicha('${t.id}')">${_esc(t.label)}</button>`).join('')}</div>`;
+  const tabsHtml=`<div class="ficha-tab-strip">${tabsVis.map((t,i)=>`<button class="ficha-tab-btn${i===0?' active':''}" data-tab="${t.id}" onclick="_ativarTabFicha('${t.id}')">${_esc(t.label)}</button>`).join('')}</div>`;
   const draftHint=`<div class="ficha-draft-hint" id="ficha-draft-hint" style="display:none"></div>`;
-  const contentHtml=schema.tabs.map((t,i)=>`<div class="ficha-tab-content${i===0?' active':''}" data-tab="${t.id}">${t.sections.map(_renderSection).join('')}</div>`).join('');
+  const contentHtml=tabsVis.map((t,i)=>`<div class="ficha-tab-content${i===0?' active':''}" data-tab="${t.id}">${t.sections.map(_renderSection).join('')}</div>`).join('');
   wrap.innerHTML=tabsHtml+draftHint+contentHtml;
-  _FICHA_TAB_ATUAL=schema.tabs[0]?.id||null;
+  _FICHA_TAB_ATUAL=tabsVis[0]?.id||null;
   // Listeners para auto-save
   wrap.querySelectorAll('input,select,textarea').forEach(el=>{
     el.addEventListener('input',_agendaSalvarDraft);
@@ -7282,7 +8352,7 @@ function coletarDadosFicha(){
   // Estrutura para PDF: mantém todas as sections; em cada section preenche valores
   // (campos vazios viram "—" no render do PDF). Isso garante que o PDF sempre
   // reflete a estrutura completa do laudo, não só o que foi preenchido.
-  const tabs=schema.tabs.map(tab=>({
+  const tabs=schema.tabs.filter(t=>!t.hidden).map(tab=>({
     id:tab.id||tab.tabId,
     label:tab.label,
     sections:tab.sections.map(sec=>({
@@ -7680,7 +8750,7 @@ function _showVoltarDrawer(tabId,btnId){
   const btn=document.createElement('button');
   btn.id=btnId;btn.className='btn';
   btn.style.cssText='margin:0 0 14px;padding:7px 14px;font-size:12px;display:flex;align-items:center;gap:6px;width:max-content';
-  btn.innerHTML=`← OS ${r.item} — ${nMun(r.mun)}`;
+  btn.innerHTML=`← OS ${r.item} — ${titleCase(nMun(r.mun))}`;
   btn.onclick=()=>{btn.remove();_DRAWER_RETURN_OS=null;const idx=FIL.findIndex(x=>x.item===r.item);if(idx>=0)openD(idx);};
   tabEl.insertBefore(btn,tabEl.firstChild);
 }
@@ -7722,23 +8792,158 @@ function previewFotos(files){
   document.getElementById('foto-input').value='';
 }
 
+// Lê EXIF do JPEG original (data URL) usando piexifjs. Retorna string EXIF ou null.
+async function _lerExif(file){
+  if(!window.piexif || file.type!=='image/jpeg') return null;
+  try{
+    const dataUrl=await new Promise((res,rej)=>{
+      const fr=new FileReader();
+      fr.onload=()=>res(fr.result);
+      fr.onerror=rej;
+      fr.readAsDataURL(file);
+    });
+    const exifObj=piexif.load(dataUrl);
+    // Atualiza dimensões caso a imagem tenha sido redimensionada (preenchido depois).
+    return exifObj;
+  }catch(e){
+    console.warn('EXIF read falhou:',e);
+    return null;
+  }
+}
+
+// dataURL → Blob
+function _dataUrlToBlob(dataUrl){
+  const [head,b64]=dataUrl.split(',');
+  const mime=(head.match(/data:([^;]+)/)||[])[1]||'image/jpeg';
+  const bin=atob(b64);
+  const ab=new ArrayBuffer(bin.length);
+  const ia=new Uint8Array(ab);
+  for(let i=0;i<bin.length;i++) ia[i]=bin.charCodeAt(i);
+  return new Blob([ab],{type:mime});
+}
+
+// Comprime imagem antes do upload: redimensiona p/ máx. 1920px no maior lado e exporta JPEG 85%.
+// Preserva metadados EXIF (data, GPS, câmera, etc.) quando o original é JPEG.
+// Pula arquivos pequenos (<500KB) e formatos não-suportados (GIF). Em qualquer erro, devolve o original.
+async function _comprimirImagem(file, maxDim, quality){
+  maxDim=maxDim||1920; quality=quality||0.85;
+  if(!file||!file.type)return file;
+  if(file.size<500*1024)return file;
+  if(!file.type.startsWith('image/')||file.type==='image/gif')return file;
+  try{
+    const exifObj=await _lerExif(file);
+    // imageOrientation:'from-image' faz o navegador aplicar o EXIF Orientation
+    // antes de entregar o bitmap, "achatando" a rotação no pixel. Sem isso,
+    // visualizadores que respeitam EXIF (Google Drive, iOS) rotacionam de novo
+    // a imagem já corretamente orientada e ela aparece de cabeça pra baixo.
+    let bitmap;
+    try{ bitmap=await createImageBitmap(file,{imageOrientation:'from-image'}); }
+    catch(_){ bitmap=await createImageBitmap(file); }
+    const ratio=Math.min(1,maxDim/Math.max(bitmap.width,bitmap.height));
+    const w=Math.round(bitmap.width*ratio), h=Math.round(bitmap.height*ratio);
+    const canvas=document.createElement('canvas');
+    canvas.width=w; canvas.height=h;
+    canvas.getContext('2d').drawImage(bitmap,0,0,w,h);
+    if(bitmap.close)bitmap.close();
+    let blob=await new Promise(r=>canvas.toBlob(r,'image/jpeg',quality));
+    if(!blob) return file;
+
+    // Reinjeta EXIF no JPEG comprimido
+    if(exifObj && window.piexif){
+      try{
+        // Atualiza dimensões no EXIF para refletirem o novo tamanho
+        if(exifObj['Exif']){
+          exifObj['Exif'][piexif.ExifIFD.PixelXDimension]=w;
+          exifObj['Exif'][piexif.ExifIFD.PixelYDimension]=h;
+        }
+        // Como já aplicamos a rotação nos pixels (imageOrientation:'from-image'),
+        // zeramos o Orientation pra 1 (normal) pra evitar dupla rotação no visualizador.
+        if(exifObj['0th']) exifObj['0th'][piexif.ImageIFD.Orientation]=1;
+        // Remove thumbnail (pode estar inconsistente com a imagem redimensionada)
+        if(exifObj['thumbnail']) exifObj['thumbnail']=null;
+        if(exifObj['1st']) exifObj['1st']={};
+        const exifStr=piexif.dump(exifObj);
+        const compressedDataUrl=await new Promise((res,rej)=>{
+          const fr=new FileReader();
+          fr.onload=()=>res(fr.result);
+          fr.onerror=rej;
+          fr.readAsDataURL(blob);
+        });
+        const withExif=piexif.insert(exifStr,compressedDataUrl);
+        blob=_dataUrlToBlob(withExif);
+      }catch(e){console.warn('EXIF insert falhou:',e);}
+    }
+
+    // Se a compressão não ajudou E não tínhamos metadados a preservar, mantém original
+    if(blob.size>=file.size && !exifObj) return file;
+    const newName=file.name.replace(/\.[^.]+$/,'.jpg');
+    return new File([blob],newName,{type:'image/jpeg',lastModified:file.lastModified||Date.now()});
+  }catch(e){
+    console.warn('Compressão falhou, enviando original:',e);
+    return file;
+  }
+}
+
+// ── Widget flutuante de upload em segundo plano ──────────────────────
+let _bgUploadAtivo=false;
+function _toggleBgUpload(){
+  document.getElementById('bg-upload').classList.toggle('collapsed');
+}
+function _showBgUpload(osLabel,total){
+  const w=document.getElementById('bg-upload');
+  w.style.display='block';
+  w.classList.remove('collapsed','done','err');
+  document.getElementById('bg-upload-ico').textContent='⬆️';
+  document.getElementById('bg-upload-tit').textContent='Enviando fotos...';
+  document.getElementById('bg-upload-os').textContent=osLabel||'';
+  document.getElementById('bg-upload-stat').textContent='0 / '+total;
+  document.getElementById('bg-upload-bar').style.width='0%';
+}
+function _setBgUploadProg(done,total,pct){
+  document.getElementById('bg-upload-stat').textContent=done+' / '+total;
+  document.getElementById('bg-upload-bar').style.width=(pct||0)+'%';
+}
+function _finishBgUpload(ok,err,total){
+  const w=document.getElementById('bg-upload');
+  const allOk=err===0;
+  w.classList.add(allOk?'done':'err');
+  document.getElementById('bg-upload-ico').textContent=allOk?'✅':'⚠️';
+  document.getElementById('bg-upload-tit').textContent=allOk?'Fotos enviadas':'Envio com falhas';
+  document.getElementById('bg-upload-stat').textContent=
+    ok+' enviada(s)'+(err?' · '+err+' com erro':'')+' de '+total;
+  document.getElementById('bg-upload-bar').style.width='100%';
+  setTimeout(()=>{ w.style.display='none'; _bgUploadAtivo=false; }, allOk?5000:8000);
+}
+
 async function uploadFotos(){
   if(!FOTO_OS){showToast('Selecione uma OS primeiro');return;}
   if(!_fotoFiles.length){showToast('Nenhuma foto selecionada');return;}
   if(!AUTH){showToast('Faça login antes de enviar');return;}
+  if(_bgUploadAtivo){showToast('⏳ Aguarde o envio atual terminar');return;}
 
+  // Snapshot: o usuário pode limpar/selecionar novas fotos ou trocar de OS sem afetar este envio
+  const arquivos=_fotoFiles.slice();
+  const osCtx=FOTO_OS;
   const btn=document.getElementById('foto-send-btn');
   const progWrap=document.getElementById('foto-prog-wrap');
   const resultado=document.getElementById('foto-resultado');
-  btn.disabled=true;
-  progWrap.style.display='block';
+
+  // Libera a UI imediatamente para o usuário continuar trabalhando
+  _fotoFiles=[];
+  document.getElementById('foto-preview-grid').innerHTML='';
+  btn.style.display='none';
+  progWrap.style.display='none';
   progWrap.innerHTML='';
-  resultado.textContent='⏳ Localizando pasta no Drive...';
+  resultado.textContent='';
+
+  _bgUploadAtivo=true;
+  _showBgUpload('OS '+osCtx.os+' — '+(osCtx.end||''), arquivos.length);
+  showToast('⬆️ Upload iniciado em segundo plano');
 
   try{
     // 1. Localiza pasta da OS
-    const pf=mes2pasta(FOTO_OS.mes);
-    const np=nomePasta(FOTO_OS.item,FOTO_OS.atv,FOTO_OS.osp);
+    const pf=mes2pasta(osCtx.mes);
+    const np=nomePasta(osCtx.item,osCtx.atv,osCtx.osp);
 
     const mesRes=await gapi.client.drive.files.list({
       q:`name='${pf}' and '${CFG.DID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
@@ -7755,13 +8960,11 @@ async function uploadFotos(){
     const osFolderId=osRes.result.files[0].id;
 
     // 2. Localiza subpasta de fotos (role='fotos' ou nome fallback)
-    resultado.textContent='⏳ Localizando subpasta de fotos...';
     let fotoFolderId=await findFolderByRole(osFolderId,'fotos');
     const targetSubp = (SUBP||[]).find(s=>s.role==='fotos');
     const fotoFolderName = targetSubp ? targetSubp.nm : 'RELATORIO FOTOGRAFICO';
 
     if(!fotoFolderId){
-      // Tenta fallback pelo nome canônico
       const fbRes=await gapi.client.drive.files.list({
         q:`name='${fotoFolderName}' and '${osFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
         fields:'files(id)',pageSize:1
@@ -7769,57 +8972,61 @@ async function uploadFotos(){
       fotoFolderId=fbRes.result.files[0]?.id||null;
     }
     if(!fotoFolderId){
-      // Cria a pasta automaticamente
       const cr=await gapi.client.drive.files.create({
         resource:{name:fotoFolderName,mimeType:'application/vnd.google-apps.folder',parents:[osFolderId]},
         fields:'id'
       });
       fotoFolderId=cr.result.id;
-      showToast(`📁 Pasta "${fotoFolderName}" criada`);
     }
 
-    // 3. Upload de cada foto com barra de progresso
+    // 3. Descobre o próximo número de "Imagem_XXX"
+    let startNum=1;
+    try{
+      const existentes=await gapi.client.drive.files.list({
+        q:`'${fotoFolderId}' in parents and trashed=false`,
+        fields:'files(name)',pageSize:1000
+      });
+      const nums=(existentes.result.files||[])
+        .map(f=>{const m=(f.name||'').match(/^Imagem[_\s-]?(\d+)/i);return m?parseInt(m[1],10):null;})
+        .filter(n=>n!==null);
+      if(nums.length)startNum=Math.max.apply(null,nums)+1;
+    }catch(e){console.warn('Não foi possível listar fotos existentes:',e);}
+
+    // 4. Upload de cada foto, atualizando o widget flutuante
     let ok=0, err=0;
-    for(let i=0;i<_fotoFiles.length;i++){
-      const file=_fotoFiles[i];
-      const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
-      const nomeDest=`${(FOTO_OS.osp||FOTO_OS.os).replace(/[\/\\]/g,'-')}_foto${String(i+1).padStart(3,'0')}.${ext}`;
-
-      const pItem=document.createElement('div');
-      pItem.className='foto-prog-item';
-      pItem.innerHTML=`<div class="foto-prog-label">${file.name}</div><div class="foto-prog-bar-bg"><div class="foto-prog-bar" id="fpb-${i}"></div></div>`;
-      progWrap.appendChild(pItem);
-      resultado.textContent=`⏳ Enviando foto ${i+1} de ${_fotoFiles.length}...`;
-
+    const total=arquivos.length;
+    for(let i=0;i<total;i++){
+      const original=arquivos[i];
       try{
-        await _uploadFotoParaDrive(file, nomeDest, fotoFolderId, `fpb-${i}`);
-        const bar=document.getElementById(`fpb-${i}`);
-        if(bar){bar.style.width='100%';bar.classList.add('done');}
+        const file=await _comprimirImagem(original);
+        const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+        const nomeDest=`Imagem_${String(startNum+i).padStart(3,'0')}.${ext}`;
+        await _uploadFotoParaDrive(file, nomeDest, fotoFolderId, null, (pct)=>{
+          const overall=Math.round(((i+pct/100)/total)*100);
+          _setBgUploadProg(i, total, overall);
+        });
         ok++;
+        _setBgUploadProg(ok+err, total, Math.round(((i+1)/total)*100));
       }catch(e){
-        const bar=document.getElementById(`fpb-${i}`);
-        if(bar)bar.classList.add('err');
         err++;
+        _setBgUploadProg(ok+err, total, Math.round(((i+1)/total)*100));
         console.error('Erro upload foto:',e);
       }
     }
 
-    resultado.textContent=`✅ ${ok} foto(s) enviada(s)${err?' · ❌ '+err+' com erro':''}`;
-    showToast(ok===_fotoFiles.length?'✅ Fotos enviadas!':'⚠️ '+ok+' foto(s) enviada(s), '+err+' com erro');
-    if(ok>0){
-      _fotoFiles=[];
-      document.getElementById('foto-preview-grid').innerHTML='';
-      btn.style.display='none';
-    }
+    _finishBgUpload(ok, err, total);
+    showToast(err===0?'✅ Fotos enviadas!':'⚠️ '+ok+' enviada(s), '+err+' com erro');
   }catch(e){
-    resultado.textContent='❌ '+e.message;
+    document.getElementById('bg-upload').classList.add('err');
+    document.getElementById('bg-upload-ico').textContent='❌';
+    document.getElementById('bg-upload-tit').textContent='Falha no envio';
+    document.getElementById('bg-upload-stat').textContent=e.message;
+    setTimeout(()=>{document.getElementById('bg-upload').style.display='none';_bgUploadAtivo=false;},8000);
     showToast('❌ '+e.message);
-  }finally{
-    btn.disabled=false;
   }
 }
 
-async function _uploadFotoParaDrive(file, nome, folderId, barId){
+async function _uploadFotoParaDrive(file, nome, folderId, barId, onProgress){
   const mime=file.type||'image/jpeg';
   const metadata={name:nome,mimeType:mime,parents:[folderId]};
 
@@ -7843,8 +9050,11 @@ async function _uploadFotoParaDrive(file, nome, folderId, barId){
     xhr.upload.onprogress=e=>{
       if(e.lengthComputable){
         const pct=Math.round(e.loaded/e.total*100);
-        const bar=document.getElementById(barId);
-        if(bar)bar.style.width=pct+'%';
+        if(barId){
+          const bar=document.getElementById(barId);
+          if(bar)bar.style.width=pct+'%';
+        }
+        if(typeof onProgress==='function') onProgress(pct);
       }
     };
     xhr.onload=()=>{
@@ -7916,6 +9126,15 @@ async function _uploadFotoParaDrive(file, nome, folderId, barId){
       </div>
     </div>
     
+    <hr style="border:none;border-top:1px solid var(--mica-border-light);margin-bottom:16px">
+
+    <div style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">🔎 Google Vision API (OCR de Certidão de Matrícula)</div>
+    <div style="margin-bottom:18px">
+      <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">Chave da API</div>
+      <input id="cfg-vision-key" type="password" autocomplete="off" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--mica-border);background:var(--mica-surface);color:var(--text-primary);font-size:12px;box-sizing:border-box;font-family:monospace" placeholder="AIza...">
+      <div style="font-size:9.5px;color:var(--text-muted);margin-top:4px;line-height:1.4">Usada só pra extrair texto de certidões escaneadas (imagens). PDFs com texto nativo não consomem cota. ~US$ 1,50/1000 unidades · 1.000 grátis/mês.</div>
+    </div>
+
     <hr style="border:none;border-top:1px solid var(--mica-border-light);margin-bottom:16px">
 
     <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">Manutenção: CEPs dos endereços</div>
@@ -7990,7 +9209,7 @@ async function _uploadFotoParaDrive(file, nome, folderId, barId){
         <div class="setup-field-row">
           <div class="setup-field">
             <label>Nome da empresa</label>
-            <input id="s-emp" placeholder="Ex: Terceto Engenharia">
+            <input id="s-emp" placeholder="Ex: Sua Empresa">
           </div>
           <div class="setup-field">
             <label>Subtítulo da marca</label>
@@ -8128,7 +9347,7 @@ async function _uploadFotoParaDrive(file, nome, folderId, barId){
           </div>
           <div style="max-height:280px;overflow-y:auto">
             <table class="setup-table">
-              <thead><tr><th>Código</th><th>Valor OS (R$)</th><th>Prazo (dias)</th><th></th></tr></thead>
+              <thead><tr><th>Código</th><th>Valor OS (R$)</th><th>Prazo (dias)</th><th title="Marque se a atividade exige deslocamento até o imóvel. Atividades sem deslocamento (ex.: análise documental) terão R$ 0 no campo deslocamento ao gerar a OS.">Exige deslocamento?</th><th></th></tr></thead>
               <tbody id="s-atv-tbody"></tbody>
             </table>
           </div>
@@ -8284,8 +9503,12 @@ async function _uploadFotoParaDrive(file, nome, folderId, barId){
           ✅ Tudo pronto! Ao clicar em <b>Concluir</b>, o sistema será configurado e carregado imediatamente.<br><br>
           🔄 Para editar depois: ⚙️ → <b>Reconfigurar sistema</b> · As atividades e municípios podem ser importados a qualquer momento.
         </div>
-        <div style="display:flex;gap:10px;margin-top:10px">
-          <button class="setup-add-btn" onclick="setupExportar()">📤 Exportar configuração</button>
+        <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+          <button class="setup-add-btn" onclick="setupExportar()">📤 Exportar JSON</button>
+          <button class="setup-add-btn" onclick="copiarUrlConfigurada()">🔗 Copiar URL configurada</button>
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:8px;line-height:1.4">
+          Cole a URL copiada no navegador de outro dispositivo para abrir o dashboard já configurado — sem precisar refazer este wizard.
         </div>
       </div>
 
