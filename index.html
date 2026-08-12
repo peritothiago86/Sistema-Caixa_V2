@@ -2068,163 +2068,124 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
     if(typeof image1B64 === 'undefined') window.image1B64 = logoCaixaB64;
     </script>
     
-    <!-- Logo CAIXA -->
-    <div style="margin-bottom:5px;">
-      <img id="pdf-img1" src="" style="height:48px; width:auto; display:block;">
-    </div>
-    
-    <!-- Título centralizado -->
-    <div style="text-align:center; margin-bottom:3px;">
-      <div style="font-size:11px; font-weight:bold; letter-spacing:0.15px;">CR Ativ. Técnica Habitação Sudeste ES/MG/RJ</div>
-    </div>
-    
-    <!-- Barra cinza -->
-    <div style="background:#c0c0c0; text-align:center; padding:4px 0; font-weight:bold; font-size:11.5px; margin-bottom:0; letter-spacing:0.2px;">
-      COMPROVANTE DE VISTORIA v02
-    </div>
+    <!-- ═══ COMPROVANTE DE VISTORIA v04 (réplica do modelo oficial CAIXA) ═══ -->
+    <!-- Barra de destaque superior (sangra até as bordas) -->
+    <div style="height:5px; background:linear-gradient(90deg,#0060A9 0%,#0060A9 72%,#F39200 72%,#F39200 100%); margin:-38px -46px 12px -48px;"></div>
 
-    <!-- TABELA 1: INFORMAÇÕES DA VISTORIA (mesma estrutura do DOCX) -->
-    <table style="width:100%; border:1px solid #000; border-collapse:collapse; margin:0; font-size:10px;">
+    <!-- Cabeçalho: logo + título -->
+    <table style="width:100%; border:none; border-collapse:collapse; margin-bottom:6px;">
       <tr>
-        <td colspan="4" style="border:1px solid #000; border-top:none; padding:2px 4px; font-weight:bold;">
-          1. INFORMAÇÕES DA VISTORIA
+        <td style="border:none; width:130px; vertical-align:middle;">
+          <img id="pdf-img1" src="" style="height:42px; width:auto; display:block;">
+        </td>
+        <td style="border:none; text-align:right; vertical-align:middle;">
+          <div style="font-size:8px; color:#5A6470; letter-spacing:0.2px;">CR Ativ. Técnica Habitação Sudeste &nbsp;·&nbsp; ES / MG / RJ</div>
+          <div style="font-size:15px; font-weight:bold; color:#003a6b; letter-spacing:0.3px; margin-top:2px;">
+            COMPROVANTE DE VISTORIA
+            <span style="display:inline-block; background:#0060A9; color:#fff; font-size:8px; font-weight:bold; padding:1px 5px; border-radius:3px; vertical-align:middle; margin-left:2px;">v04</span>
+          </div>
         </td>
       </tr>
+    </table>
+    <div style="border-top:2px solid #e2e6ea; margin-bottom:8px;"></div>
+
+    <!-- SEÇÃO 1: INFORMAÇÕES DA VISTORIA -->
+    <div style="background:#0060A9; color:#fff; padding:4px 8px; font-size:10px; font-weight:bold; letter-spacing:0.2px; border-radius:2px; margin:0 0 7px 0;">
+      <span style="display:inline-block; background:rgba(255,255,255,0.25); width:14px; height:13px; line-height:13px; text-align:center; border-radius:2px; margin-right:6px; font-size:9px;">1</span>INFORMAÇÕES DA VISTORIA
+    </div>
+    <table style="width:100%; border:none; border-collapse:collapse; margin-bottom:7px;">
       <tr>
-        <td rowspan="3" style="border:1px solid #000; border-top:none; padding:2px 4px; width:19%; vertical-align:top;">
-          Data da vistoria:<br>Nº da OS:
+        <td style="border:none; width:48%; vertical-align:top; padding-right:12px;">
+          <div style="font-size:7.5px; color:#5A6470; font-weight:bold; letter-spacing:0.3px; margin:0 0 2px 3px;">DATA DA VISTORIA <span style="font-weight:normal;">(DD/MM/AAAA)</span></div>
+          <div style="border:1px solid #c2c8ce; background:#fbfcfd; border-radius:3px; min-height:20px; padding:3px 7px; font-size:10.5px; color:#111; box-sizing:border-box; line-height:15px;"><span id="pdf-data"></span></div>
         </td>
-        <td style="border:1px solid #000; border-top:none; padding:2px 4px; width:31%; font-size:10.5px;">
-          <span id="pdf-data"></span>
-        </td>
-        <td rowspan="3" style="border:1px solid #000; border-top:none; padding:2px 4px; width:13%; vertical-align:top;">
-          Horário:
-        </td>
-        <td rowspan="3" style="border:1px solid #000; border-top:none; padding:2px 4px; width:37%; vertical-align:top;">
-          <b>De:</b><br><br><b>Às:</b>
+        <td style="border:none; vertical-align:top;">
+          <div style="font-size:7.5px; color:#5A6470; font-weight:bold; letter-spacing:0.3px; margin:0 0 2px 3px;">HORÁRIO <span style="font-weight:normal;">(HH:MM)</span></div>
+          <table style="width:100%; border:none; border-collapse:collapse;">
+            <tr>
+              <td style="border:none; width:50%; padding-right:6px;"><div style="border:1px solid #c2c8ce; background:#fbfcfd; border-radius:3px; min-height:20px; padding:3px 7px; font-size:10.5px; color:#9aa1a8; box-sizing:border-box; line-height:15px;">De</div></td>
+              <td style="border:none; width:50%;"><div style="border:1px solid #c2c8ce; background:#fbfcfd; border-radius:3px; min-height:20px; padding:3px 7px; font-size:10.5px; color:#9aa1a8; box-sizing:border-box; line-height:15px;">Às</div></td>
+            </tr>
+          </table>
         </td>
       </tr>
+    </table>
+    <div style="font-size:7.5px; color:#5A6470; font-weight:bold; letter-spacing:0.3px; margin:0 0 2px 3px;">Nº DA OS <span style="font-weight:normal;">(AAAA.BBBB.CCCCCCCCC/DDDD.EE.FF)</span></div>
+    <div style="border:1px solid #c2c8ce; background:#fbfcfd; border-radius:3px; min-height:20px; padding:3px 7px; font-size:10.5px; color:#111; box-sizing:border-box; line-height:15px; margin-bottom:10px;"><span id="pdf-os"></span></div>
+
+    <!-- SEÇÃO 2: RESPONSÁVEL TÉCNICO -->
+    <div style="background:#0060A9; color:#fff; padding:4px 8px; font-size:10px; font-weight:bold; letter-spacing:0.2px; border-radius:2px; margin:0 0 7px 0;">
+      <span style="display:inline-block; background:rgba(255,255,255,0.25); width:14px; height:13px; line-height:13px; text-align:center; border-radius:2px; margin-right:6px; font-size:9px;">2</span>IDENTIFICAÇÃO DO RESPONSÁVEL TÉCNICO PELA VISTORIA
+    </div>
+    <div style="font-size:7.5px; color:#5A6470; font-weight:bold; letter-spacing:0.3px; margin:0 0 2px 3px;">NOME DA EMPRESA CREDENCIADA</div>
+    <div style="border:1px solid #c2c8ce; background:#fbfcfd; border-radius:3px; min-height:20px; padding:3px 7px; font-size:10.5px; color:#111; box-sizing:border-box; line-height:15px; text-align:center; margin-bottom:7px;"><span id="pdf-empresa">Danthi Serviços de Engenharia LTDA</span></div>
+    <table style="width:100%; border:none; border-collapse:collapse; margin-bottom:10px;">
       <tr>
-        <td style="border:1px solid #000; border-top:none; padding:2px 4px; height:6px;">
+        <td style="border:none; width:62%; vertical-align:top; padding-right:12px;">
+          <div style="font-size:7.5px; color:#5A6470; font-weight:bold; letter-spacing:0.3px; margin:0 0 2px 3px;">NOME DO REPRESENTANTE TÉCNICO PRESENTE NA VISTORIA</div>
+          <div style="border:1px solid #c2c8ce; background:#fbfcfd; border-radius:3px; min-height:20px; padding:3px 7px; font-size:10.5px; color:#111; box-sizing:border-box; line-height:15px; text-align:center;"><span id="pdf-resp">Daniel Luiz Costa e Silva</span></div>
         </td>
-      </tr>
-      <tr>
-        <td style="border:1px solid #000; border-top:none; padding:2px 4px; font-size:9.5px;">
-          <span id="pdf-os"></span>
+        <td style="border:none; vertical-align:top;">
+          <div style="font-size:7.5px; color:#5A6470; font-weight:bold; letter-spacing:0.3px; margin:0 0 2px 3px;">CREA / CAU</div>
+          <div style="border:1px solid #c2c8ce; background:#fbfcfd; border-radius:3px; min-height:20px; padding:3px 7px; font-size:10.5px; color:#111; box-sizing:border-box; line-height:15px; text-align:center;"><span id="pdf-crea">2020101093</span></div>
         </td>
       </tr>
     </table>
 
-    <!-- TABELA 2: RESPONSÁVEL TÉCNICO (mesma estrutura do DOCX) -->
-    <table style="width:100%; border:1px solid #000; border-top:none; border-collapse:collapse; margin:0; font-size:10px;">
+    <!-- SEÇÃO 3: CLIENTE -->
+    <div style="background:#0060A9; color:#fff; padding:4px 8px; font-size:10px; font-weight:bold; letter-spacing:0.2px; border-radius:2px; margin:0 0 7px 0;">
+      <span style="display:inline-block; background:rgba(255,255,255,0.25); width:14px; height:13px; line-height:13px; text-align:center; border-radius:2px; margin-right:6px; font-size:9px;">3</span>IDENTIFICAÇÃO DO CLIENTE / CONTATO QUE ACOMPANHOU A VISTORIA
+    </div>
+    <div style="font-size:7.5px; color:#5A6470; font-weight:bold; letter-spacing:0.3px; margin:0 0 2px 3px;">NOME DE QUEM ACOMPANHOU A VISTORIA</div>
+    <div style="border:1px solid #c2c8ce; background:#fbfcfd; border-radius:3px; min-height:22px; padding:3px 7px; box-sizing:border-box; margin-bottom:7px;"></div>
+    <table style="width:100%; border:none; border-collapse:collapse; margin-bottom:10px;">
       <tr>
-        <td colspan="3" style="border:1px solid #000; border-top:none; padding:2px 4px; font-weight:bold;">
-          2. IDENTIFICAÇÃO DO RESPONSÁVEL TÉCNICO PELA VISTORIA
+        <td style="border:none; width:50%; vertical-align:top; padding-right:12px;">
+          <div style="font-size:7.5px; color:#5A6470; font-weight:bold; letter-spacing:0.3px; margin:0 0 2px 3px;">DOCUMENTO DE IDENTIDADE</div>
+          <div style="border:1px solid #c2c8ce; background:#fbfcfd; border-radius:3px; min-height:20px; padding:3px 7px; box-sizing:border-box;"></div>
         </td>
-      </tr>
-      <tr>
-        <td colspan="3" style="border:1px solid #000; border-top:none; padding:2px 4px;">
-          Nome da Empresa Credenciada:
-        </td>
-      </tr>
-      <tr>
-        <td colspan="3" style="border:1px solid #000; border-top:none; padding:2px 4px; font-size:10.5px;">
-          <span id="pdf-empresa">Sampaio Engenharia</span>
-        </td>
-      </tr>
-      <tr>
-        <td rowspan="2" style="border:1px solid #000; border-top:none; padding:2px 4px; width:47%; vertical-align:top;">
-          Nome do Representante Técnico presente na<br>vistoria:
-        </td>
-        <td colspan="2" rowspan="2" style="border:1px solid #000; border-top:none; padding:2px 4px; font-size:10.5px; vertical-align:top;">
-          <span id="pdf-resp">Daniel Luiz Costa e Silva</span>
-        </td>
-      </tr>
-      <tr>
-      </tr>
-      <tr>
-        <td rowspan="2" style="border:1px solid #000; border-top:none; padding:2px 4px;">
-          CREA/CAU:
-        </td>
-        <td style="border:1px solid #000; border-top:none; padding:2px 4px; width:26%;">
-          CREA/CAU:
-        </td>
-        <td style="border:1px solid #000; border-top:none; padding:2px 4px; width:27%; font-size:10.5px;">
-          <span id="pdf-crea">2020101093</span>
-        </td>
-      </tr>
-      <tr>
-        <td style="border:1px solid #000; border-top:none; padding:2px 4px;">
-        </td>
-        <td style="border:1px solid #000; border-top:none; padding:2px 4px;">
+        <td style="border:none; vertical-align:top;">
+          <div style="font-size:7.5px; color:#5A6470; font-weight:bold; letter-spacing:0.3px; margin:0 0 2px 3px;">TIPO DE DOCUMENTO</div>
+          <div style="border:1px solid #c2c8ce; background:#fbfcfd; border-radius:3px; min-height:20px; padding:3px 7px; box-sizing:border-box;"></div>
         </td>
       </tr>
     </table>
 
-    <!-- TABELA 3: CLIENTE (mesma estrutura do DOCX) -->
-    <table style="width:100%; border:1px solid #000; border-top:none; border-collapse:collapse; margin:0; font-size:10px;">
+    <!-- SEÇÃO 4: DECLARAÇÃO E ASSINATURAS -->
+    <div style="background:#0060A9; color:#fff; padding:4px 8px; font-size:10px; font-weight:bold; letter-spacing:0.2px; border-radius:2px; margin:0 0 7px 0;">
+      <span style="display:inline-block; background:rgba(255,255,255,0.25); width:14px; height:13px; line-height:13px; text-align:center; border-radius:2px; margin-right:6px; font-size:9px;">4</span>DECLARAÇÃO E ASSINATURAS
+    </div>
+    <div style="text-align:justify; font-size:9px; line-height:1.3; color:#222; margin:0 2px;">
+      Declaramos para os devidos fins que estivemos presentes no imóvel objeto da OS acima descrita, na data e horários indicados, que as assinaturas foram colhidas no ato da vistoria e que o profissional credenciado da CAIXA presente na inspeção do imóvel apresentou a carteira do CREA/CAU informada no item 2 e portava crachá de identificação.
+    </div>
+    <table style="width:100%; border:none; margin:30px 0 4px 0;">
       <tr>
-        <td colspan="3" style="border:1px solid #000; border-top:none; padding:2px 4px; font-weight:bold;">
-          3. IDENTIFICAÇÃO DO CLIENTE / CONTATO QUE ACOMPANHOU A VISTORIA
-        </td>
-      </tr>
-      <tr>
-        <td colspan="3" style="border:1px solid #000; border-top:none; padding:2px 4px;">
-          Nome de quem acompanhou a vistoria:
-        </td>
-      </tr>
-      <tr>
-        <td colspan="3" style="border:1px solid #000; border-top:none; padding:14px 4px;">
-        </td>
-      </tr>
-      <tr>
-        <td colspan="2" rowspan="2" style="border:1px solid #000; border-top:none; padding:2px 4px;">
-          Doc identidade: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Tipo de documento:
-        </td>
-        <td rowspan="2" style="border:1px solid #000; border-top:none; padding:2px 4px; width:33%;">
-        </td>
-      </tr>
-      <tr>
+        <td style="width:44%; text-align:center; border:none; border-top:1px solid #333; padding-top:2px; font-size:8.5px; font-weight:bold; color:#333;">Cliente / Contato do cliente</td>
+        <td style="width:12%; border:none;"></td>
+        <td style="width:44%; text-align:center; border:none; border-top:1px solid #333; padding-top:2px; font-size:8.5px; font-weight:bold; color:#333;">Responsável Técnico pela vistoria</td>
       </tr>
     </table>
 
-    <!-- TABELA 4: DECLARAÇÃO (após análise cuidadosa) -->
-    <div style="border:1px solid #000; border-top:none; padding:2px 4px; font-weight:bold; font-size:10px; margin:0;">
-      4. DECLARAÇÃO E ASSINATURAS
-    </div>
-    <div style="border:1px solid #000; border-top:none; padding:6px 4px; text-align:justify; font-size:9.5px; line-height:1.2; margin:0;">
-      Declaramos para os devidos fins que estivemos presentes no imóvel objeto da OS acima descrita, na data e horários indicados, que as assinaturas foram colhidas no ato da vistoria e que o profissional credenciado da CAIXA presente na inspeção do imóvel apresentou a carteira do CREA/CAU informada no item 2.
-      <br><br><br><br>
-      <table style="width:100%; border:none; margin-top:2px;">
-        <tr>
-          <td style="width:48%; text-align:center; border:none; border-top:1px solid #000; padding-top:1px; font-size:9px;">
-            Cliente / Contato do cliente
-          </td>
-          <td style="width:4%; border:none;"></td>
-          <td style="width:48%; text-align:center; border:none; border-top:1px solid #000; padding-top:1px; font-size:9px;">
-            Responsável Técnico pela vistoria
-          </td>
-        </tr>
-      </table>
+    <!-- Observações -->
+    <div style="font-size:8.5px; font-weight:bold; color:#5A6470; letter-spacing:0.4px; border-bottom:1px solid #e2e6ea; padding-bottom:2px; margin:12px 0 5px 0;">OBSERVAÇÕES</div>
+    <div style="font-size:8px; line-height:1.35; text-align:justify; color:#333; margin:0 2px;">
+      <b>1</b> — O preenchimento deste formulário pela empresa credenciada e sua apresentação juntamente com a peça técnica pertinente ao objeto da vistoria são obrigatórios.<br>
+      <b>2</b> — É obrigatória também a apresentação de selfie do profissional credenciado em frente ao imóvel vistoriado.<br>
+      <b>3</b> — O não preenchimento ou a não assinatura deste documento implicará descumprimento de cláusula contratual, por parte do profissional credenciado.
     </div>
 
-    <!-- Observações (última parte) -->
-    <div style="border:1px solid #000; border-top:none; padding:4px; font-size:8.5px; line-height:1.15; text-align:justify; margin:0;">
-      <b style="text-decoration:underline;">Observações:</b><br>
-      <b>1</b> - O preenchimento deste formulário pela empresa credenciada e sua apresentação juntamente com a peça técnica pertinente ao objeto da vistoria são obrigatórios.<br>
-      <b>2</b> - O não preenchimento ou a não assinatura deste documento implicará descumprimento de cláusula contratual, por parte do profissional credenciado.<br><br>
-      
-      "<br>
-      <b><i>CLÁUSULA SEGUNDA – DAS OBRIGAÇÕES DA CONTRATADA</i></b><br>
-      [...]<br>
-      São obrigações da CONTRATADA, além das previstas neste contrato e anexos:<br>
-      XXXIX - Não utilizar pessoal não habilitado legalmente e que não esteja habilitado pela CAIXA para realizar a atividade demandada;<br><br>
-      
-      <b><i>CLÁUSULA DÉCIMA SEGUNDA – DA INEXECUÇÃO E DA RESCISÃO DO CONTRATO</i></b><br>
-      [...]<br>
-      Parágrafo Nono - Havendo a constatação, pela CAIXA, no serviço realizado pela CONTRATADA, de ocorrência de informações totalmente divergentes, tais como descrição do empreendimento em desacordo com a realidade, constatação de que o local ou empreendimento não foi visitado ou a visita/serviços foram realizados por outra pessoa que não o profissional habilitado, a CAIXA, poderá rescindir unilateralmente o contrato, mesmo não havendo enquadramento nos erros técnicos, sem prejuízo das penalidades cabíveis.<br>
-      "
+    <!-- Termo de referência -->
+    <div style="border-left:3px solid #0060A9; background:#f4f7fa; padding:6px 9px; font-size:7.5px; line-height:1.3; text-align:justify; color:#444; margin:9px 0 0 0;">
+      <b>TERMO DE REFERÊNCIA — EDITAL 0244/2024 · 18. DA RESCISÃO CONTRATUAL.</b> 18.1 Constitui motivo para rescisão unilateral do CONTRATO, sem prejuízo para demais penalidades cabíveis, o não cumprimento de qualquer uma das exigências deste Termo de Referência, desde que uma das condições abaixo seja identificada: [...] <b>c)</b> Apresentação de peça técnica com informações inconsistentes, tal como descrição do empreendimento em desacordo com a realidade ou relatório fotográfico incompatível com o objeto do serviço, denotando imperícia ou negligência da CONTRATADA; <b>d)</b> O serviço tenha sido realizado parcial ou totalmente por profissional não habilitado pela CONTRATADA para a Atividade e Polo em questão. Inclui-se como parte do serviço a vistoria; <b>e)</b> O serviço tenha sido concluído sem a realização de vistoria, quando exigida pelo serviço e orientações vigentes. [...]
     </div>
+
+    <!-- Rodapé -->
+    <table style="width:100%; border:none; border-top:1px solid #e2e6ea; margin-top:10px; padding-top:3px;">
+      <tr>
+        <td style="border:none; text-align:left; font-size:7px; color:#8a929a;">COC_CIHARSE_APENSO1_VISTORIA_V04 &nbsp;·&nbsp; Emissão 09/07/2026</td>
+        <td style="border:none; text-align:right; font-size:7px; color:#8a929a;">CAIXA ECONÔMICA FEDERAL &nbsp;·&nbsp; CIHAR/SE</td>
+      </tr>
+    </table>
 
   </div>
 </div>
@@ -4106,7 +4067,9 @@ async function enriquecerComSIOPI(){
   try{
     // 1. Chama a extensão — ela abre o SIOPI, consulta, extrai e retorna.
     //    Passamos o código da atividade pra ativar fluxos especiais (ex.: E401 = acompanhamento de obra)
-    const result=await window.danthiSIOPI.extract(osCompleta, COS.atv);
+    // 3º arg: data de entrada/SIOPI (dd/mm/aaaa) — alimenta o fluxo alternativo por
+    // Período de Abertura quando a busca por número devolve "Operação não permitida".
+    const result=await window.danthiSIOPI.extract(osCompleta, COS.atv, COS.siopi);
     console.log('[SIOPI] resultado completo:',result);
     console.log('[SIOPI] documentos:',result?.documentos);
     if(result?.documentos){
@@ -4523,20 +4486,22 @@ async function gerarComprovante(){
     const firstPage=pages[0];
     
     // 3. Adicionar texto nas coordenadas corretas
-    const font=await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+    // Negrito e sans-serif humanista, próximo da Trebuchet MS usada no PDF v04
+    const font=await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
     
-    // Coordenadas finais testadas: X=148, Y=728 (data) e Y=705 (OS)
+    // Coordenadas do modelo v04 (A4 595.6x842pt). Caixas medidas do PDF:
+    // Data → caixa x39..286 top133.9; OS → caixa full-width top184.6. Origem pdf-lib = base inferior.
     firstPage.drawText(dataVistoria,{
-      x:148,
-      y:728,
+      x:45,
+      y:696,
       size:11,
       font:font,
       color:PDFLib.rgb(0,0,0)
     });
-    
+
     firstPage.drawText(numeroOS,{
-      x:148,
-      y:705,
+      x:45,
+      y:645,
       size:11,
       font:font,
       color:PDFLib.rgb(0,0,0)
@@ -7350,7 +7315,14 @@ async function setupConcluir(){
     });
   }
   const polos=setupGetPolos();
+  // Preserva a config existente: o wizard não gerencia todos os campos.
+  // Campos definidos nas "Configurações gerais" (mensagens do WhatsApp, cores,
+  // toggle de linhas, chave Vision, etc.) seriam apagados se reconstruíssemos
+  // o objeto do zero. Espalhamos _prev primeiro e sobrescrevemos só o que o
+  // wizard controla.
+  let _prev={};try{_prev=JSON.parse(localStorage.getItem(_DCEF_KEY)||'{}');}catch(_){}
   const cfg={
+    ..._prev,
     // Empresa
     emp:document.getElementById('s-emp').value.trim(),
     empSub:document.getElementById('s-emp-sub').value.trim()||'CEF',
@@ -7370,7 +7342,7 @@ async function setupConcluir(){
     fmtPasta:document.getElementById('s-fmt-pasta')?.value||'MMMM YYYY',
     fmtPastaOS:document.getElementById('s-fmt-pasta-os')?.value||'{nr}-{osb}',
     subp:setupGetSubpastas(),
-    colorRows:true,
+    colorRows:_prev.colorRows!==undefined?_prev.colorRows:true,
     // Dados operacionais
     atv:setupGetATV(),
     mun:setupGetMUN(),
@@ -7382,11 +7354,11 @@ async function setupConcluir(){
     pdfBaseId:document.getElementById('s-pdf-id').value.trim(),
     // Logo (base64 ou vazio)
     logo:_LOGO_B64||'',
-    // Mensagens padrão
-    msg_av:MSG_AV_DEFAULT,
-    msg_med:MSG_MED_DEFAULT,
-    txt_name_tpl: 'convocacao.txt',
-    txt_folder_dest: 'root'
+    // Mensagens/personalizações — preserva o que o usuário já ajustou nas Configurações gerais
+    msg_av:_prev.msg_av||MSG_AV_DEFAULT,
+    msg_med:_prev.msg_med||MSG_MED_DEFAULT,
+    txt_name_tpl:_prev.txt_name_tpl||'convocacao.txt',
+    txt_folder_dest:_prev.txt_folder_dest||'root'
   };
   _saveCfgLocal(cfg);
   _hashCfgUpdate(); // sincroniza URL com a config (para abrir em outro device)
