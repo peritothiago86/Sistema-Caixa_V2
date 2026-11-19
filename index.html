@@ -4918,7 +4918,7 @@ async function _getSheetGid(){
     spreadsheetId: CFG.SID,
     fields: 'sheets(properties(sheetId,title))'
   });
-  const sh = (r.result.sheets||[]).find(s=>s.properties && s.properties.title===CFG.SHT);
+  const sh = (r.result.sheets||[]).find(s=>s.properties && String(s.properties.title).trim().toLowerCase()===String(CFG.SHT).trim().toLowerCase());
   if(!sh) throw new Error(`Aba "${CFG.SHT}" não encontrada na planilha`);
   _SHT_GID = sh.properties.sheetId;
   return _SHT_GID;
