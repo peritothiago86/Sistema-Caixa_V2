@@ -1743,6 +1743,24 @@ body.light-mode .ficha-single-cbox{border-color:rgba(0,0,0,0.12);background:rgba
       </div>
       <input type="file" id="txt-file-input" accept=".txt, .TXT, .txt_, .TXT_, text/plain" onchange="handleTxtFile(this.files[0])">
 
+      <!-- Buscar via SIOPI (alternativa ao .txt: preenche o formulário a partir do número da OS) -->
+      <div style="display:flex;align-items:center;gap:.6rem;margin:.7rem 0;font-size:12px;color:var(--text-muted)">
+        <div style="flex:1;height:1px;background:var(--mica-border)"></div>
+        <span>ou</span>
+        <div style="flex:1;height:1px;background:var(--mica-border)"></div>
+      </div>
+      <div class="fg" style="margin-bottom:.6rem">
+        <div class="ff full">
+          <label>Buscar dados via SIOPI (extensão)</label>
+          <div style="display:flex;gap:.5rem;align-items:stretch">
+            <input id="nova-siopi-os" placeholder="7891.4095.000167944/2025.01.01" style="flex:1"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();buscarViaSIOPINovaOS();}">
+            <button class="btn btn-p" onclick="buscarViaSIOPINovaOS()" id="nova-siopi-btn" style="padding:6px 14px;white-space:nowrap">🔍 Obter dados</button>
+          </div>
+          <div id="nova-siopi-status" style="display:none;margin-top:6px;font-size:11px;padding:6px 10px;border-radius:6px;line-height:1.4"></div>
+        </div>
+      </div>
+
       <div class="fg">
         <div class="ff"><label>Atividade</label><select id="na" onchange="onAtv()"><option value="">Selecione...</option></select></div>
         <div class="ff"><label>Tipo vistoria</label><select id="ntv"><option>Interna</option><option>Adjudicado</option></select></div>
@@ -2427,7 +2445,7 @@ function setupLoader(){
     CONFIG_USER={
       emp:c.emp||'',resp:c.resp||'',crea:c.crea||'',
       tel:c.tel||'',logo:c.logo||'',
-      msg_av:c.msg_av||MSG_AV_DEFAULT,msg_med:c.msg_med||MSG_MED_DEFAULT,
+      msg_av:c.msg_av||MSG_AV_DEFAULT,msg_med:c.msg_med||MSG_MED_DEFAULT,msg_ini:c.msg_ini||MSG_INI_DEFAULT,
       colorRows:c.colorRows!==undefined?c.colorRows:true,
       txt_name_tpl:c.txt_name_tpl||'convocacao.txt',
       txt_folder_dest:c.txt_folder_dest||'root',
@@ -2443,6 +2461,7 @@ function setupLoader(){
 }
 
 const MSG_AV_DEFAULT='{{saudacao}}\n\nQuem fala é o {{resp}}, engenheiro responsável pela vistoria de avaliações imobiliárias.\nEstou entrando em contato a respeito da OS nº {{osNum}}, referente ao imóvel na {{endereco}}.\nGostaria de agendar a vistoria para {{data}}, entre {{hora}} hrs.\n\nAtenciosamente,\n{{resp}}';
+const MSG_INI_DEFAULT='Olá! Somos a {{emp}}, empresa credenciada pela CAIXA.\n\nRecebemos a Ordem de Serviço nº {{osNum}}, referente ao imóvel na {{endereco}}, e estamos entrando em contato por este número, que foi disponibilizado na referida OS, para confirmar se este é o melhor canal de contato para tratarmos dos assuntos relacionados à avaliação.\n\nNo momento, estamos na etapa de análise documental. Caso não seja identificado nenhum impedimento, entraremos em contato posteriormente para realizar o agendamento da vistoria.\n\nPor gentileza, poderia confirmar se este é o melhor número para contato?\n\nAgradecemos desde já!';
 const MSG_MED_DEFAULT='{{saudacao}}\n\nQuem fala é o {{resp}}, engenheiro responsável pela vistoria de medição de obras.\nEstou entrando em contato a respeito da OS nº {{osNum}}, referente ao imóvel na {{endereco}}.\nGostaria de agendar a vistoria para {{data}}, entre {{hora}} hrs.\n\nAtenciosamente,\n{{resp}}';
 
 function hexToRgb(hex){try{const h=hex.replace('#','');return`${parseInt(h.slice(0,2),16)},${parseInt(h.slice(2,4),16)},${parseInt(h.slice(4,6),16)}`;}catch(e){return'0,71,142';}}
@@ -2531,7 +2550,7 @@ function applyBranding(c){
 // ─── carregarConfig: mantém compatibilidade com modal de config existente ──
 function carregarConfig(){
   const raw=localStorage.getItem(_DCEF_KEY);
-  if(raw){try{const c=JSON.parse(raw);CONFIG_USER={...CONFIG_USER,...{emp:c.emp,resp:c.resp,crea:c.crea,msg_av:c.msg_av,msg_med:c.msg_med,txt_name_tpl:c.txt_name_tpl||'convocacao.txt',txt_folder_dest:c.txt_folder_dest||'root'}};}catch(e){}}
+  if(raw){try{const c=JSON.parse(raw);CONFIG_USER={...CONFIG_USER,...{emp:c.emp,resp:c.resp,crea:c.crea,msg_av:c.msg_av,msg_med:c.msg_med,msg_ini:c.msg_ini||MSG_INI_DEFAULT,txt_name_tpl:c.txt_name_tpl||'convocacao.txt',txt_folder_dest:c.txt_folder_dest||'root'}};}catch(e){}}
 }
 function salvarConfig(){
   CONFIG_USER.emp=document.getElementById('cfg-emp').value;
@@ -2539,6 +2558,7 @@ function salvarConfig(){
   CONFIG_USER.crea=document.getElementById('cfg-crea').value;
   CONFIG_USER.msg_av=document.getElementById('cfg-msg-av').value;
   CONFIG_USER.msg_med=document.getElementById('cfg-msg-med').value;
+  CONFIG_USER.msg_ini=document.getElementById('cfg-msg-ini').value||MSG_INI_DEFAULT;
   CONFIG_USER.colorRows=document.getElementById('cfg-color-rows').checked;
   CONFIG_USER.txt_name_tpl=document.getElementById('cfg-txt-name-tpl').value.trim()||'convocacao.txt';
   CONFIG_USER.txt_folder_dest=document.getElementById('cfg-txt-folder-dest').value;
@@ -2555,6 +2575,7 @@ function salvarConfig(){
       c.crea=CONFIG_USER.crea;
       c.msg_av=CONFIG_USER.msg_av;
       c.msg_med=CONFIG_USER.msg_med;
+      c.msg_ini=CONFIG_USER.msg_ini;
       c.colorRows=CONFIG_USER.colorRows;
       c.txt_name_tpl=CONFIG_USER.txt_name_tpl;
       c.txt_folder_dest=CONFIG_USER.txt_folder_dest;
@@ -2577,6 +2598,7 @@ function abrirConfig(){
   document.getElementById('cfg-crea').value=CONFIG_USER.crea;
   document.getElementById('cfg-msg-av').value=CONFIG_USER.msg_av;
   document.getElementById('cfg-msg-med').value=CONFIG_USER.msg_med;
+  document.getElementById('cfg-msg-ini').value=CONFIG_USER.msg_ini||MSG_INI_DEFAULT;
   document.getElementById('cfg-color-rows').checked=CONFIG_USER.colorRows!==false;
   document.getElementById('cfg-txt-name-tpl').value=CONFIG_USER.txt_name_tpl||'convocacao.txt';
   document.getElementById('cfg-txt-folder-dest').value=CONFIG_USER.txt_folder_dest||'root';
@@ -2758,6 +2780,9 @@ function parseRow(r,i){
     cnm:P(r[ci('cnm',31)]),
     vcv:P(r[ci('vcv',32)]),
     alertaMat:P(r[ci('alertaMat',33)]),
+    // Categoria do Imóvel (Novo/Usado) — extraída do SIOPI. Coluna nova (AI por default);
+    // se a empresa mapeou outro índice em CFG.COLS.categoria, esse prevalece.
+    categoria:P(r[ci('categoria',34)]),
     ord:P(r[ci('item',0)])
   };
 }
@@ -2767,7 +2792,7 @@ const _COL_DEFAULTS={
   item:0,os:1,aceita:2,atv:3,tv:4,polo:5,mun:6,bairro:7,tip:8,end:9,area:10,cep:11,
   mes:12,siopi:13,pept:14,ent:15,vis:16,lau:17,vos:20,fich:21,vd:22,vt:23,
   st:24,va:25,rsm:26,rev:27,abr:28,prz:29,
-  matricula:30,cnm:31,vcv:32,alertaMat:33
+  matricula:30,cnm:31,vcv:32,alertaMat:33,categoria:34
 };
 // Recebe um objeto {campo: valor} e devolve um array de células posicionadas exatamente
 // nas colunas que a empresa configurou via CFG.COLS (ou nos defaults).
@@ -3660,28 +3685,25 @@ function renderCharts(D){
   const bMu={};D.forEach(r=>{const m=titleCase(nMun(r.mun));if(m)bMu[m]=(bMu[m]||0)+1;});const mTop=Object.entries(bMu).sort((a,b)=>b[1]-a[1]).slice(0,12);
   mkC('cmun',{type:'bar',data:{labels:mTop.map(e=>e[0]),datasets:[{data:mTop.map(e=>e[1]),backgroundColor:mTop.map((_,i)=>munPalette[i%munPalette.length]),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.x} OS`}}},scales:{x:{ticks:{stepSize:1}},y:{ticks:{font:{size:9,family:"'Inter',sans-serif"}}}}}});
 
-  // Faturamento por polo — usa r.polo de col F (siglas RJ/VR/CAMPOS) e POLO_CORES para cores
+  // Faturamento por polo — mesmo critério do "Receita mensal": OS com r.mes preenchido e r.vt>0,
+  // somando r.vt (sem fallback pra vos/atv default). Distribuído pelos polos como stack.
   const poloSet=new Set();
   D.forEach(r=>{
-    // Garante que usamos a chave de polo resolvida
     const rawPolo=r.polo||(nMun(r.mun)&&MUN[nMun(r.mun)]?MUN[nMun(r.mun)].polo:'')||'';
     const poloKey=resolvePoloKey(rawPolo);
-    if(poloKey&&r.mes){
+    if(poloKey&&r.mes&&r.vt>0){
       r._resolvedPoloKey=poloKey;
       poloSet.add(poloKey);
     }
   });
   const polosReal=[...poloSet].sort();
-  const mesSet=new Set();D.forEach(r=>{if(r.mes)mesSet.add(r.mes);});
+  const mesSet=new Set();D.forEach(r=>{if(r.mes&&r.vt>0)mesSet.add(r.mes);});
   const mesL=[...mesSet].sort((a,b)=>MOS_ORD_IDX(a)-MOS_ORD_IDX(b));
   const datasets=polosReal.map(poloKey=>{
     const cor=POLO_CORES[poloKey]||POLO_CORES[poloKey.toUpperCase()]||accentPurple;
     return{
       label:POLO_NOME[poloKey]||POLO_NOME[poloKey.toUpperCase()]||titleCase(poloKey),
-      data:mesL.map(mes=>Math.round(D.filter(r=>r.mes===mes&&r._resolvedPoloKey===poloKey).reduce((s,r)=>{
-        const val=r.vt||r.vos||(ATV_DYN[r.atv]?ATV_DYN[r.atv].v:(ATV[r.atv]?ATV[r.atv].v:0));
-        return s+val;
-      },0))),
+      data:mesL.map(mes=>Math.round(D.filter(r=>r.mes===mes&&r.vt>0&&r._resolvedPoloKey===poloKey).reduce((s,r)=>s+r.vt,0))),
       backgroundColor:cor,borderRadius:0,barPercentage:.75,categoryPercentage:.85
     };
   });
@@ -4066,10 +4088,12 @@ async function enriquecerComSIOPI(){
   
   try{
     // 1. Chama a extensão — ela abre o SIOPI, consulta, extrai e retorna.
-    //    Passamos o código da atividade pra ativar fluxos especiais (ex.: E401 = acompanhamento de obra)
+    //    Passamos o código da atividade pra ativar fluxos especiais (ex.: E401/E005 = acompanhamento de obra)
     // 3º arg: data de entrada/SIOPI (dd/mm/aaaa) — alimenta o fluxo alternativo por
     // Período de Abertura quando a busca por número devolve "Operação não permitida".
-    const result=await window.danthiSIOPI.extract(osCompleta, COS.atv, COS.siopi);
+    // Se a OS já tem .txt de convocação no Drive, dispensa o print e o .txt sintético.
+    const temTxtConv=await osTemTxtConvocacao(COS);
+    const result=await window.danthiSIOPI.extract(osCompleta, COS.atv, COS.siopi, { skipScreenshot: temTxtConv });
     console.log('[SIOPI] resultado completo:',result);
     console.log('[SIOPI] documentos:',result?.documentos);
     if(result?.documentos){
@@ -4253,6 +4277,77 @@ async function enriquecerComSIOPI(){
       }
     }
 
+    // 3.6. Upload em 01 - Convocação — PNG (screenshot) e .txt sintético (contato).
+    console.log('[SIOPI drawer] contato do SIOPI → nome=' + JSON.stringify(result.contato_nome) +
+                ' | telefone=' + JSON.stringify(result.contato_telefone));
+    try{
+      const convFolderId = await acharPastaConvocacao(COS);
+      console.log('[SIOPI drawer] pasta de convocação id=' + convFolderId);
+      if(convFolderId){
+        const existentesConv = await listarArquivosExistentes(convFolderId);
+        const jaTemTxt = temTxtConv || [...existentesConv].some(n => /\.txt_?$/i.test(n));
+        const jaTemPng = [...existentesConv].some(n => /\.png$/i.test(n));
+        console.log('[SIOPI drawer] pasta convocação:', {arquivos: [...existentesConv], jaTemTxt, jaTemPng});
+
+        // PNG (screenshot da tela da demanda)
+        if(result.screenshot_png && !jaTemPng && !jaTemTxt){
+          try{
+            const osLimpo = String(COS.os||'').replace(/[\/\.]/g,'');
+            const nomePng = `convocacao_${osLimpo}.png`;
+            const bytesB64 = result.screenshot_png.replace(/^data:image\/png;base64,/, '');
+            await uploadDocumentoParaDrive(
+              { nome: nomePng, bytes: bytesB64, mimeType: 'image/png' },
+              nomePng, convFolderId
+            );
+            etapas.push('📸 Screenshot salvo em 01 - Convocação');
+          }catch(e){console.warn('[SIOPI drawer] upload PNG falhou:', e);}
+        }
+
+        // .txt sintético (formato lido pelo parseTxt → drawer mostra Nome/Telefone/WhatsApp)
+        const cn = result.contato_nome || '';
+        const ct = result.contato_telefone || '';
+        if(!cn && !ct){
+          etapas.push('ℹ️ Contato não veio do SIOPI (talvez sem "Contato para Vistoria" preenchido)');
+        }else if(jaTemTxt){
+          // Já tem .txt real na pasta — respeita, mas força atualização do card de contato
+          console.log('[SIOPI drawer] .txt já existe em 01 - Convocação — mantendo o original');
+          showContato(cn, ct);
+          etapas.push(`📇 Contato: ${cn || '—'}${ct ? ' · ' + ct : ''} (mantido .txt existente)`);
+        }else{
+          try{
+            const osLimpo = String(COS.os||'').replace(/[\/\.]/g,'');
+            const linhas = [
+              `Ordem de Serviço: ${COS.os||''}`,
+              result.data_abertura ? `Data de abertura: ${result.data_abertura}` : '',
+              COS.atv ? `Atividade: ${COS.atv}` : '',
+              '',
+              (result.endereco || COS.end) ? `Endereço: ${result.endereco || COS.end}` : '',
+              (result.bairro || COS.bairro) ? `Bairro: ${result.bairro || COS.bairro}` : '',
+              (result.municipio || COS.mun) ? `Município: ${result.municipio || COS.mun}` : '',
+              (result.cep || COS.cep) ? `CEP: ${result.cep || COS.cep}` : '',
+              '',
+              cn ? `Nome do contato: ${cn}` : '',
+              ct ? `Telefone do contato: ${ct}` : '',
+            ].filter(l => l !== '').join('\r\n') + '\r\n';
+            const utf8Bytes = new TextEncoder().encode(linhas);
+            let bin = '';
+            for(let i=0;i<utf8Bytes.length;i++) bin += String.fromCharCode(utf8Bytes[i]);
+            const txtB64 = btoa(bin);
+            const nomeTxt = `convocacao_${osLimpo}.txt`;
+            await uploadDocumentoParaDrive(
+              { nome: nomeTxt, bytes: txtB64, mimeType: 'text/plain; charset=utf-8' },
+              nomeTxt, convFolderId
+            );
+            // Atualiza IMEDIATAMENTE o card de contato no drawer (sem esperar reabrir)
+            showContato(cn, ct);
+            etapas.push(`📇 Contato salvo (${cn || '—'}${ct ? ' · ' + ct : ''})`);
+          }catch(e){console.warn('[SIOPI drawer] upload .txt sintético falhou:', e);}
+        }
+      }else{
+        etapas.push('⚠️ Pasta "01 - Convocação" não encontrada');
+      }
+    }catch(e){console.warn('[SIOPI drawer] pasta de convocação:', e);}
+
     // 4. Finalização
     if(etapas.length){
       setStatus('✅ '+etapas.join(' · '),'var(--text-success)');
@@ -4306,6 +4401,51 @@ async function acharPasta02Documentos(os){
     }
     return docFolder.id;
   }catch(e){console.error('acharPasta02Documentos:',e);return null;}
+}
+
+// Acha a pasta de CONVOCAÇÃO da OS (subpasta com role='txt' — geralmente "01 - Convocação").
+// Usada pra subir o screenshot da tela da demanda quando o e-mail não trouxe o .txt.
+async function acharPastaConvocacao(os){
+  const pf=mes2pasta(os.mes);
+  if(!pf||!AUTH)return null;
+  try{
+    // Pasta do mês
+    const r1=await gapi.client.drive.files.list({q:`name='${pf}' and '${CFG.DID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id)',pageSize:1});
+    if(!r1.result.files.length)return null;
+    const mesFolderId=r1.result.files[0].id;
+    // Pasta da OS
+    const np=nomePasta(os.item,os.atv,os.osp);
+    let r2=await gapi.client.drive.files.list({q:`name='${np}' and '${mesFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id)',pageSize:1});
+    if(!r2.result.files.length){
+      r2=await gapi.client.drive.files.list({q:`name contains '${os.item}-' and '${mesFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id)',pageSize:1});
+    }
+    if(!r2.result.files.length)return null;
+    const osFolderId=r2.result.files[0].id;
+    // Subpasta com role='txt' (usa a mesma helper que já existe)
+    const convId=await findFolderByRole(osFolderId,'txt');
+    if(convId) return convId;
+    // Fallback: busca por nome que contenha "convoca"
+    const r3=await gapi.client.drive.files.list({q:`'${osFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id,name)',pageSize:50});
+    const conv=(r3.result.files||[]).find(f=>/convoca/i.test(f.name));
+    return conv?conv.id:osFolderId; // Último recurso: pasta da OS
+  }catch(e){console.error('acharPastaConvocacao:',e);return null;}
+}
+
+// A OS já tem .txt de convocação? Procura em "01 - Convocação" e, se a pasta for essa,
+// também na raiz da OS (destino padrão do .txt anexado na Nova OS é a raiz).
+async function osTemTxtConvocacao(os){
+  try{
+    const isTxt=n=>/\.txt_?$/i.test(n);
+    const convId=await acharPastaConvocacao(os);
+    if(!convId)return false;
+    if([...await listarArquivosExistentes(convId)].some(isTxt))return true;
+    const g=await gapi.client.drive.files.get({fileId:convId,fields:'name,parents'});
+    const parent=g.result.parents&&g.result.parents[0];
+    if(parent&&/convoca/i.test(g.result.name||'')){
+      return [...await listarArquivosExistentes(parent)].some(isTxt);
+    }
+  }catch(e){console.warn('osTemTxtConvocacao:',e);}
+  return false;
 }
 
 // Lista nomes de arquivos numa pasta (pra evitar conflitos)
@@ -4383,17 +4523,6 @@ function navegarOS(direcao){
   openD(novoIdx);
 }
 
-// Cache do sheetId numérico (gid) da aba de OS — CFG.SHT é só o nome da aba.
-let _SHT_GID=null;
-async function _getSheetGid(){
-  if(_SHT_GID!=null)return _SHT_GID;
-  const r=await gapi.client.sheets.spreadsheets.get({spreadsheetId:CFG.SID,fields:'sheets(properties(sheetId,title))'});
-  const sh=(r.result.sheets||[]).find(s=>s.properties&&s.properties.title===CFG.SHT);
-  if(!sh)throw new Error(`Aba "${CFG.SHT}" não encontrada na planilha`);
-  _SHT_GID=sh.properties.sheetId;
-  return _SHT_GID;
-}
-
 async function excluirOS(){
   if(!COS)return;
   const confirma=confirm(`Tem certeza que deseja EXCLUIR a OS #${COS.item}?\n\n${COS.os}\n${COS.end}\n\nEsta ação NÃO pode ser desfeita!`);
@@ -4423,11 +4552,25 @@ async function excluirOS(){
       }
     }
 
-    // Exclui a linha FISICAMENTE (não só limpa os valores) para não deixar buraco na planilha.
-    const gid=await _getSheetGid();
+    // Exclui a linha FISICAMENTE (não apenas limpa os valores) para não deixar um
+    // "buraco" na planilha. Sem isso, o append da próxima OS pode ir para a linha
+    // vazia deixada aqui e a demanda não aparece na lista (issue conhecida do
+    // values.append com valuesInputOption=USER_ENTERED quando há linhas vazias).
+    const gid = await _getSheetGid();
     await gapi.client.sheets.spreadsheets.batchUpdate({
       spreadsheetId:CFG.SID,
-      resource:{requests:[{deleteDimension:{range:{sheetId:gid,dimension:'ROWS',startIndex:COS.ri-1,endIndex:COS.ri}}}]}
+      resource:{
+        requests:[{
+          deleteDimension:{
+            range:{
+              sheetId:gid,
+              dimension:'ROWS',
+              startIndex:COS.ri-1,  // API é 0-indexed; COS.ri é 1-indexed
+              endIndex:COS.ri
+            }
+          }
+        }]
+      }
     });
     showToast('✅ OS excluída com sucesso!');
     closeD();
@@ -4436,6 +4579,22 @@ async function excluirOS(){
   }catch(e){
     showToast('❌ Erro ao excluir: '+e.message);
   }
+}
+
+// Cache do ID interno (gid) da aba de OS na planilha — usado por operações que
+// precisam do sheetId numérico (deleteDimension, etc.), diferente de CFG.SHT
+// que é o *nome* da aba. Só é consultado uma vez por sessão.
+let _SHT_GID = null;
+async function _getSheetGid(){
+  if(_SHT_GID != null) return _SHT_GID;
+  const r = await gapi.client.sheets.spreadsheets.get({
+    spreadsheetId: CFG.SID,
+    fields: 'sheets(properties(sheetId,title))'
+  });
+  const sh = (r.result.sheets||[]).find(s=>s.properties && s.properties.title===CFG.SHT);
+  if(!sh) throw new Error(`Aba "${CFG.SHT}" não encontrada na planilha`);
+  _SHT_GID = sh.properties.sheetId;
+  return _SHT_GID;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -4712,12 +4871,25 @@ function parseTxt(txt, r){
   }
   return res;
 }
+// Mensagem de primeiro contato (confirmação do canal) — texto editável em Configurações (CONFIG_USER.msg_ini).
+function enviarContatoInicial(tel){
+  if(!COS){showToast('Abra uma OS primeiro.');return;}
+  const num=String(tel||'').replace(/\D/g,'');
+  if(!num){showToast('Contato sem telefone.');return;}
+  const end=[COS.end,COS.bairro,COS.mun?titleCase(nMun(COS.mun)):''].filter(Boolean).join(', ');
+  const msg=(CONFIG_USER.msg_ini||MSG_INI_DEFAULT)
+    .replace(/\{\{osNum\}\}/g,COS.os||'')
+    .replace(/\{\{emp\}\}/g,CONFIG_USER.emp||'')
+    .replace(/\{\{emp\}\}/g,CONFIG_USER.emp||'')
+    .replace(/\{\{endereco\}\}/g,end);
+  window.open(`https://wa.me/55${num}?text=${encodeURIComponent(msg)}`,'_blank','noopener');
+}
 function showContato(nome,tel){
   const sec=document.getElementById('d-contato-sec'),body=document.getElementById('d-contato-body');
   if(!nome&&!tel){sec.style.display='none';return;}
   const ini=(nome||'?').charAt(0).toUpperCase();
   const telLink=tel?`<a href="tel:${tel.replace(/\D/g,'')}">${tel}</a>`:null;
-  body.innerHTML=`<div class="contato-card"><div class="contato-avatar">${ini}</div><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">${nome||'—'}</div><div class="contato-tel">${telLink||'—'}</div></div>${tel?`<a href="https://wa.me/55${tel.replace(/\D/g,'')}" target="_blank" rel="noopener" style="margin-left:auto;background:#25d366;color:#fff;border-radius:6px;padding:5px 9px;text-decoration:none;font-size:11px;font-weight:700">WhatsApp</a>`:''}</div>`;
+  body.innerHTML=`<div class="contato-card"><div class="contato-avatar">${ini}</div><div><div style="font-size:12px;font-weight:600;color:var(--text-primary)">${nome||'—'}</div><div class="contato-tel">${telLink||'—'}</div></div>${tel?`<div style="margin-left:auto;display:flex;gap:6px"><button type="button" onclick="enviarContatoInicial(${JSON.stringify(tel).replace(/"/g,'&quot;')})" title="Envia a mensagem padrão de primeiro contato com o nº da OS" style="background:var(--mica-surface);color:#25d366;border:1px solid #25d366;border-radius:6px;padding:5px 9px;font-size:11px;font-weight:700;cursor:pointer">Contato inicial</button><a href="https://wa.me/55${tel.replace(/\D/g,'')}" target="_blank" rel="noopener" style="background:#25d366;color:#fff;border-radius:6px;padding:5px 9px;text-decoration:none;font-size:11px;font-weight:700">WhatsApp</a></div>`:''}</div>`;
   sec.style.display='block';
 }
 const _MESES_EXT={'jan':'Janeiro','fev':'Fevereiro','mar':'Março','abr':'Abril','mai':'Maio','jun':'Junho','jul':'Julho','ago':'Agosto','set':'Setembro','out':'Outubro','nov':'Novembro','dez':'Dezembro'};
@@ -5518,13 +5690,62 @@ async function _gerarRotaMaps(mapBody){
   btnConfirm.addTo(map);
 }
 
+// Decodifica "encoded polyline" (algoritmo do Google, precisão 5) → [[lat,lng],...]
+function _decodePolyline(str){
+  const pts=[];let i=0,lat=0,lng=0;
+  while(i<str.length){
+    let b,shift=0,res=0;
+    do{b=str.charCodeAt(i++)-63;res|=(b&0x1f)<<shift;shift+=5;}while(b>=0x20);
+    lat+=(res&1)?~(res>>1):(res>>1);
+    shift=0;res=0;
+    do{b=str.charCodeAt(i++)-63;res|=(b&0x1f)<<shift;shift+=5;}while(b>=0x20);
+    lng+=(res&1)?~(res>>1):(res>>1);
+    pts.push([lat/1e5,lng/1e5]);
+  }
+  return pts;
+}
+
 async function _tracarRota(map,validos,btnConfirm){
   btnConfirm.remove();
   document.getElementById('rota-map-info').textContent='Calculando rota...';
   const GEO_KEY='e3219b407e77401692c069c3f9eb4f0d';
   const coords=validos.map(x=>x.coord);
 
+  // 1) Google Maps (Routes API) — mesma API Key do Sheets/Drive. Mantém a ordem dos pontos.
+  //    Requer "Routes API" ativada no projeto Google Cloud e liberada nas restrições da chave.
+  let fonteRota='';
   try{
+    if(!CFG.KEY)throw new Error('sem API Key');
+    if(coords.length>27)throw new Error('mais de 25 paradas intermediárias');
+    const wp=c=>({location:{latLng:{latitude:c[0],longitude:c[1]}}});
+    const gRes=await fetch('https://routes.googleapis.com/directions/v2:computeRoutes',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Goog-Api-Key':CFG.KEY,
+        'X-Goog-FieldMask':'routes.distanceMeters,routes.duration,routes.polyline.encodedPolyline'},
+      body:JSON.stringify({
+        origin:wp(coords[0]),
+        destination:wp(coords[coords.length-1]),
+        intermediates:coords.slice(1,-1).map(wp),
+        travelMode:'DRIVE',
+        routingPreference:'TRAFFIC_UNAWARE',
+        languageCode:'pt-BR',units:'METRIC'
+      })
+    });
+    const gData=await gRes.json();
+    if(!gRes.ok||!gData.routes||!gData.routes.length)
+      throw new Error((gData.error&&gData.error.message)||('HTTP '+gRes.status));
+    const gr=gData.routes[0];
+    ROTA_KM_TOTAL=(gr.distanceMeters||0)/1000;
+    document.getElementById('rota-km').value=ROTA_KM_TOTAL.toFixed(1);
+    L.polyline(_decodePolyline(gr.polyline.encodedPolyline),{color:'#00478E',weight:5,opacity:0.85}).addTo(map);
+    fonteRota='Google Maps';
+  }catch(eG){
+    console.warn('[rota] Google Routes falhou, usando Geoapify:',eG);
+    showToast('⚠️ Google Maps recusou a rota ('+eG.message+') — usando rota alternativa.');
+  }
+
+  // 2) Reserva: Geoapify
+  if(!fonteRota)try{
     const waypointsParam=coords.map(c=>c[0]+','+c[1]).join('|');
     const geoRes=await fetch(`https://api.geoapify.com/v1/routing?waypoints=${encodeURIComponent(waypointsParam)}&mode=drive&details=instruction_details&apiKey=${GEO_KEY}`);
     const geoData=await geoRes.json();
@@ -5532,27 +5753,20 @@ async function _tracarRota(map,validos,btnConfirm){
       const route=geoData.features[0];
       ROTA_KM_TOTAL=(route.properties.distance||0)/1000;
       document.getElementById('rota-km').value=ROTA_KM_TOTAL.toFixed(1);
-      const legs=route.properties.legs||[];
-      if(legs.length){
-        legs.forEach(leg=>{
-          if(leg.steps){leg.steps.forEach(step=>{
-            if(step.geometry&&step.geometry.coordinates&&step.geometry.coordinates.length>=2){
-              L.polyline(step.geometry.coordinates.map(c=>[c[1],c[0]]),{color:'#00478E',weight:5,opacity:0.85}).addTo(map);
-            }
-          });}
-        });
-      }else{
-        const geom=route.geometry;
-        if(geom.type==='MultiLineString'){geom.coordinates.forEach(seg=>{if(seg.length>=2)L.polyline(seg.map(c=>[c[1],c[0]]),{color:'#00478E',weight:5,opacity:0.85}).addTo(map);});}
-        else if(geom.type==='LineString'){L.polyline(geom.coordinates.map(c=>[c[1],c[0]]),{color:'#00478E',weight:5,opacity:0.85}).addTo(map);}
-      }
+      // A API não manda mais geometria dentro de legs[].steps[] — o traçado vem em route.geometry.
+      const geom=route.geometry;
+      const estilo={color:'#00478E',weight:5,opacity:0.85};
+      if(geom&&geom.type==='MultiLineString'){geom.coordinates.forEach(seg=>{if(seg.length>=2)L.polyline(seg.map(c=>[c[1],c[0]]),estilo).addTo(map);});}
+      else if(geom&&geom.type==='LineString'){L.polyline(geom.coordinates.map(c=>[c[1],c[0]]),estilo).addTo(map);}
+      else L.polyline(coords,{color:'#00478E',weight:4,opacity:0.8,dashArray:'8,6'}).addTo(map);
     }else{
+      console.warn('[rota] Geoapify sem rota:',geoData);
       L.polyline(coords,{color:'#00478E',weight:4,opacity:0.8,dashArray:'8,6'}).addTo(map);
     }
   }catch(e){
     L.polyline(coords,{color:'#00478E',weight:4,opacity:0.8,dashArray:'8,6'}).addTo(map);
   }
-  document.getElementById('rota-map-info').textContent=`${ROTA_OTIMIZADA.length} paradas • ${ROTA_KM_TOTAL.toFixed(1)} km • OpenStreetMap`;
+  document.getElementById('rota-map-info').textContent=`${ROTA_OTIMIZADA.length} paradas • ${ROTA_KM_TOTAL.toFixed(1)} km • ${fonteRota||'Geoapify'}`;
   document.getElementById('rota-custo-card').style.display='block';
   calcCustoRota();
 }
@@ -5798,7 +6012,13 @@ function parseTxtOS(txt){
   const atv=atvRaw?atvRaw.toUpperCase().replace(/[\s.\-]/g,''):null;
   const tipologia=toTitleCase(get(/(?:tipologia|tipo de im.vel|tipo do im.vel)[^\n]*?:\s*(.+)/i));
   const area=get(/.rea[^\n]*?:\s*([\d,.]+\s*m[²2]?)/i);
-  if(osNum)document.getElementById('nos').value=osNum;
+  if(osNum){
+    document.getElementById('nos').value=osNum;
+    // Também espelha no campo "Buscar dados via SIOPI" para o usuário poder disparar
+    // a extensão em seguida sem redigitar o número.
+    const _siopiInput=document.getElementById('nova-siopi-os');
+    if(_siopiInput)_siopiInput.value=osNum;
+  }
   if(endFull)document.getElementById('nend').value=endFull;
   if(bairro)document.getElementById('nbairro').value=bairro;
   if(municipio){
@@ -5888,6 +6108,169 @@ function calcTotal(){
   document.getElementById('nvt').value=(vo+vd).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 
+// ═══════════════════════════════════════════════════════════
+//  NOVA OS — BUSCAR VIA SIOPI (extensão)
+// ═══════════════════════════════════════════════════════════
+// Guarda os campos "extras" do SIOPI (que não têm input próprio no form da Nova OS)
+// para o salvar() gravar nas colunas certas depois. Vira {} a cada nova busca.
+let NOVA_SIOPI_EXTRAS = {};
+
+async function buscarViaSIOPINovaOS(){
+  const inp = document.getElementById('nova-siopi-os');
+  const btn = document.getElementById('nova-siopi-btn');
+  const status = document.getElementById('nova-siopi-status');
+  const setStatus = (msg, tipo) => {
+    status.style.display = 'block';
+    status.textContent = msg;
+    const cores = {
+      info:    {bg:'rgba(59,130,246,0.15)',  bd:'rgba(59,130,246,0.4)',  fg:'#60a5fa'},
+      erro:    {bg:'rgba(220,38,38,0.15)',   bd:'rgba(220,38,38,0.4)',   fg:'#f87171'},
+      sucesso: {bg:'rgba(22,163,74,0.15)',   bd:'rgba(22,163,74,0.4)',   fg:'#4ade80'},
+      aviso:   {bg:'rgba(217,119,6,0.15)',   bd:'rgba(217,119,6,0.4)',   fg:'#fbbf24'},
+    }[tipo] || {bg:'rgba(148,163,184,0.15)',bd:'rgba(148,163,184,0.4)',fg:'var(--text-muted)'};
+    status.style.background = cores.bg;
+    status.style.border = '1px solid ' + cores.bd;
+    status.style.color = cores.fg;
+  };
+
+  const osCompleta = (inp.value || '').trim();
+  if(!osCompleta){setStatus('❌ Informe o número da OS (formato 7891.4095.000167944/2025.01.01)','erro');return;}
+  if(!/\d{4}\.\d{4}\.\d{9}\/\d{4}\.\d{2}\.\d{2}/.test(osCompleta)){
+    setStatus('❌ Formato inválido. Ex.: 7891.4095.000167944/2025.01.01','erro');return;
+  }
+
+  // A extensão precisa estar instalada nesta aba
+  let tentativas = 0;
+  while(!window.danthiSIOPI && tentativas < 5){
+    await new Promise(r => setTimeout(r, 200)); tentativas++;
+  }
+  if(!window.danthiSIOPI || typeof window.danthiSIOPI.extract !== 'function'){
+    setStatus('❌ Extensão SIOPI Extractor não detectada. Instale-a e recarregue esta página (Ctrl+F5).','erro');
+    return;
+  }
+
+  btn.disabled = true; btn.style.opacity = '0.6';
+  const rotuloOriginal = btn.innerHTML;
+  btn.innerHTML = '⏳ Buscando…';
+  setStatus('🔍 Iniciando busca no SIOPI. Não feche a aba do SIOPI…','info');
+
+  try{
+    // Sem data de abertura conhecida: se a busca por número falhar, o fallback por data
+    // não roda automaticamente. Mas é o caminho normal — quando a busca por número
+    // funciona (que é o cenário atual), tudo se resolve com esta chamada só.
+    // Se o .txt de convocação já foi importado, os dados de contato/endereço vêm dele:
+    // a extensão pula o print da demanda (e o salvar() não gera PNG nem .txt sintético).
+    const r = await window.danthiSIOPI.extract(osCompleta, '', '', { skipScreenshot: !!TXT_FILE_CONVOCACAO });
+    console.log('[SIOPI Nova OS] resultado:', r);
+    console.log('[SIOPI Nova OS] errors:', (r && r.errors) || []);
+    console.log('[SIOPI Nova OS] log fases:', (r && r.log) || []);
+
+    if(r.errors && r.errors.length && !r.endereco && !r.cep && !r.area_privativa){
+      setStatus('❌ ' + r.errors.join('; '),'erro');
+      return;
+    }
+
+    // Se nenhum campo veio E não há erro explícito, mostra pistas no status
+    // (o objeto completo já está no console pra investigação).
+    if(!r.endereco && !r.cep && !r.area_privativa && (!r.errors || !r.errors.length)){
+      const ultimasFases = ((r && r.log) || []).slice(-5).join(' | ');
+      setStatus('⚠️ Nada foi extraído. Últimas fases: ' + (ultimasFases || '(vazio)'), 'aviso');
+      console.warn('[SIOPI Nova OS] extração sem dados nem erros — investigue r.log completo');
+      return;
+    }
+
+    // ── Preenche o formulário da Nova OS ─────────────────────────────────
+    const set = (id, val) => { if(val && !document.getElementById(id).value.trim()) document.getElementById(id).value = val; };
+    const setForce = (id, val) => { if(val) document.getElementById(id).value = val; };
+
+    setForce('nos', osCompleta);
+    if(r.endereco) setForce('nend', toTitleCasePT(r.endereco));
+    if(r.bairro)   setForce('nbairro', toTitleCasePT(r.bairro));
+    if(r.cep)      setForce('ncep', r.cep);
+    if(r.area_privativa) setForce('narea', r.area_privativa + (r.area_privativa.match(/m/i) ? '' : ' m²'));
+
+    if(r.municipio){
+      // Casa com um município cadastrado (tolera acento/caixa via findMunKey se existir)
+      const munEl = document.getElementById('nmun');
+      munEl.value = toTitleCasePT(r.municipio);
+      if(typeof onMun === 'function') onMun();
+    }
+
+    // Atividade: A + 413 → "A413". Casa contra o dropdown do dashboard.
+    if(r.atividade_extraida){
+      const sel = document.getElementById('na');
+      const norm = s => String(s||'').toUpperCase().replace(/[\s.\-]/g,'');
+      const alvo = norm(r.atividade_extraida);
+      const opts = [...sel.options];
+      let match = opts.find(o => norm(o.value) === alvo);
+      if(!match) match = opts.find(o => norm(o.value).startsWith(alvo));
+      if(!match) match = opts.find(o => norm(o.value).includes(alvo));
+      if(match){ sel.value = match.value; if(typeof onAtv==='function') onAtv(); }
+      else { console.warn('[SIOPI Nova OS] atividade não cadastrada:', r.atividade_extraida); }
+    }
+
+    // Tipologia: preenche se casar com uma das opções
+    if(r.tipo_construcao || r.tipo_imovel){
+      const selTip = document.getElementById('ntip');
+      const alvo = (r.tipo_construcao || r.tipo_imovel).toLowerCase();
+      const match = [...selTip.options].find(o => o.text.toLowerCase().includes(alvo) || alvo.includes(o.text.toLowerCase()));
+      if(match) selTip.value = match.value;
+    }
+
+    // Data SIOPI = Data de Abertura da demanda
+    if(r.data_abertura){
+      setForce('nsiopi', r.data_abertura);
+      if(typeof onSiopi === 'function') setTimeout(onSiopi, 50);
+    }
+
+    // Guarda os extras para o salvar() usar (categoria vai pra coluna; produto/fonte ficam no log)
+    NOVA_SIOPI_EXTRAS = {
+      categoria: r.categoria || '',
+      produto:   r.produto || '',
+      fonte:     r.fonte || '',
+      matricula: r.matricula || '',
+      cnm:       r.cnm || '',
+      vcv:       r.valor_compra_venda || '',
+      prazo_dias: r.prazo_dias || '',
+      finalidade: r.finalidade || '',
+      tipo_peca_tecnica: r.tipo_peca_tecnica || '',
+      data_abertura: r.data_abertura || '',  // vai pra coluna "abr"
+      documentos: r.documentos || [],  // usado em salvar() → criarPastasDrive → 02 - Documentos
+      screenshot_png: r.screenshot_png || '',  // PNG full-page da tela — vira convocação quando não há .txt
+      // Contato para vistoria — NÃO persiste na planilha. Vira um .txt sintético em
+      // 01 - Convocação (quando não houver .txt real), pra o parseTxt/showContato
+      // do drawer funcionarem exatamente como antes.
+      contato_nome: r.contato_nome || '',
+      contato_telefone: r.contato_telefone || '',
+    };
+    console.log('[SIOPI Nova OS] extras guardados:', NOVA_SIOPI_EXTRAS);
+
+    const partes = [];
+    if(r.endereco) partes.push('📍 ' + r.endereco);
+    if(r.categoria) partes.push('🏷️ ' + r.categoria);
+    if(r.atividade_extraida) partes.push('⚙️ ' + r.atividade_extraida);
+    if(r.documentos && r.documentos.length) partes.push(`📎 ${r.documentos.filter(d=>d.bytes).length}/${r.documentos.length} doc(s)`);
+    setStatus('✅ ' + (partes.join(' · ') || 'Dados obtidos'), 'sucesso');
+    showToast('✅ Dados do SIOPI aplicados. Confira e complete antes de salvar.');
+  }catch(e){
+    console.error('[SIOPI Nova OS] erro:', e);
+    setStatus('❌ ' + e.message, 'erro');
+  }finally{
+    btn.disabled = false; btn.style.opacity = '1'; btn.innerHTML = rotuloOriginal;
+  }
+}
+
+// Title Case pt-BR (mesmas regras do parseTxtOS: preposições em minúsculo se não iniciais)
+function toTitleCasePT(str){
+  if(!str) return str;
+  const lowers = ['da','de','di','do','du','das','dos','e'];
+  return String(str).toLowerCase().split(/[ \t]+/).map((w,i)=>{
+    if(!w) return '';
+    if(lowers.includes(w) && i!==0) return w;
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(' ');
+}
+
 async function salvar(){
   if(!AUTH){showToast('Entre com Google primeiro.');return;}
   
@@ -5957,8 +6340,13 @@ async function salvar(){
     va:'',
     rsm:'',
     rev:'FALSE',
-    abr:'',
-    prz:''
+    abr:(NOVA_SIOPI_EXTRAS&&NOVA_SIOPI_EXTRAS.data_abertura)||'',
+    prz:'',
+    // Extras vindos do SIOPI (só entram se o usuário usou "Obter dados via SIOPI")
+    matricula:(NOVA_SIOPI_EXTRAS&&NOVA_SIOPI_EXTRAS.matricula)||'',
+    cnm:(NOVA_SIOPI_EXTRAS&&NOVA_SIOPI_EXTRAS.cnm)||'',
+    vcv:(NOVA_SIOPI_EXTRAS&&NOVA_SIOPI_EXTRAS.vcv)?('R$ '+NOVA_SIOPI_EXTRAS.vcv):'',
+    categoria:(NOVA_SIOPI_EXTRAS&&NOVA_SIOPI_EXTRAS.categoria)||''
   });
   try{
     console.log('=== DEBUG SALVAR OS ===');
@@ -5966,30 +6354,126 @@ async function salvar(){
     console.log('Sheet Name:', CFG.SHT);
     console.log('Novo Item:', novoItem);
     console.log('Row ('+row.length+' colunas):', row);
-    console.log('Tentando append em nova linha...');
-    
+
     // Calcula a coluna final dinamicamente baseado no tamanho da linha
     const _colLetter=i=>{let s='';let n=i;while(n>=0){s=String.fromCharCode(65+(n%26))+s;n=Math.floor(n/26)-1;}return s;};
     const ultimaCol=_colLetter(row.length-1);
-    // Grava em posição DETERMINÍSTICA: logo após a última linha carregada em ALL.
-    // values.append é ambíguo quando há linhas em branco no meio da planilha
-    // (buracos deixados por exclusões) e a OS acabava "sumindo" da lista.
-    const _maxRi=ALL.length>0?Math.max(...ALL.map(r=>r.ri||0)):1;
-    const targetRow=_maxRi+1;
-    console.log('Escrevendo na linha:',targetRow);
+
+    // Grava a nova linha em uma posição DETERMINISTICA: logo após a última linha
+    // com dados carregada em ALL. Isso evita as ambiguidades do values.append com
+    // insertDataOption quando existem linhas em branco no meio da planilha
+    // (ex: gaps deixados por exclusões anteriores) — que era o motivo de a
+    // demanda "sumir" da lista após uma exclusão.
+    const _maxRi = ALL.length>0 ? Math.max(...ALL.map(r=>r.ri||0)) : 1;
+    const targetRow = _maxRi + 1;
+    console.log('Escrevendo na linha:', targetRow);
     const result=await gapi.client.sheets.spreadsheets.values.update({
       spreadsheetId:CFG.SID,
       range:`${CFG.SHT}!A${targetRow}:${ultimaCol}${targetRow}`,
       valueInputOption:'USER_ENTERED',
       resource:{values:[row]}
     });
-    
-    console.log('✅ Append bem-sucedido!');
+
+    console.log('✅ Update bem-sucedido!');
     console.log('Resultado:', result);
-    console.log('Updates:', result.result.updates);
-    
+
     showToast('✅ OS salva!');
+    // criarPastasDrive zera TXT_FILE_CONVOCACAO após subir o .txt — guarda antes pra saber
+    // depois que já havia convocação anexada (e não gerar PNG/.txt sintético por cima).
+    const temTxtAnexado = !!TXT_FILE_CONVOCACAO;
     await criarPastasDrive(novoItem,atv,osp,mes);
+
+    // Se veio via SIOPI e trouxe documentos, sobe todos para 02 - Documentos (num passo só,
+    // logo após as pastas serem criadas — sem janela em que a subpasta fica vazia).
+    // E, se não houve upload do .txt de convocação MAS a extensão capturou o screenshot da
+    // tela da demanda, sobe o PNG na pasta de convocação (role='txt') como substituto.
+    const docs = NOVA_SIOPI_EXTRAS && NOVA_SIOPI_EXTRAS.documentos;
+    const screenshotPng = NOVA_SIOPI_EXTRAS && NOVA_SIOPI_EXTRAS.screenshot_png;
+    if((docs && docs.length) || (!temTxtAnexado && screenshotPng)){
+      try{
+        const osTemp = {mes, item:novoItem, atv, osp};
+
+        // Documentos → 02 - Documentos
+        if(docs && docs.length){
+          const docsFolderId = await acharPasta02Documentos(osTemp);
+          if(docsFolderId){
+            const existentes = await listarArquivosExistentes(docsFolderId);
+            let enviados = 0;
+            for(const doc of docs){
+              if(!doc.bytes) continue;  // pula documentos que não baixaram
+              try{
+                const nome = gerarNomeUnico(doc.nome, existentes);
+                await uploadDocumentoParaDrive(doc, nome, docsFolderId);
+                existentes.add(nome);
+                enviados++;
+              }catch(err){console.warn('[SIOPI Nova OS] upload falhou:', doc.nome, err);}
+            }
+            if(enviados) showToast(`📁 ${enviados}/${docs.length} documento(s) salvos`);
+          }else{
+            console.warn('[SIOPI Nova OS] pasta 02-Documentos não encontrada');
+          }
+        }
+
+        // Screenshot → 01 - Convocação (só se NÃO houve .txt de convocação)
+        // Além do PNG, também gera um .txt SINTÉTICO com os dados do contato — em
+        // formato compatível com o parseTxt() — pra que o showContato() do drawer
+        // renderize nome/telefone/WhatsApp exatamente como fazia quando havia .txt
+        // real da CAIXA. Sem persistir nada na planilha.
+        if(!temTxtAnexado && (screenshotPng || NOVA_SIOPI_EXTRAS.contato_nome || NOVA_SIOPI_EXTRAS.contato_telefone)){
+          const convFolderId = await acharPastaConvocacao(osTemp);
+          if(convFolderId){
+            const osLimpo = String(osp||'').replace(/[\/\.]/g,'');
+
+            // PNG (screenshot)
+            if(screenshotPng){
+              try{
+                const nomePng = `convocacao_${osLimpo}.png`;
+                const bytesBase64 = screenshotPng.replace(/^data:image\/png;base64,/, '');
+                await uploadDocumentoParaDrive(
+                  { nome: nomePng, bytes: bytesBase64, mimeType: 'image/png' },
+                  nomePng, convFolderId
+                );
+                showToast('📸 Screenshot da demanda salvo em 01 - Convocação');
+              }catch(err){console.warn('[SIOPI Nova OS] upload do PNG falhou:', err);}
+            }
+
+            // .txt sintético (contato + dados básicos, formato reconhecido pelo parseTxt)
+            const extras = NOVA_SIOPI_EXTRAS || {};
+            if(extras.contato_nome || extras.contato_telefone){
+              try{
+                const linhas = [
+                  `Ordem de Serviço: ${os}`,
+                  extras.data_abertura ? `Data de abertura: ${extras.data_abertura}` : '',
+                  atv ? `Atividade: ${atv}` : '',
+                  '',
+                  end ? `Endereço: ${end}` : '',
+                  bairro ? `Bairro: ${bairro}` : '',
+                  mn ? `Município: ${mn}` : '',
+                  cep ? `CEP: ${cep}` : '',
+                  '',
+                  extras.contato_nome ? `Nome do contato: ${extras.contato_nome}` : '',
+                  extras.contato_telefone ? `Telefone do contato: ${extras.contato_telefone}` : '',
+                ].filter(l => l !== '').join('\r\n') + '\r\n';
+                // Codifica em UTF-8 e base64 — o uploadDocumentoParaDrive espera bytes base64
+                const utf8Bytes = new TextEncoder().encode(linhas);
+                let bin = '';
+                for(let i=0;i<utf8Bytes.length;i++) bin += String.fromCharCode(utf8Bytes[i]);
+                const txtBase64 = btoa(bin);
+                const nomeTxt = `convocacao_${osLimpo}.txt`;
+                await uploadDocumentoParaDrive(
+                  { nome: nomeTxt, bytes: txtBase64, mimeType: 'text/plain; charset=utf-8' },
+                  nomeTxt, convFolderId
+                );
+                showToast('📇 Contato salvo em 01 - Convocação');
+              }catch(err){console.warn('[SIOPI Nova OS] upload do .txt sintético falhou:', err);}
+            }
+          }else{
+            console.warn('[SIOPI Nova OS] subpasta de convocação (role=txt) não encontrada');
+          }
+        }
+      }catch(err){console.error('[SIOPI Nova OS] erro nos uploads pós-salvar:', err);}
+    }
+
     await loadData();
     limparFormNovaOS();
     sw('os',document.getElementById('ico-os'));
@@ -6012,6 +6496,11 @@ function limparFormNovaOS() {
   if(document.getElementById('nesp')) document.getElementById('nesp').value = '0';
   if(document.getElementById('ntip')) document.getElementById('ntip').value = 'Apartamento';
   TXT_FILE_CONVOCACAO=null; // Limpa arquivo .txt armazenado
+  NOVA_SIOPI_EXTRAS={};      // Limpa extras da busca SIOPI (matrícula, categoria, docs...)
+  const siopiInp=document.getElementById('nova-siopi-os');
+  if(siopiInp) siopiInp.value='';
+  const siopiSt=document.getElementById('nova-siopi-status');
+  if(siopiSt){siopiSt.style.display='none';siopiSt.textContent='';}
   showToast('🗑 Formulário limpo.');
 }
 
@@ -6076,14 +6565,26 @@ function initTab(t){
   else if(t==='rota')initRota();
   else if(t==='agenda')initAgenda();
   else if(t==='nova'&&!AUTH)document.getElementById('nova-warn').style.display='flex';
+  else if(t==='ficha'){if(typeof renderFichaOS==='function')try{renderFichaOS();}catch(e){console.error('[ficha]',e);}}
+  else if(t==='foto'){if(typeof renderFotoOS==='function')try{renderFotoOS();}catch(e){console.error('[foto]',e);}}
 }
+
+// Abas que podem entrar em split (o menu de split só oferece essas, e são as
+// únicas que fazem sentido em layout metade da tela). Se o TAB atual não estiver
+// nessa lista (ex: nova/ficha/foto — formulários), o split é forçado a sair.
+const _SPLITTABLE_TABS=['os','dash','cal','rota','agenda'];
 
 function sw(tab,btn){
   TAB=tab;
   document.querySelectorAll('.nav-ico').forEach(b=>b.classList.remove('active'));
-  if(btn)btn.classList.add('active');
+  // Se veio o botão explícito, marca ele; caso contrário tenta achar pelo id ico-<tab>
+  // (permite chamar sw('dash') sem perder o destaque visual do botão).
+  const _activeBtn=btn||document.getElementById('ico-'+tab);
+  if(_activeBtn)_activeBtn.classList.add('active');
   // Se entrou em split com a mesma aba, sai do split
   if(SPLIT_TAB===tab)SPLIT_TAB=null;
+  // Nova/Ficha/Foto ocupam a tela inteira: força saída do split ao entrar nelas
+  if(SPLIT_TAB && !_SPLITTABLE_TABS.includes(tab))SPLIT_TAB=null;
   ['os','dash','cal','rota','agenda','nova','ficha','foto'].forEach(t=>{
     const el=document.getElementById('tab-'+t);
     if(!el)return;
@@ -6103,16 +6604,49 @@ function sw(tab,btn){
   });
 }
 
-// Posiciona o menu fixo ao lado do botão. O menu é movido para o <body> para
-// escapar do overflow:hidden + backdrop-filter da sidebar (que recortam o flyout).
+// Posiciona o menu fixo próximo ao botão. O menu é movido para o <body> para
+// escapar do overflow:hidden + backdrop-filter da sidebar/topbar (que recortam
+// o flyout). Escolhe entre:
+//   - Sidebar vertical (desktop 769-1024): menu à DIREITA do botão, base alinhada
+//   - Topbar horizontal (desktop ≥1025): menu ABAIXO do botão, alinhado à direita
+//   - Fallback: se qualquer arestra sair da viewport, corrige com clamp
 function positionSplitMenu(m,btn){
   const r=btn.getBoundingClientRect();
+  // Mede o tamanho real do menu SEM deslocá-lo pra fora da viewport — se fizer
+  // isso, o auto-width baseado no containing block explode para milhares de px
+  // e o clamp final joga o menu para a esquerda. Sobrescrevemos também `right`
+  // e `bottom` (que o CSS base define como 0/auto) para o auto-width usar
+  // apenas o conteúdo, não o espaço até a borda direita da viewport.
+  const prev=m.style.cssText;
+  m.style.cssText='position:fixed;left:0;top:0;right:auto;bottom:auto;width:auto;visibility:hidden;display:flex';
+  const mw=Math.max(m.offsetWidth,200), mh=Math.max(m.offsetHeight,220);
+  m.style.cssText=prev;
   m.style.position='fixed';
-  m.style.left=Math.round(r.right+8)+'px';
-  m.style.right='auto';
-  m.style.top='auto';
-  // Alinha a base do menu com a base do botão, crescendo para cima; nunca sai da tela.
-  m.style.bottom=Math.round(Math.max(8,window.innerHeight-r.bottom))+'px';
+  m.style.right='auto';m.style.bottom='auto';m.style.visibility='';
+
+  const vw=window.innerWidth, vh=window.innerHeight;
+  // Detecta se topbar é vertical (sidebar) ou horizontal comparando a posição
+  // do botão: um botão perto do topo com muito espaço à direita → topbar
+  // horizontal; caso contrário assume sidebar.
+  const topbar=document.querySelector('.topbar');
+  const tb=topbar?topbar.getBoundingClientRect():null;
+  const isHorizontal=tb ? (tb.width > tb.height) : (r.top < vh*0.25);
+
+  let left, top;
+  if(isHorizontal){
+    // Menu ABAIXO do botão, alinhado à direita do botão
+    top = Math.round(r.bottom + 6);
+    left = Math.round(r.right - mw);
+  } else {
+    // Menu À DIREITA do botão, base alinhada com base do botão
+    left = Math.round(r.right + 8);
+    top = Math.round(r.bottom - mh);
+  }
+  // Clamp p/ garantir que sempre fique dentro da viewport
+  left = Math.max(8, Math.min(left, vw - mw - 8));
+  top  = Math.max(8, Math.min(top,  vh - mh - 8));
+  m.style.left = left + 'px';
+  m.style.top  = top  + 'px';
 }
 
 function toggleSplitMenu(ev){
@@ -6128,6 +6662,15 @@ function toggleSplitMenu(ev){
 
 function setSplitTab(t){
   if(t===TAB){showToast('Escolha uma aba diferente da atual.');return;}
+  // Se o TAB atual não é splittable (ex: nova/ficha/foto), joga o usuário
+  // para a aba escolhida em vez de tentar dividir com um formulário.
+  if(!_SPLITTABLE_TABS.includes(TAB)){
+    showToast('A aba atual não pode ser dividida — abrindo a aba escolhida.');
+    const m=document.getElementById('split-menu');
+    if(m)m.classList.remove('open');
+    sw(t,document.getElementById('ico-'+t));
+    return;
+  }
   SPLIT_TAB=t;
   const m=document.getElementById('split-menu');
   if(m)m.classList.remove('open');
@@ -6363,7 +6906,13 @@ function updateAgendaPreview(){
     .replace(/\{\{crea\}\}/g, CONFIG_USER.crea)
     .replace(/\{\{emp\}\}/g, CONFIG_USER.emp);
 
-  if(aviso) msg+='\n\nAlém disso, há algum procedimento específico para acesso ao local? (Por exemplo: abaixar vidros, ligar alerta, luz de salão, passar por barricadas etc.)\nAgradeço desde já pela atenção e colaboração.';
+  if(aviso){
+    const avisoTxt='Além disso, há algum procedimento específico para acesso ao local? (Por exemplo: abaixar vidros, ligar alerta, luz de salão, passar por barricadas etc.)\nAgradeço desde já pela atenção e colaboração.';
+    // Insere o aviso ANTES da despedida ("Atenciosamente,\n<resp>"); sem despedida, vai ao final.
+    const idxDesp=msg.search(/Atenciosamente[^\n]*\n[^\n]*\s*$/i);
+    if(idxDesp>=0) msg=msg.slice(0,idxDesp).replace(/\s+$/,'')+'\n\n'+avisoTxt+'\n\n'+msg.slice(idxDesp);
+    else msg+='\n\n'+avisoTxt;
+  }
   
   prev.textContent=msg;
 }
@@ -7374,6 +7923,7 @@ async function setupConcluir(){
     // Mensagens/personalizações — preserva o que o usuário já ajustou nas Configurações gerais
     msg_av:_prev.msg_av||MSG_AV_DEFAULT,
     msg_med:_prev.msg_med||MSG_MED_DEFAULT,
+    msg_ini:_prev.msg_ini||MSG_INI_DEFAULT,
     txt_name_tpl:_prev.txt_name_tpl||'convocacao.txt',
     txt_folder_dest:_prev.txt_folder_dest||'root'
   };
@@ -8878,7 +9428,47 @@ let _bgUploadAtivo=false;
 function _toggleBgUpload(){
   document.getElementById('bg-upload').classList.toggle('collapsed');
 }
+// ── Mantém a tela ligada / avisa progresso durante o envio (celular) ──
+// Limites: página web não roda com a tela bloqueada nem aparece na Ilha Dinâmica;
+// o que dá é impedir que a tela apague (Wake Lock), mostrar progresso no título/ícone
+// e notificar o término quando o navegador permitir.
+let _wakeLock=null;
+const _tituloOriginal=document.title;
+async function _wakeAcquire(){
+  try{
+    if(!('wakeLock' in navigator)||_wakeLock||document.visibilityState!=='visible')return;
+    _wakeLock=await navigator.wakeLock.request('screen');
+    _wakeLock.addEventListener('release',()=>{_wakeLock=null;});
+  }catch(e){console.warn('[wakeLock]',e);}
+}
+function _wakeRelease(){
+  try{if(_wakeLock)_wakeLock.release();}catch(e){}
+  _wakeLock=null;
+}
+function _aguardarVisivel(){
+  return new Promise(res=>{
+    if(document.visibilityState==='visible')return res();
+    const f=()=>{if(document.visibilityState==='visible'){document.removeEventListener('visibilitychange',f);res();}};
+    document.addEventListener('visibilitychange',f);
+  });
+}
+document.addEventListener('visibilitychange',()=>{if(_bgUploadAtivo&&document.visibilityState==='visible')_wakeAcquire();});
+window.addEventListener('beforeunload',e=>{if(_bgUploadAtivo){e.preventDefault();e.returnValue='';}});
+function _bgKeepAliveStart(){
+  _wakeAcquire();
+  if(!('wakeLock' in navigator))showToast('⚠️ Este navegador não impede a tela de apagar — mantenha-a ligada durante o envio.');
+  try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}catch(e){}
+}
+function _bgKeepAliveStop(titulo,corpo){
+  _wakeRelease();
+  document.title=_tituloOriginal;
+  try{if(navigator.clearAppBadge)navigator.clearAppBadge();}catch(e){}
+  try{
+    if(document.hidden&&'Notification' in window&&Notification.permission==='granted')new Notification(titulo,{body:corpo});
+  }catch(e){}
+}
 function _showBgUpload(osLabel,total){
+  _bgKeepAliveStart();
   const w=document.getElementById('bg-upload');
   w.style.display='block';
   w.classList.remove('collapsed','done','err');
@@ -8891,8 +9481,11 @@ function _showBgUpload(osLabel,total){
 function _setBgUploadProg(done,total,pct){
   document.getElementById('bg-upload-stat').textContent=done+' / '+total;
   document.getElementById('bg-upload-bar').style.width=(pct||0)+'%';
+  document.title='⬆️ '+done+'/'+total+' ('+(pct||0)+'%)';
+  try{if(navigator.setAppBadge)navigator.setAppBadge(Math.max(total-done,0));}catch(e){}
 }
 function _finishBgUpload(ok,err,total){
+  _bgKeepAliveStop(err?'Envio com falhas':'Fotos enviadas',ok+' de '+total+' foto(s) enviada(s)'+(err?' · '+err+' com erro':''));
   const w=document.getElementById('bg-upload');
   const allOk=err===0;
   w.classList.add(allOk?'done':'err');
@@ -8990,10 +9583,23 @@ async function uploadFotos(){
         const file=await _comprimirImagem(original);
         const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
         const nomeDest=`Imagem_${String(startNum+i).padStart(3,'0')}.${ext}`;
-        await _uploadFotoParaDrive(file, nomeDest, fotoFolderId, null, (pct)=>{
-          const overall=Math.round(((i+pct/100)/total)*100);
-          _setBgUploadProg(i, total, overall);
-        });
+        // Até 3 tentativas: se a tela apagou/aba foi pro fundo e a conexão caiu, espera
+        // voltar a ficar visível e reenvia (o upload resumable interrompido não deixa arquivo).
+        for(let t=1;t<=3;t++){
+          try{
+            await _uploadFotoParaDrive(file, nomeDest, fotoFolderId, null, (pct)=>{
+              const overall=Math.round(((i+pct/100)/total)*100);
+              _setBgUploadProg(i, total, overall);
+            });
+            break;
+          }catch(errUp){
+            if(t===3)throw errUp;
+            console.warn('Upload falhou (tentativa '+t+'), tentando de novo:',errUp);
+            await _aguardarVisivel();
+            await _wakeAcquire();
+            await new Promise(r=>setTimeout(r,1500*t));
+          }
+        }
         ok++;
         _setBgUploadProg(ok+err, total, Math.round(((i+1)/total)*100));
       }catch(e){
@@ -9006,6 +9612,7 @@ async function uploadFotos(){
     _finishBgUpload(ok, err, total);
     showToast(err===0?'✅ Fotos enviadas!':'⚠️ '+ok+' enviada(s), '+err+' com erro');
   }catch(e){
+    _bgKeepAliveStop('Falha no envio das fotos',e.message);
     document.getElementById('bg-upload').classList.add('err');
     document.getElementById('bg-upload-ico').textContent='❌';
     document.getElementById('bg-upload-tit').textContent='Falha no envio';
@@ -9144,6 +9751,10 @@ async function _uploadFotoParaDrive(file, nome, folderId, barId, onProgress){
     <textarea id="cfg-msg-med" rows="5" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--mica-border);background:var(--mica-surface);color:var(--text-primary);font-size:11px;margin-bottom:4px;resize:vertical;box-sizing:border-box"></textarea>
     <div style="font-size:10px;color:var(--text-muted);margin-bottom:20px">Chaves disponíveis: <b>{{saudacao}}</b>, <b>{{osNum}}</b>, <b>{{endereco}}</b>, <b>{{data}}</b>, <b>{{hora}}</b>, <b>{{resp}}</b></div>
     
+    <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px">WhatsApp: Contato inicial (botão no detalhe da OS)</div>
+    <textarea id="cfg-msg-ini" rows="8" style="width:100%;padding:8px;border-radius:6px;border:1px solid var(--mica-border);background:var(--mica-surface);color:var(--text-primary);font-size:11px;margin-bottom:4px;resize:vertical;box-sizing:border-box"></textarea>
+    <div style="font-size:10px;color:var(--text-muted);margin-bottom:20px">Chaves disponíveis: <b>{{osNum}}</b> (número da OS), <b>{{endereco}}</b> (endereço, bairro, município) e <b>{{emp}}</b> (nome da empresa). Apague o texto e salve para voltar ao padrão.</div>
+
     <hr style="border:none;border-top:1px solid var(--mica-border);margin-bottom:14px">
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
       <button id="btn-reconfig" onclick="document.getElementById('modal-config').style.display='none';reconfigurar()">⚙️ Reconfigurar sistema</button>
