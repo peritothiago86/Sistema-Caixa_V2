@@ -4383,6 +4383,17 @@ function navegarOS(direcao){
   openD(novoIdx);
 }
 
+// Cache do sheetId numérico (gid) da aba de OS — CFG.SHT é só o nome da aba.
+let _SHT_GID=null;
+async function _getSheetGid(){
+  if(_SHT_GID!=null)return _SHT_GID;
+  const r=await gapi.client.sheets.spreadsheets.get({spreadsheetId:CFG.SID,fields:'sheets(properties(sheetId,title))'});
+  const sh=(r.result.sheets||[]).find(s=>s.properties&&s.properties.title===CFG.SHT);
+  if(!sh)throw new Error(`Aba "${CFG.SHT}" não encontrada na planilha`);
+  _SHT_GID=sh.properties.sheetId;
+  return _SHT_GID;
+}
+
 async function excluirOS(){
   if(!COS)return;
   const confirma=confirm(`Tem certeza que deseja EXCLUIR a OS #${COS.item}?\n\n${COS.os}\n${COS.end}\n\nEsta ação NÃO pode ser desfeita!`);
@@ -4412,10 +4423,11 @@ async function excluirOS(){
       }
     }
 
-    const range=`${CFG.SHT}!A${COS.ri}:AZ${COS.ri}`;
-    await gapi.client.sheets.spreadsheets.values.clear({
+    // Exclui a linha FISICAMENTE (não só limpa os valores) para não deixar buraco na planilha.
+    const gid=await _getSheetGid();
+    await gapi.client.sheets.spreadsheets.batchUpdate({
       spreadsheetId:CFG.SID,
-      range:range
+      resource:{requests:[{deleteDimension:{range:{sheetId:gid,dimension:'ROWS',startIndex:COS.ri-1,endIndex:COS.ri}}}]}
     });
     showToast('✅ OS excluída com sucesso!');
     closeD();
@@ -5959,11 +5971,16 @@ async function salvar(){
     // Calcula a coluna final dinamicamente baseado no tamanho da linha
     const _colLetter=i=>{let s='';let n=i;while(n>=0){s=String.fromCharCode(65+(n%26))+s;n=Math.floor(n/26)-1;}return s;};
     const ultimaCol=_colLetter(row.length-1);
-    const result=await gapi.client.sheets.spreadsheets.values.append({
+    // Grava em posição DETERMINÍSTICA: logo após a última linha carregada em ALL.
+    // values.append é ambíguo quando há linhas em branco no meio da planilha
+    // (buracos deixados por exclusões) e a OS acabava "sumindo" da lista.
+    const _maxRi=ALL.length>0?Math.max(...ALL.map(r=>r.ri||0)):1;
+    const targetRow=_maxRi+1;
+    console.log('Escrevendo na linha:',targetRow);
+    const result=await gapi.client.sheets.spreadsheets.values.update({
       spreadsheetId:CFG.SID,
-      range:`${CFG.SHT}!A2:${ultimaCol}`,
+      range:`${CFG.SHT}!A${targetRow}:${ultimaCol}${targetRow}`,
       valueInputOption:'USER_ENTERED',
-      insertDataOption:'INSERT_ROWS',
       resource:{values:[row]}
     });
     
