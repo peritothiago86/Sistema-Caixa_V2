@@ -3407,7 +3407,7 @@ async function loadData(){
       Auth.clear();TOKEN=null;AUTH=false;setAuthUI(false);
       return;
     }
-    document.getElementById('tbody').innerHTML=`<tr><td colspan="13" style="padding:1.5rem;text-align:center;color:#f87171">Erro ao carregar dados: ${e.message}<br><small style="opacity:.6">Verifique conexão e autenticação</small></td></tr>`;
+    document.getElementById('tbody').innerHTML=`<tr><td colspan="13" style="padding:1.5rem;text-align:center;color:#f87171">Erro ao carregar dados: ${msgErro(e)}<br><small style="opacity:.6">Verifique conexão e autenticação</small></td></tr>`;
   }
 }
 
@@ -4225,15 +4225,16 @@ async function saveDrawerEdits(){
       updates.push({range:`${CFG.SHT}!${_campoToCol('vt')}${COS.ri}`,values:[[fmt(vOS+vDesloc)]]});
     }
   }
+  const alvo=COS;
   try{
+    _reapontarRanges(updates,await _localizarLinhaOS(alvo));
     await Promise.all(updates.map(u=>gapi.client.sheets.spreadsheets.values.update({spreadsheetId:CFG.SID,range:u.range,valueInputOption:'USER_ENTERED',resource:{values:u.values}})));
     showToast('✅ OS atualizada com sucesso!');
     await loadData();
     closeD();
   }catch(e){
     console.error('saveDrawerEdits error:',e);
-    const msg=e?.result?.error?.message||e?.body||e?.message||e?.statusText||(typeof e==='string'?e:JSON.stringify(e));
-    showToast('Erro ao salvar: '+msg);
+    showToast('Erro ao salvar: '+msgErro(e));
   }
 }
 
@@ -4376,6 +4377,7 @@ async function validarCertidaoMatricula(documentos, matriculaEsperada){
 // ═══════════════════════════════════════════════════════════
 async function enriquecerComSIOPI(){
   if(!COS){showToast('❌ Nenhuma OS selecionada');return;}
+  const alvo=COS; // a busca demora: o usuário pode abrir outra OS nesse meio-tempo
   if(!AUTH){showToast('❌ Entre com Google primeiro');return;}
   
   const btn=document.getElementById('d-siopi-btn');
@@ -4402,7 +4404,7 @@ async function enriquecerComSIOPI(){
     return;
   }
   
-  const osCompleta=COS.os;
+  const osCompleta=alvo.os;
   if(!osCompleta){
     setStatus('❌ Esta OS não tem número válido','var(--text-danger)');
     return;
@@ -4419,8 +4421,8 @@ async function enriquecerComSIOPI(){
     // 3º arg: data de entrada/SIOPI (dd/mm/aaaa) — alimenta o fluxo alternativo por
     // Período de Abertura quando a busca por número devolve "Operação não permitida".
     // Se a OS já tem .txt de convocação no Drive, dispensa o print e o .txt sintético.
-    const temTxtConv=await osTemTxtConvocacao(COS);
-    const result=await window.danthiSIOPI.extract(osCompleta, COS.atv, COS.siopi, { skipScreenshot: temTxtConv });
+    const temTxtConv=await osTemTxtConvocacao(alvo);
+    const result=await window.danthiSIOPI.extract(osCompleta, alvo.atv, alvo.siopi, { skipScreenshot: temTxtConv });
     console.log('[SIOPI] resultado completo:',result);
     console.log('[SIOPI] documentos:',result?.documentos);
     if(result?.documentos){
@@ -4448,7 +4450,7 @@ async function enriquecerComSIOPI(){
     
     if(result.complemento){
       // Monta novo endereço: endereço atual + complemento (se não estiver já)
-      const endAtual=(COS.end||'').trim();
+      const endAtual=(alvo.end||'').trim();
       const compl=result.complemento.trim();
       let novoEnd;
       if(endAtual.toLowerCase().includes(compl.toLowerCase())){
@@ -4459,20 +4461,20 @@ async function enriquecerComSIOPI(){
       if(novoEnd!==endAtual){
         // Coluna do endereço respeita CFG.COLS configurado pela empresa
         const endCol=_campoToCol('end')||'J';
-        updates.push({range:`${CFG.SHT}!${endCol}${COS.ri}`,values:[[novoEnd]]});
-        COS.end=novoEnd;
+        updates.push({range:`${CFG.SHT}!${endCol}${alvo.ri}`,values:[[novoEnd]]});
+        alvo.end=novoEnd;
         setDV('d-end',novoEnd);
         etapas.push(`📍 Complemento: "${compl}"`);
       }
     }
     
     if(result.area_privativa){
-      const areaAtual=(COS.area||'').toString().trim();
+      const areaAtual=(alvo.area||'').toString().trim();
       const novaArea=result.area_privativa;
       if(novaArea&&novaArea!==areaAtual){
         const areaCol=_campoToCol('area')||'K';
-        updates.push({range:`${CFG.SHT}!${areaCol}${COS.ri}`,values:[[novaArea]]});
-        COS.area=novaArea;
+        updates.push({range:`${CFG.SHT}!${areaCol}${alvo.ri}`,values:[[novaArea]]});
+        alvo.area=novaArea;
         setDV('d-area',fmtArea(novaArea));
         etapas.push(`📐 Área: ${fmtArea(novaArea)}`);
       }
@@ -4486,8 +4488,8 @@ async function enriquecerComSIOPI(){
     setDV('d-siopi-cnm',result.cnm);
     setDV('d-siopi-cartorio',result.cartorio);
     setDV('d-siopi-valor',result.valor_compra_venda?'R$ '+result.valor_compra_venda:'');
-    if(COS&&COS.item){
-      atualizarDraftFicha(COS.item,{
+    if(alvo&&alvo.item){
+      atualizarDraftFicha(alvo.item,{
         matricula:result.matricula,
         cnm:result.cnm,
         cartorio:result.cartorio,
@@ -4502,12 +4504,12 @@ async function enriquecerComSIOPI(){
       const matVal=result.matricula||'';
       const cnmVal=result.cnm||'';
       const vcvVal=result.valor_compra_venda?'R$ '+result.valor_compra_venda:'';
-      updates.push({range:`${CFG.SHT}!${matCol}${COS.ri}`,values:[[matVal]]});
-      updates.push({range:`${CFG.SHT}!${cnmCol}${COS.ri}`,values:[[cnmVal]]});
-      updates.push({range:`${CFG.SHT}!${vcvCol}${COS.ri}`,values:[[vcvVal]]});
-      COS.matricula=matVal;
-      COS.cnm=cnmVal;
-      COS.vcv=vcvVal;
+      updates.push({range:`${CFG.SHT}!${matCol}${alvo.ri}`,values:[[matVal]]});
+      updates.push({range:`${CFG.SHT}!${cnmCol}${alvo.ri}`,values:[[cnmVal]]});
+      updates.push({range:`${CFG.SHT}!${vcvCol}${alvo.ri}`,values:[[vcvVal]]});
+      alvo.matricula=matVal;
+      alvo.cnm=cnmVal;
+      alvo.vcv=vcvVal;
       if(result.matricula)etapas.push(`🏷️ Matrícula: ${result.matricula}`);
       if(result.cartorio)etapas.push(`📜 Cartório: ${result.cartorio}`);
     }
@@ -4518,12 +4520,12 @@ async function enriquecerComSIOPI(){
       const sorted=[...TIP_OPTS].sort((a,b)=>b.length-a.length);
       const matched=sorted.find(o=>raw.includes(nrm(o)));
       const alertaEl=document.getElementById('d-siopi-alerta-tip');
-      if(matched&&matched!==COS.tip){
+      if(matched&&matched!==alvo.tip){
         if(alertaEl){
-          alertaEl.innerHTML=`⚠️ <b>Tipologia divergente</b><br>SIOPI: <b>${matched}</b> · Dashboard: <b>${COS.tip||'—'}</b><br><span style="font-size:10px;opacity:.85">Corrija manualmente em "Editar OS" se necessário.</span>`;
+          alertaEl.innerHTML=`⚠️ <b>Tipologia divergente</b><br>SIOPI: <b>${matched}</b> · Dashboard: <b>${alvo.tip||'—'}</b><br><span style="font-size:10px;opacity:.85">Corrija manualmente em "Editar OS" se necessário.</span>`;
           alertaEl.style.display='block';
         }
-        etapas.push(`⚠️ Tipologia SIOPI (${matched}) ≠ Dashboard (${COS.tip||'—'})`);
+        etapas.push(`⚠️ Tipologia SIOPI (${matched}) ≠ Dashboard (${alvo.tip||'—'})`);
       }else if(alertaEl){
         alertaEl.style.display='none';
       }
@@ -4531,6 +4533,7 @@ async function enriquecerComSIOPI(){
     
     if(updates.length){
       setStatus('💾 Salvando na planilha...','var(--text-muted)');
+      _reapontarRanges(updates,await _localizarLinhaOS(alvo));
       await Promise.all(updates.map(u=>gapi.client.sheets.spreadsheets.values.update({
         spreadsheetId:CFG.SID,range:u.range,valueInputOption:'USER_ENTERED',resource:{values:u.values}
       })));
@@ -4541,7 +4544,7 @@ async function enriquecerComSIOPI(){
       setStatus(`📄 Preparando upload de ${result.documentos.length} documento(s)...`,'var(--text-muted)');
       
       // Localiza a pasta da OS e depois a subpasta "02 - Documentos"
-      const docsFolderId=await acharPasta02Documentos(COS);
+      const docsFolderId=await acharPasta02Documentos(alvo);
       if(!docsFolderId){
         etapas.push('⚠️ Pasta "DOCUMENTO" não encontrada no Drive');
       }else{
@@ -4565,7 +4568,7 @@ async function enriquecerComSIOPI(){
       }
 
       // 3.5. Validação da matrícula via Certidão da Matrícula (OCR cascata)
-      const matEsperada=result.matricula||COS.matricula||'';
+      const matEsperada=result.matricula||alvo.matricula||'';
       if(matEsperada){
         setStatus('🔎 Validando matrícula via certidão...','var(--text-muted)');
         try{
@@ -4586,13 +4589,14 @@ async function enriquecerComSIOPI(){
           }
           // Persiste estado na planilha (coluna alertaMat = AH por default)
           // Flush imediato porque o batch principal já rodou antes do upload dos docs.
-          if(alertaVal && COS&&COS.ri){
+          if(alertaVal && alvo&&alvo.ri){
             const aCol=_campoToCol('alertaMat')||'AH';
-            COS.alertaMat=alertaVal;
+            alvo.alertaMat=alertaVal;
             try{
+              await _localizarLinhaOS(alvo);
               await gapi.client.sheets.spreadsheets.values.update({
                 spreadsheetId:CFG.SID,
-                range:`${CFG.SHT}!${aCol}${COS.ri}`,
+                range:`${CFG.SHT}!${aCol}${alvo.ri}`,
                 valueInputOption:'USER_ENTERED',
                 resource:{values:[[alertaVal]]}
               });
@@ -4608,7 +4612,7 @@ async function enriquecerComSIOPI(){
     console.log('[SIOPI drawer] contato do SIOPI → nome=' + JSON.stringify(result.contato_nome) +
                 ' | telefone=' + JSON.stringify(result.contato_telefone));
     try{
-      const convFolderId = await acharPastaConvocacao(COS);
+      const convFolderId = await acharPastaConvocacao(alvo);
       console.log('[SIOPI drawer] pasta de convocação id=' + convFolderId);
       if(convFolderId){
         const existentesConv = await listarArquivosExistentes(convFolderId);
@@ -4619,7 +4623,7 @@ async function enriquecerComSIOPI(){
         // PNG (screenshot da tela da demanda)
         if(result.screenshot_png && !jaTemPng && !jaTemTxt){
           try{
-            const osLimpo = String(COS.os||'').replace(/[\/\.]/g,'');
+            const osLimpo = String(alvo.os||'').replace(/[\/\.]/g,'');
             const nomePng = `convocacao_${osLimpo}.png`;
             const bytesB64 = result.screenshot_png.replace(/^data:image\/png;base64,/, '');
             await uploadDocumentoParaDrive(
@@ -4642,16 +4646,16 @@ async function enriquecerComSIOPI(){
           etapas.push(`📇 Contato: ${cn || '—'}${ct ? ' · ' + ct : ''} (mantido .txt existente)`);
         }else{
           try{
-            const osLimpo = String(COS.os||'').replace(/[\/\.]/g,'');
+            const osLimpo = String(alvo.os||'').replace(/[\/\.]/g,'');
             const linhas = [
-              `Ordem de Serviço: ${COS.os||''}`,
+              `Ordem de Serviço: ${alvo.os||''}`,
               result.data_abertura ? `Data de abertura: ${result.data_abertura}` : '',
-              COS.atv ? `Atividade: ${COS.atv}` : '',
+              alvo.atv ? `Atividade: ${alvo.atv}` : '',
               '',
-              (result.endereco || COS.end) ? `Endereço: ${result.endereco || COS.end}` : '',
-              (result.bairro || COS.bairro) ? `Bairro: ${result.bairro || COS.bairro}` : '',
-              (result.municipio || COS.mun) ? `Município: ${result.municipio || COS.mun}` : '',
-              (result.cep || COS.cep) ? `CEP: ${result.cep || COS.cep}` : '',
+              (result.endereco || alvo.end) ? `Endereço: ${result.endereco || alvo.end}` : '',
+              (result.bairro || alvo.bairro) ? `Bairro: ${result.bairro || alvo.bairro}` : '',
+              (result.municipio || alvo.mun) ? `Município: ${result.municipio || alvo.mun}` : '',
+              (result.cep || alvo.cep) ? `CEP: ${result.cep || alvo.cep}` : '',
               '',
               cn ? `Nome do contato: ${cn}` : '',
               ct ? `Telefone do contato: ${ct}` : '',
@@ -4680,7 +4684,7 @@ async function enriquecerComSIOPI(){
       setStatus('✅ '+etapas.join(' · '),'var(--text-success)');
       showToast('✅ Dados do SIOPI aplicados');
       // Recarrega lista de pastas do drawer
-      loadDrive(COS);
+      if(COS===alvo) loadDrive(alvo);
       renderTable();
     }else{
       setStatus('ℹ️ Nenhum dado novo encontrado no SIOPI','var(--text-muted)');
@@ -4688,7 +4692,7 @@ async function enriquecerComSIOPI(){
     
   }catch(e){
     console.error('[SIOPI] erro:',e);
-    setStatus('❌ '+e.message,'var(--text-danger)');
+    setStatus('❌ '+msgErro(e),'var(--text-danger)');
   }finally{
     btn.disabled=false;
     btn.style.opacity='1';
@@ -4852,20 +4856,23 @@ function navegarOS(direcao){
 
 async function excluirOS(){
   if(!COS)return;
-  const confirma=confirm(`Tem certeza que deseja EXCLUIR a OS #${COS.item}?\n\n${COS.os}\n${COS.end}\n\nEsta ação NÃO pode ser desfeita!`);
+  const alvo=COS;
+  const confirma=confirm(`Tem certeza que deseja EXCLUIR a OS #${alvo.item}?\n\n${alvo.os}\n${alvo.end}\n\nEsta ação NÃO pode ser desfeita!`);
   if(!confirma)return;
   
   try{
+    // Confere antes de mexer na pasta do Drive
+    await _localizarLinhaOS(alvo);
     if(AUTH) {
       try {
-        const pf=mes2pasta(COS.mes),np=nomePasta(COS.item,COS.atv,COS.osp);
+        const pf=mes2pasta(alvo.mes),np=nomePasta(alvo.item,alvo.atv,alvo.osp);
         if(pf && np) {
           const r1=await gapi.client.drive.files.list({q:`name='${pf}' and '${CFG.DID}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id)',pageSize:1});
           if(r1.result.files.length) {
             const mesFolderId=r1.result.files[0].id;
             let r2=await gapi.client.drive.files.list({q:`name='${np}' and '${mesFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id)',pageSize:1});
             if(!r2.result.files.length){
-              r2=await gapi.client.drive.files.list({q:`name contains '${COS.item}-' and '${mesFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id)',pageSize:1});
+              r2=await gapi.client.drive.files.list({q:`name contains '${alvo.item}-' and '${mesFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,fields:'files(id)',pageSize:1});
             }
             if(r2.result.files.length) {
               const osFolderId=r2.result.files[0].id;
@@ -4884,6 +4891,7 @@ async function excluirOS(){
     // vazia deixada aqui e a demanda não aparece na lista (issue conhecida do
     // values.append com valuesInputOption=USER_ENTERED quando há linhas vazias).
     const gid = await _getSheetGid();
+    await _localizarLinhaOS(alvo); // confere de novo, imediatamente antes de apagar
     await gapi.client.sheets.spreadsheets.batchUpdate({
       spreadsheetId:CFG.SID,
       resource:{
@@ -4892,8 +4900,8 @@ async function excluirOS(){
             range:{
               sheetId:gid,
               dimension:'ROWS',
-              startIndex:COS.ri-1,  // API é 0-indexed; COS.ri é 1-indexed
-              endIndex:COS.ri
+              startIndex:alvo.ri-1,  // API é 0-indexed; alvo.ri é 1-indexed
+              endIndex:alvo.ri
             }
           }
         }]
@@ -4904,7 +4912,7 @@ async function excluirOS(){
     await loadData();
     if(TAB==='os')renderTable();
   }catch(e){
-    showToast('❌ Erro ao excluir: '+e.message);
+    showToast('❌ Erro ao excluir: '+msgErro(e));
   }
 }
 
@@ -5186,12 +5194,12 @@ function parseTxt(txt, r){
       if (typeof gapi !== 'undefined' && gapi.client && gapi.client.sheets) {
         // gapi.client.Request é thenable mas NÃO é uma Promise nativa — não tem .catch().
         // Usar then(onOk, onErr) ao invés de .then().catch() para evitar TypeError.
-        gapi.client.sheets.spreadsheets.values.update({
+        _localizarLinhaOS(r).then(()=>gapi.client.sheets.spreadsheets.values.update({
           spreadsheetId: CFG.SID,
           range: `${CFG.SHT}!${_campoToCol('cep')}${r.ri}`,
           valueInputOption: 'USER_ENTERED',
           resource: { values: [[res.cep]] }
-        }).then(()=>{}, e => console.warn('Erro ao auto-salvar CEP:', e));
+        })).then(()=>{}, e => console.warn('Erro ao auto-salvar CEP:', msgErro(e)));
       }
     }
     if(window.S_CONTATOS) window.S_CONTATOS[r.item]=res;
@@ -5559,7 +5567,7 @@ async function criarPastasDrive(item,atv,osp,mes){
     
     showToast(`📁 Pastas criadas: ${pf}/${np}`);
     return osFolderId;
-  }catch(e){showToast('Erro ao criar pastas: '+e.message);console.error(e);return null;}
+  }catch(e){showToast('Erro ao criar pastas: '+msgErro(e));console.error(e);return null;}
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -6597,7 +6605,102 @@ function toTitleCasePT(str){
   }).join(' ');
 }
 
+// Extrai a mensagem real de um erro. Os erros do gapi (Sheets/Drive) não têm
+// e.message — o texto vem em e.result.error.message.
+function msgErro(e){
+  const msg=e?.result?.error?.message||e?.message||e?.statusText||(typeof e==='string'?e:'');
+  const code=e?.result?.error?.code||e?.status;
+  if(code===401)return 'Login do Google expirou. Entre novamente e repita a operação.';
+  if(code===403)return `Sem permissão no Google (403): ${msg}`;
+  if(msg)return code?`${msg} (código ${code})`:msg;
+  try{return JSON.stringify(e);}catch(_){return String(e);}
+}
+
+// Lê a aba direto da planilha (não confia na lista da tela, que pode estar
+// desatualizada ou vazia) e devolve a próxima linha livre e o próximo nº de item.
+async function _proximaLinhaLivre(){
+  const r=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:CFG.SID,range:`${CFG.SHT}!A:AZ`});
+  const rows=r.result.values||[];
+  const C=CFG.COLS||{};
+  const iItem=C.item!=null?C.item:_COL_DEFAULTS.item;
+  const iOs=C.os!=null?C.os:_COL_DEFAULTS.os;
+  const tem=v=>String(v==null?'':v).trim()!=='';
+  let ultima=1; // linha 1 = cabeçalho
+  let maiorItem=0;
+  const numerosOS=[];
+  rows.forEach((row,i)=>{
+    if(i===0)return;
+    // Considera ocupada a linha com algo na coluna A, no item ou na OS. Linhas que
+    // só têm caixas de seleção/fórmulas pré-preenchidas continuam livres.
+    if(tem(row[0])||tem(row[iItem])||tem(row[iOs]))ultima=i+1;
+    maiorItem=Math.max(maiorItem,parseInt(row[iItem])||0);
+    if(tem(row[iOs]))numerosOS.push(String(row[iOs]).trim());
+  });
+  return {linha:ultima+1,item:maiorItem+1,numerosOS};
+}
+
+// Garante que a aba tenha a linha e as colunas necessárias. values.update NÃO
+// aumenta a grade: sem isto o Google recusa com "exceeds grid limits".
+async function _garantirEspacoNaAba(linha,numColunas){
+  const r=await gapi.client.sheets.spreadsheets.get({
+    spreadsheetId:CFG.SID,
+    fields:'sheets(properties(sheetId,title,gridProperties(rowCount,columnCount)))'
+  });
+  const nomeAba=String(CFG.SHT).trim().toLowerCase();
+  const sh=(r.result.sheets||[]).find(s=>String(s.properties?.title).trim().toLowerCase()===nomeAba);
+  if(!sh)throw new Error(`Aba "${CFG.SHT}" não encontrada na planilha`);
+  const {sheetId,gridProperties:{rowCount,columnCount}}=sh.properties;
+  const requests=[];
+  if(linha>rowCount){
+    // inheritFromBefore: as linhas novas herdam formatação e caixas de seleção
+    requests.push({insertDimension:{
+      range:{sheetId,dimension:'ROWS',startIndex:rowCount,endIndex:linha},
+      inheritFromBefore:true
+    }});
+  }
+  if(numColunas>columnCount){
+    requests.push({appendDimension:{sheetId,dimension:'COLUMNS',length:numColunas-columnCount}});
+  }
+  if(requests.length){
+    await gapi.client.sheets.spreadsheets.batchUpdate({spreadsheetId:CFG.SID,resource:{requests}});
+  }
+}
+
+// Antes de alterar ou excluir, confirma na planilha EM QUE LINHA a OS está agora.
+// r.ri vem da lista carregada na tela e fica errado se alguém excluiu ou moveu
+// linhas depois. A OS é identificada pelo nº do item + nº da OS. Se não der para
+// ter certeza, lança erro e NADA é gravado.
+async function _localizarLinhaOS(r){
+  const resp=await gapi.client.sheets.spreadsheets.values.get({spreadsheetId:CFG.SID,range:`${CFG.SHT}!A:AZ`});
+  const rows=resp.result.values||[];
+  const C=CFG.COLS||{};
+  const iItem=C.item!=null?C.item:_COL_DEFAULTS.item;
+  const iOs=C.os!=null?C.os:_COL_DEFAULTS.os;
+  const txt=v=>String(v==null?'':v).trim();
+  const item=txt(r.item),os=txt(r.os);
+  const achadas=[];
+  if(item||os)rows.forEach((row,i)=>{
+    if(i>0&&txt(row[iItem])===item&&txt(row[iOs])===os)achadas.push(i+1);
+  });
+  // Linhas repetidas (mesmo item e OS): só segue se a posição conhecida for uma delas
+  if(achadas.length===1||achadas.includes(r.ri)){
+    if(!achadas.includes(r.ri))r.ri=achadas[0];
+    return r.ri;
+  }
+  loadData(); // atualiza a lista da tela
+  throw new Error(achadas.length
+    ?`Há mais de uma linha com o item ${item} e a OS ${os}. Nada foi alterado. A lista será recarregada: abra a OS de novo.`
+    :`A OS ${os} (item ${item}) não foi encontrada na planilha. Ela pode ter sido excluída ou editada por outra pessoa. Nada foi alterado; a lista será recarregada.`);
+}
+// Troca o número da linha em ranges já montados (ex: 'Aba!U10' → 'Aba!U12')
+function _reapontarRanges(updates,linha){
+  updates.forEach(u=>{u.range=u.range.replace(/\d+$/,linha);});
+}
+
+let _SALVANDO_OS=false; // evita duplo clique gravando a mesma OS duas vezes
+
 async function salvar(){
+  if(_SALVANDO_OS){showToast('Aguarde, a OS está sendo salva...');return;}
   if(!AUTH){showToast('Entre com Google primeiro.');return;}
   
   // Validações obrigatórias
@@ -6632,7 +6735,6 @@ async function salvar(){
   const munNm=esp?`${mn} (Deslocamento especial)`:mn;
   const vo=parseFloat((document.getElementById('nvos').value||'0').replace(/\./g,'').replace(',','.'))||0;
   const vd=parseFloat((document.getElementById('nvd').value||'0').replace(/\./g,'').replace(',','.'))||0;
-  const novoItem=ALL.length>0?Math.max(...ALL.map(r=>parseInt(r.item)||0))+1:1;
   const osp=os.replace(/\//g,'');
   const mes=converterMesParaSalvar(mesInput);
   const dataEntrega=document.getElementById('nent').value;
@@ -6640,7 +6742,7 @@ async function salvar(){
   // Cada campo vai para a coluna que o usuário mapeou no wizard — funciona para qualquer layout.
   const polo=document.getElementById('npolo').value||'';
   const row=_osDataToRow({
-    item:novoItem,
+    item:'', // preenchido logo antes de gravar, com a planilha recém-lida
     os:os,
     aceita:'TRUE',
     atv:atv,
@@ -6674,12 +6776,12 @@ async function salvar(){
     vcv:(NOVA_SIOPI_EXTRAS&&NOVA_SIOPI_EXTRAS.vcv)?('R$ '+NOVA_SIOPI_EXTRAS.vcv):'',
     categoria:(NOVA_SIOPI_EXTRAS&&NOVA_SIOPI_EXTRAS.categoria)||''
   });
+  let linhaGravada=0;
+  _SALVANDO_OS=true;
   try{
     console.log('=== DEBUG SALVAR OS ===');
     console.log('Spreadsheet ID:', CFG.SID);
     console.log('Sheet Name:', CFG.SHT);
-    console.log('Novo Item:', novoItem);
-    console.log('Row ('+row.length+' colunas):', row);
 
     // Calcula a coluna final dinamicamente baseado no tamanho da linha
     const _colLetter=i=>{let s='';let n=i;while(n>=0){s=String.fromCharCode(65+(n%26))+s;n=Math.floor(n/26)-1;}return s;};
@@ -6690,8 +6792,18 @@ async function salvar(){
     // insertDataOption quando existem linhas em branco no meio da planilha
     // (ex: gaps deixados por exclusões anteriores) — que era o motivo de a
     // demanda "sumir" da lista após uma exclusão.
-    const _maxRi = ALL.length>0 ? Math.max(...ALL.map(r=>r.ri||0)) : 1;
-    const targetRow = _maxRi + 1;
+    // A posição e o nº do item vêm da planilha lida agora, e a grade é ampliada
+    // antes da gravação quando a linha ou as colunas ainda não existem.
+    const livre = await _proximaLinhaLivre();
+    if(livre.numerosOS.includes(os) &&
+       !confirm(`A OS ${os} já está na planilha. Gravar mesmo assim (ficará duplicada)?`)) return;
+    const targetRow = livre.linha;
+    const novoItem = livre.item;
+    const _iItem = (CFG.COLS&&CFG.COLS.item!=null) ? CFG.COLS.item : _COL_DEFAULTS.item;
+    row[_iItem] = novoItem;
+    console.log('Novo Item:', novoItem);
+    console.log('Row ('+row.length+' colunas):', row);
+    await _garantirEspacoNaAba(targetRow, row.length);
     console.log('Escrevendo na linha:', targetRow);
     const result=await gapi.client.sheets.spreadsheets.values.update({
       spreadsheetId:CFG.SID,
@@ -6700,6 +6812,7 @@ async function salvar(){
       resource:{values:[row]}
     });
 
+    linhaGravada=targetRow;
     console.log('✅ Update bem-sucedido!');
     console.log('Resultado:', result);
 
@@ -6805,10 +6918,17 @@ async function salvar(){
     sw('os',document.getElementById('ico-os'));
   }catch(e){
     console.error('❌ ERRO ao salvar:');
-    console.error('Mensagem:', e.message);
+    console.error('Mensagem:', msgErro(e));
     console.error('Detalhes:', e);
-    console.error('Result:', e.result);
-    showToast('❌ Erro ao salvar: '+e.message);
+    if(linhaGravada){
+      showToast(`⚠️ A OS foi salva na linha ${linhaGravada}, mas uma etapa seguinte falhou: ${msgErro(e)}. Não salve de novo.`);
+    }else{
+      showToast('❌ Erro ao salvar: '+msgErro(e));
+      // Token vencido: tenta renovar para a próxima tentativa funcionar
+      if((e?.result?.error?.code||e?.status)===401) silentRefresh();
+    }
+  }finally{
+    _SALVANDO_OS=false;
   }
 }
 
@@ -6836,6 +6956,7 @@ function limparFormNovaOS() {
 async function updSt(ns){
   if(!AUTH){showToast('Entre com Google primeiro.');return;}
   if(!COS)return;
+  const alvo=COS;
   try{
     let vOSFmt='R$ 0,00', vDeslocFmt='R$ 0,00', vTotalFmt='R$ 0,00';
     if(ns !== 'OS Cancelada'){
@@ -6860,24 +6981,25 @@ async function updSt(ns){
       vTotalFmt = `R$ ${vTotal.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
     }
     // Atualiza vos, vd, vt, st (e zera rsm + rev) usando o mapeamento configurado pela empresa
+    await _localizarLinhaOS(alvo);
     await gapi.client.sheets.spreadsheets.values.batchUpdate({
       spreadsheetId: CFG.SID,
       resource:{
         valueInputOption:'USER_ENTERED',
         data:[
-          {range:`${CFG.SHT}!${_campoToCol('vos')}${COS.ri}`, values:[[vOSFmt]]},
-          {range:`${CFG.SHT}!${_campoToCol('vd')}${COS.ri}`,  values:[[vDeslocFmt]]},
-          {range:`${CFG.SHT}!${_campoToCol('vt')}${COS.ri}`,  values:[[vTotalFmt]]},
-          {range:`${CFG.SHT}!${_campoToCol('st')}${COS.ri}`,  values:[[ns]]},
-          {range:`${CFG.SHT}!${_campoToCol('rsm')}${COS.ri}`, values:[['']]},
-          {range:`${CFG.SHT}!${_campoToCol('rev')}${COS.ri}`, values:[['FALSE']]}
+          {range:`${CFG.SHT}!${_campoToCol('vos')}${alvo.ri}`, values:[[vOSFmt]]},
+          {range:`${CFG.SHT}!${_campoToCol('vd')}${alvo.ri}`,  values:[[vDeslocFmt]]},
+          {range:`${CFG.SHT}!${_campoToCol('vt')}${alvo.ri}`,  values:[[vTotalFmt]]},
+          {range:`${CFG.SHT}!${_campoToCol('st')}${alvo.ri}`,  values:[[ns]]},
+          {range:`${CFG.SHT}!${_campoToCol('rsm')}${alvo.ri}`, values:[['']]},
+          {range:`${CFG.SHT}!${_campoToCol('rev')}${alvo.ri}`, values:[['FALSE']]}
         ]
       }
     });
     showToast(`✅ Status: ${ns}`);
     await loadData();
     closeD();
-  }catch(e){showToast('Erro: '+e.message);}
+  }catch(e){showToast('Erro: '+msgErro(e));}
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -7438,6 +7560,7 @@ async function batchUpdateCeps() {
         const cepVal = matchCep[1].trim();
         r.cep = cepVal;
         
+        await _localizarLinhaOS(r);
         await gapi.client.sheets.spreadsheets.values.update({
           spreadsheetId: CFG.SID,
           range: `${CFG.SHT}!${_campoToCol('cep')}${r.ri}`,
@@ -9455,6 +9578,7 @@ async function gerarFichaPDF(){
 async function _marcarFichaGerada(r){
   try{
     // Usa a coluna 'fich' mapeada via CFG.COLS (sem hardcode)
+    await _localizarLinhaOS(r);
     const range=`${CFG.SHT}!${_campoToCol('fich')}${r.ri}`;
     await gapi.client.sheets.spreadsheets.values.update({
       spreadsheetId:CFG.SID,range,valueInputOption:'RAW',
